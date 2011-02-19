@@ -20,3 +20,4 @@
 /subscriber-common/target
 /subscriber-jms/target
 /publisher-websocket/target
+/subscriber-swing/target

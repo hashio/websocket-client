@@ -32,8 +32,8 @@
     </dependency>
 -->
     <dependency>
-      <groupId>javax.jms</groupId>
-      <artifactId>jms</artifactId>
+      <groupId>javax</groupId>
+      <artifactId>javaee-api</artifactId>
     </dependency>
   </dependencies>
   <properties>

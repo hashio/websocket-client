@@ -35,8 +35,6 @@ import org.slf4j.LoggerFactory;
  * リアルタイムデータ受信用クライアントマネージャ。<br>
  * JMSを使用したデータの受信をコントロールする。<br>
  * ユーザはこのクラスを介してサーバとのデータのやり取りを行う。
- * 
- * @author t-hashimoto
  */
 public class JMSSubscriber extends AbstractSubscriber {
 	private Logger log = LoggerFactory.getLogger(JMSSubscriber.class);
@@ -245,7 +243,6 @@ public class JMSSubscriber extends AbstractSubscriber {
 		ConnectionFactory connectionFactory = (ConnectionFactory) ctx.lookup(JMS_FACTORY);
 		connection = connectionFactory.createConnection();
 		connection.setExceptionListener(new javax.jms.ExceptionListener() {			
-			@Override
 			public void onException(JMSException e) {
 				fireException(e);
 				quit();
@@ -385,11 +382,9 @@ public class JMSSubscriber extends AbstractSubscriber {
 				throw new RuntimeException("Not supported");
 			}
 		}
-		@Override
 		public Object getBody() {
 			return body;
 		}
-		@Override
 		public Object getProperty(String key) {
 			try{
 				return msg.getObjectProperty(key);

@@ -4,8 +4,7 @@ import jp.a840.push.subscriber.event.MessageEvent;
 
 public interface MessageListener {
 	/**
-	 * メッセージを受けた時に呼ばれます.
-	 * 
+	 * sent message from server
 	 * @param e
 	 */
 	public void onMessage(MessageEvent e);

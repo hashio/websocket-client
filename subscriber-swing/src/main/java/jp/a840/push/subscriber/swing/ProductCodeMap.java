@@ -1,6 +1,3 @@
-/*
- * Created on 2004/02/26
- */
 package jp.a840.push.subscriber.swing;
 
 import java.io.FileNotFoundException;
@@ -11,10 +8,6 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * 
- * @author    t-hashimoto
- */
 public class ProductCodeMap {
 
 	private Logger log = LoggerFactory.getLogger(ProductCodeMap.class);

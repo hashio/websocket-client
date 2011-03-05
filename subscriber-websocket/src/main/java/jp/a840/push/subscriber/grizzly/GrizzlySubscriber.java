@@ -10,7 +10,7 @@ import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import jp.a840.push.beans.BestRateBean;
+import jp.a840.push.beans.RateBean;
 import jp.a840.push.subscriber.AbstractSubscriber;
 import jp.a840.push.subscriber.Message;
 import jp.a840.push.subscriber.event.MessageEvent;
@@ -166,17 +166,14 @@ public class GrizzlySubscriber extends AbstractSubscriber {
      * -------------------------------------------------------- */
 	public class GrizzlySubscriberClientHandler extends WebSocketClientHandler<WebSocket> {
 
-		@Override
 		public void onConnect(WebSocket websocket) throws IOException {
 			System.out.println("CONNECTED!");
 		}
 
-		@Override
 		public void onClose(WebSocket websocket) throws IOException {
 			System.out.println("CLOSE!");
 		}
 
-		@Override
 		public void onMessage(WebSocket websocket, Frame frame)
 				throws IOException {
             try {
@@ -216,11 +213,9 @@ public class GrizzlySubscriber extends AbstractSubscriber {
 			this.msg = m;
 			this.body = m;
 		}
-		@Override
 		public Object getBody() {
 			return body;
 		}
-		@Override
 		public Object getProperty(String key) {
 			throw new RuntimeException("Not implemented");
 		}
@@ -267,10 +262,9 @@ public class GrizzlySubscriber extends AbstractSubscriber {
 		sub.setLocation("ws://localhost:8088/rate");
 		sub.start();
 		sub.addMessageListener(new MessageListener() {			
-			@Override
 			public void onMessage(MessageEvent e) {
 				Message msg = e.getMessage();
-				BestRateBean dto = (BestRateBean)msg.getBody();
+				RateBean dto = (RateBean)msg.getBody();
 				System.out.println(dto.getBid());
 			}
 		});

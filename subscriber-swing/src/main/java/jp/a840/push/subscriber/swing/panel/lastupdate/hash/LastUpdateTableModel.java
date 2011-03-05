@@ -1,6 +1,3 @@
-/*
- * Created on 2004/03/22
- */
 package jp.a840.push.subscriber.swing.panel.lastupdate.hash;
 
 import java.util.Vector;
@@ -10,12 +7,6 @@ import jp.a840.push.subscriber.swing.table.SwingClientDefaultHashTableModel;
 import jp.a840.push.subscriber.swing.table.SwingClientTableModel;
 
 
-/**
- * 
- * @author t_hashimoto
- * @version $Revision$
- * @modifiedBy. $Author$
- */
 abstract public class LastUpdateTableModel extends SwingClientDefaultHashTableModel implements SwingClientTableModel {
 	
 	public void add(Object obj){

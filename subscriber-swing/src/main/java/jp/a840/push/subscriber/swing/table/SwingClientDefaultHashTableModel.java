@@ -1,6 +1,3 @@
-/*
- * Created on 2004/03/22
- */
 package jp.a840.push.subscriber.swing.table;
 
 import java.util.Comparator;
@@ -12,13 +9,6 @@ import javax.swing.Timer;
 
 import jp.a840.push.subscriber.swing.table.blink.BlinkRow;
 
-
-/**
- * 
- * @author t_hashimoto
- * @version $Revision$
- * @modifiedBy. $Author$
- */
 public class SwingClientDefaultHashTableModel extends SwingClientDefaultTableModel {
 
 	protected Hashtable orderKeyMap = new Hashtable();

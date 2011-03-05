@@ -3,7 +3,7 @@ package jp.a840.push.subscriber.swing.table;
 import java.lang.reflect.Method;
 import java.util.Vector;
 
-import jp.a840.push.beans.BestRateBean;
+import jp.a840.push.beans.RateBean;
 import jp.a840.push.subscriber.swing.util.SwingClientDefaultTableModelUtil;
 
 
@@ -13,7 +13,7 @@ public class BestRateListTableModel extends SwingClientDefaultTableModel impleme
 
 	public void add(Object obj) {
 		try {
-			BestRateBean dto = (BestRateBean)obj;
+			RateBean dto = (RateBean)obj;
 			if (methods == null) {
 				methods = SwingClientDefaultTableModelUtil.compileData(dto);
 			}
@@ -30,7 +30,7 @@ public class BestRateListTableModel extends SwingClientDefaultTableModel impleme
 		}
 	}
 
-	private void setHeader(BestRateBean dto) {
+	private void setHeader(RateBean dto) {
 		setColumnIdentifiers(SwingClientDefaultTableModelUtil.createHeader(dto));
 	}
 }

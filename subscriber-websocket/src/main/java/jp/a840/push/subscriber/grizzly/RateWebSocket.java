@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
-import jp.a840.push.beans.BestRateBean;
+import jp.a840.push.beans.RateBean;
 
 import org.glassfish.grizzly.Connection;
 import org.glassfish.grizzly.memory.ByteBufferManager;
@@ -27,7 +27,7 @@ public class RateWebSocket extends WebSocketBase {
 		super(connection, meta, handler);
 	}
 
-	public void sendRate(BestRateBean rate){
+	public void sendRate(RateBean rate){
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(baos);

@@ -4,8 +4,7 @@ import jp.a840.push.subscriber.event.ExceptionEvent;
 
 public interface ExceptionListener {
 	/**
-	 * JMSサーバとの接続中の例外やJMSサーバ内で発生した例外が来た時に呼ばれます.
-	 * 
+	 * If occurred exception in server. sent a ExceptionEvent to client.
 	 * @param e
 	 */
 	public void onException(ExceptionEvent e);

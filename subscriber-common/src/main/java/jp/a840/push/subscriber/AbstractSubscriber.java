@@ -183,8 +183,6 @@ abstract public class AbstractSubscriber implements Subscriber {
 					log.info(log("health check start"));
 					lastModified = System.currentTimeMillis();
 					scheduler.scheduleAtFixedRate(new Runnable() {
-								
-							@Override
 								public void run() {
 	            	            if (started && connected) {
 	            	                synchronized(this) {
@@ -234,8 +232,6 @@ abstract public class AbstractSubscriber implements Subscriber {
 		public void start(){
 			executor = Executors.newSingleThreadExecutor();
 			executor.execute(new Runnable() {
-					
-					@Override
 						public void run() {
 			            try{
 			                synchronized (this) {
@@ -274,9 +270,7 @@ abstract public class AbstractSubscriber implements Subscriber {
 			if(started){
 				if(reconnectInterval > 0){
 					scheduler.scheduleAtFixedRate(new Runnable() {
-							
-							@Override
-								public void run() {
+							public void run() {
 					            if(started){
 						            try{
 						                connect();

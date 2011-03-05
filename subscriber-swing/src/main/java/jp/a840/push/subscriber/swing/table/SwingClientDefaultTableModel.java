@@ -1,6 +1,3 @@
-/*
- * Created on 2004/03/22
- */
 package jp.a840.push.subscriber.swing.table;
 
 import java.util.Collections;
@@ -11,12 +8,6 @@ import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 
-/**
- * 
- * @author t_hashimoto
- * @version $Revision$
- * @modifiedBy. $Author$
- */
 public class SwingClientDefaultTableModel extends DefaultTableModel implements javax.swing.table.TableModel {
 
 	protected Hashtable orderHeaderColumnMap = new Hashtable();
@@ -36,11 +27,6 @@ public class SwingClientDefaultTableModel extends DefaultTableModel implements j
 		this.key = key;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.table.TableModel#isCellEditable(int, int)
-	 */
 	public boolean isCellEditable(int row, int column) {
 		return false;
 	}
@@ -74,12 +60,6 @@ public class SwingClientDefaultTableModel extends DefaultTableModel implements j
 		return index.intValue();
 	}
 
-	/**
-	 * Describe <code>addColumn</code> method here.
-	 * 
-	 * @param object
-	 *            an <code>Object</code> value
-	 */
 	public void addColumn(Object object) {
 		int size = orderHeaderColumnMap.size();
 		orderHeaderColumnMap.put(object, new Integer(size + 1));
@@ -107,12 +87,6 @@ public class SwingClientDefaultTableModel extends DefaultTableModel implements j
 		}
 	}
 
-	/**
-	 * Describe <code>setColumnIdentifiers</code> method here.
-	 * 
-	 * @param colmns
-	 *            an <code>Vector</code> value
-	 */
 	public void setColumnIdentifiers(Vector v) {
 		orderHeaderColumnMap.clear();
 		int index = 0;

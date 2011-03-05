@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import jp.a840.push.beans.BestRateBean;
+import jp.a840.push.beans.RateBean;
 import jp.a840.push.subscriber.exception.InitializeException;
 import jp.a840.push.subscriber.grizzly.RateWebSocket;
 
@@ -49,7 +49,6 @@ public class DummyRateApplication extends WebSocketApplication<RateWebSocket> {
 
 
 
-	@Override
 	public void onMessage(RateWebSocket websocket, Frame frame)
 			throws IOException {
 		log.info("message");
@@ -65,28 +64,13 @@ public class DummyRateApplication extends WebSocketApplication<RateWebSocket> {
 
 	public void startSubscribe() throws Exception {
 		executorService = Executors.newFixedThreadPool(30);
-		final List<Iterator<BestRateBean>> its = new ArrayList<Iterator<BestRateBean>>();
-		its.add(new RateGenerateIterator(10201));
-		its.add(new RateGenerateIterator(10301));
-		its.add(new RateGenerateIterator(10401));
-		its.add(new RateGenerateIterator(10501));
-		its.add(new RateGenerateIterator(10601));
-		its.add(new RateGenerateIterator(10701));
-		its.add(new RateGenerateIterator(10801));
-		its.add(new RateGenerateIterator(10901));
-		its.add(new RateGenerateIterator(11001));
-		its.add(new RateGenerateIterator(11101));
-		its.add(new RateGenerateIterator(11201));
-		its.add(new RateGenerateIterator(11301));
-		its.add(new RateGenerateIterator(11401));
-		its.add(new RateGenerateIterator(11501));
-		its.add(new RateGenerateIterator(10302));
-		its.add(new RateGenerateIterator(10502));
-		its.add(new RateGenerateIterator(10603));
+		final List<Iterator<RateBean>> its = new ArrayList<Iterator<RateBean>>();
+		its.add(new RateGenerateIterator("USD/JPY"));
+		its.add(new RateGenerateIterator("EUR/JPY"));
+		its.add(new RateGenerateIterator("EUR/USD"));
 		
-		for(final Iterator<BestRateBean> it : its){
+		for(final Iterator<RateBean> it : its){
 			executorService.execute(new Runnable() {
-				@Override
 				public void run() {
 					try{
 						while(true){
@@ -109,37 +93,32 @@ public class DummyRateApplication extends WebSocketApplication<RateWebSocket> {
 	public void addSubscribe(String destination, String messageSelector){
 	}
 
-	public class RateGenerateIterator implements Iterator<BestRateBean> {
-		private BestRateBean currentDto;
+	public class RateGenerateIterator implements Iterator<RateBean> {
+		private RateBean currentDto;
 		
-		public RateGenerateIterator(Integer productCode){
-			BestRateBean dto = new BestRateBean();
-			dto.setProductCode(productCode);
+		public RateGenerateIterator(String currencyPair){
+			RateBean dto = new RateBean();
+			dto.setCurrencyPair(currencyPair);
 			dto.setAsk(new BigDecimal("100.00"));
 			dto.setBid(new BigDecimal("100.00"));
 			currentDto = dto;
 		}
 		
-		@Override
 		public boolean hasNext() {
 			return true;
 		}
 
-		@Override
-		synchronized public BestRateBean next() {
+		synchronized public RateBean next() {
 			BigDecimal ask = generateRate(currentDto.getAsk());
 			currentDto.setAsk(ask);
-			currentDto.setAskLatestValid(ask);
 			
 			BigDecimal bid = generateRate(currentDto.getBid());
 			currentDto.setBid(bid);
-			currentDto.setBidLatestValid(bid);
 
-			currentDto.setMarketUpdateDatetime(new Date());
+			currentDto.setUpdateTime(new Date());
 			return currentDto;
 		}
 
-		@Override
 		public void remove() {
 		}
 		

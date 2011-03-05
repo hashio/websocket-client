@@ -31,19 +31,8 @@ public interface Subscriber {
 	/* -------------------------------------------------------- *
 	 *            C O N N E C T I O N   C H E C K
 	 * -------------------------------------------------------- */
-	/**
-	 * リスナの状態を返却する。
-	 * 
-	 * @return
-	 */
 	public abstract boolean isListening();
 
-	/**
-	 * コネクションが終了しているかを返却する。
-	 * 正確ではないので注意！
-	 * 
-	 * @return
-	 */
 	public abstract boolean isAlive();
 
 	public abstract long getReconnectInterval();

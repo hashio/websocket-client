@@ -28,7 +28,7 @@ import jp.a840.push.subscriber.swing.dialog.JMSConnectionChangeResult;
 import jp.a840.push.subscriber.swing.listener.RealtimeTableModelManager;
 import jp.a840.push.subscriber.swing.panel.lastupdate.hash.LastUpdatePane;
 import jp.a840.push.subscriber.swing.panel.lastupdate.hash.RateLastUpdateTableModel;
-import jp.a840.push.subscriber.swing.panel.set.BestRatePane;
+import jp.a840.push.subscriber.swing.panel.set.RatePane;
 import jp.a840.push.subscriber.swing.util.MenuBarCreater;
 
 import org.apache.commons.logging.Log;
@@ -36,8 +36,9 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
+ * SwingClient
  * 
- * @author t-hashimoto
+ * Subscriber GUI client for test
  */
 public class SwingClient extends JFrame implements ActionListener, ConnectionListener {
 	private static Log log = LogFactory.getLog(SwingClient.class);
@@ -53,25 +54,25 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 	public static void main(String[] args) {
 		try {
 
-			// L&F を Windows 風に
+			// L&F
 			try {
 				UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 			} catch (Exception e) {
 			}
 
-			/* 自分自身を作成 */
+			/* create myself */
 			client = SwingClient.getInstance();
 
-			/* 終了処理を追加 */
+			/* set terminate process handling */
 			client.addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent e) {
 					close();
 				}
 			});
 
-			/* サイズと位置を指定 */
+			/* GUI window size */
 			client.setBounds(0, 0, 640, 480);
-			/* 実際に表示する */
+			/* show client */
 			client.setVisible(true);
 
 			client.realtimeStart();
@@ -197,7 +198,7 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 			if (!sub.isAlive()) {
 				realtimeStart();
 			} else {
-				JOptionPane.showMessageDialog(this, "すでに接続しています。");
+				JOptionPane.showMessageDialog(this, "Already connected.");
 			}
 		} else if (cmd.equals("ClearAllTableData")) {
 			RealtimeTableModelManager.getInstance().clearAll();
@@ -218,11 +219,11 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 				bse.printStackTrace();
 			}
 		} else if (cmd.equals("Realtime-BestRate")) {
-			JFrame frame = new JFrame("リアルタイム - 最良気配");
+			JFrame frame = new JFrame("Realtime - rate");
 			frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			frame.setJMenuBar(MenuBarCreater.createRealtimeMenuBar(this));
 			frame.setBounds(client.getBounds());
-			JComponent p = new BestRatePane();
+			JComponent p = new RatePane();
 			frame.getContentPane().add(p);
 			frame.setVisible(true);
 		}
@@ -282,7 +283,7 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 
 	private void changeHealthCheckInterval() {
 		String defaultHealthCheckInterval = String.valueOf(preferences.getInt(SwingClientPreferences.KEY_HEALTHCHECK_INTERVAL));
-		String healthCheckIntervalStr = JOptionPane.showInputDialog(this, "サーバとのヘルスチェックの間隔を入力してください：(ミリ秒)", defaultHealthCheckInterval);
+		String healthCheckIntervalStr = JOptionPane.showInputDialog(this, "health check interval:(ms)", defaultHealthCheckInterval);
 		if (healthCheckIntervalStr == null) {
 			healthCheckIntervalStr = defaultHealthCheckInterval;
 		}
@@ -302,7 +303,7 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 
 	private void changeReconnectInterval() {
 		String defaultReconnectInterval = String.valueOf(preferences.getInt(SwingClientPreferences.KEY_RECONNECT_INTERVAL));
-		String reconnectIntervalStr = JOptionPane.showInputDialog(this, "サーバとの再接続の間隔を入力してください：(ミリ秒)", defaultReconnectInterval);
+		String reconnectIntervalStr = JOptionPane.showInputDialog(this, "reconnect interval:(ms)", defaultReconnectInterval);
 		if (reconnectIntervalStr == null) {
 			reconnectIntervalStr = defaultReconnectInterval;
 		}

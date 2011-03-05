@@ -17,12 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Jar等のアーカイブ内のリソースを取得する
- * 
- * Created: Thu Oct 12 16:56:15 2006
- * 
- * @author t-hashimoto
- * @version 1.0
+ * Load resource from jar file
  */
 public class ResourceLoader {
 	private static Log log = LogFactory.getLog(ResourceLoader.class);

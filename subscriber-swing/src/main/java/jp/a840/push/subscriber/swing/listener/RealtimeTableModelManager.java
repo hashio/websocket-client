@@ -1,6 +1,3 @@
-/*
- * Created on 2004/03/22
- */
 package jp.a840.push.subscriber.swing.listener;
 
 import java.util.HashSet;
@@ -14,12 +11,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 
-/**
- * 
- * @author t_hashimoto
- * @version $Revision$
- * @modifiedBy. $Author$
- */
 public class RealtimeTableModelManager implements MessageListener {
 	protected Log log = LogFactory.getLog(this.getClass());
 

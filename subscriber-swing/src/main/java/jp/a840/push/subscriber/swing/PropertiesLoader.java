@@ -8,13 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * システムクラスパス上からプロパティファイルを取得する。
- *
- *
- * Created: Thu Oct 12 16:56:15 2006
- *
- * @author t-hashimoto
- * @version 1.0
+ * Load properties file from system classpath
  */
 public class PropertiesLoader {
 	private static Logger log = LoggerFactory.getLogger(PropertiesLoader.class);

@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * ƒŠƒAƒ‹ƒ^ƒCƒ€ƒf[ƒ^óM—pƒNƒ‰ƒCƒAƒ“ƒgƒ}ƒl[ƒWƒƒB<br>
- * JMS‚ğg—p‚µ‚½ƒf[ƒ^‚ÌóM‚ğƒRƒ“ƒgƒ[ƒ‹‚·‚éB<br>
- * ƒ†[ƒU‚Í‚±‚ÌƒNƒ‰ƒX‚ğ‰î‚µ‚ÄƒT[ƒo‚Æ‚Ìƒf[ƒ^‚Ì‚â‚èæ‚è‚ğs‚¤B
+ * ãƒªã‚¢ãƒ«ã‚¿ã‚¤ãƒ ãƒ‡ãƒ¼ã‚¿å—ä¿¡ç”¨ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆãƒãƒãƒ¼ã‚¸ãƒ£ã€‚<br>
+ * JMSã‚’ä½¿ç”¨ã—ãŸãƒ‡ãƒ¼ã‚¿ã®å—ä¿¡ã‚’ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã™ã‚‹ã€‚<br>
+ * ãƒ¦ãƒ¼ã‚¶ã¯ã“ã®ã‚¯ãƒ©ã‚¹ã‚’ä»‹ã—ã¦ã‚µãƒ¼ãƒã¨ã®ãƒ‡ãƒ¼ã‚¿ã®ã‚„ã‚Šå–ã‚Šã‚’è¡Œã†ã€‚
  * 
  * @author t-hashimoto
  */
@@ -53,7 +53,7 @@ public class GrizzlySubscriber extends AbstractSubscriber {
 	protected CompositeMessageListener messageListener = new CompositeMessageListener();
 
 	/**
-	 * ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	 * ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	 */
 	public GrizzlySubscriber() {
 		super();
@@ -70,23 +70,23 @@ public class GrizzlySubscriber extends AbstractSubscriber {
 	}
 
 	/**
-	 * ‰Šúˆ—B<br>
-	 * ƒRƒlƒNƒVƒ‡ƒ“AƒZƒbƒVƒ‡ƒ“AƒgƒsƒbƒNƒTƒuƒXƒNƒ‰ƒCƒoAƒLƒ…[ƒZƒ“ƒ_[‚Ìì¬B
+	 * åˆæœŸå‡¦ç†ã€‚<br>
+	 * ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã€ã‚»ãƒƒã‚·ãƒ§ãƒ³ã€ãƒˆãƒ”ãƒƒã‚¯ã‚µãƒ–ã‚¹ã‚¯ãƒ©ã‚¤ãƒã€ã‚­ãƒ¥ãƒ¼ã‚»ãƒ³ãƒ€ãƒ¼ã®ä½œæˆã€‚
 	 * 
 	 */
 	public void init() throws InitializeException {
 	}
 
 	/**
-	 * ƒNƒ‰ƒCƒAƒ“ƒgƒ}ƒl[ƒWƒƒ‚ğ‹N“®‚µAƒT[ƒo‚©‚çƒf[ƒ^‚ÌóM‚ğŠJn‚µ‚Ü‚·.
-	 * addSubscribe(),addSubscribeList(),setSubscribeList()‚Ì‚¢‚¸‚ê‚©‚ÅRealtimeRequest‚ğ“o˜^‚µ‚Ä‚¨‚­•K—v‚ª‚ ‚è‚Ü‚·.
+	 * ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆãƒãƒãƒ¼ã‚¸ãƒ£ã‚’èµ·å‹•ã—ã€ã‚µãƒ¼ãƒã‹ã‚‰ãƒ‡ãƒ¼ã‚¿ã®å—ä¿¡ã‚’é–‹å§‹ã—ã¾ã™.
+	 * addSubscribe(),addSubscribeList(),setSubscribeList()ã®ã„ãšã‚Œã‹ã§RealtimeRequestã‚’ç™»éŒ²ã—ã¦ãŠãå¿…è¦ãŒã‚ã‚Šã¾ã™.
 	 * 
 	 * @throws InitializeException
-	 *             RealtimeRequest‚ª1‚Â‚à“o˜^‚³‚ê‚Ä‚¢‚È‚©‚Á‚½“™‚É”­¶‚µ‚Ü‚·.
+	 *             RealtimeRequestãŒ1ã¤ã‚‚ç™»éŒ²ã•ã‚Œã¦ã„ãªã‹ã£ãŸæ™‚ç­‰ã«ç™ºç”Ÿã—ã¾ã™.
 	 * @throws ConnectionException
-	 *             JBoss,î•ñƒT[ƒo‚Æ‚ÌÚ‘±‚ª‚Å‚«‚È‚Á‚½‚É”­¶‚µ‚Ü‚·.
+	 *             JBoss,æƒ…å ±ã‚µãƒ¼ãƒã¨ã®æ¥ç¶šãŒã§ããªã£ãŸæ™‚ã«ç™ºç”Ÿã—ã¾ã™.
 	 * @throws TimeoutException
-	 *             î•ñƒT[ƒo‚Æ‚ÌÚ‘±‚ªƒ^ƒCƒ€ƒAƒEƒg‚µ‚½‚É”­¶‚µ‚Ü‚·.
+	 *             æƒ…å ±ã‚µãƒ¼ãƒã¨ã®æ¥ç¶šãŒã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã—ãŸæ™‚ã«ç™ºç”Ÿã—ã¾ã™.
 	 */
 	public void start() throws InitializeException {
 		boolean failFlag = true;
@@ -109,7 +109,7 @@ public class GrizzlySubscriber extends AbstractSubscriber {
 	}
 
 	/**
-	 * ƒŠƒXƒi‚ğ“o˜^‚µƒf[ƒ^‚ÌóM‚ğŠJn‚·‚éB
+	 * ãƒªã‚¹ãƒŠã‚’ç™»éŒ²ã—ãƒ‡ãƒ¼ã‚¿ã®å—ä¿¡ã‚’é–‹å§‹ã™ã‚‹ã€‚
 	 * 
 	 * @throws Exception
 	 */
@@ -120,7 +120,7 @@ public class GrizzlySubscriber extends AbstractSubscriber {
 		}
 
 		prepareConnect();
-		// ƒƒbƒZ[ƒW‚Ì”z‘—‚ğƒXƒ^[ƒg
+		// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®é…é€ã‚’ã‚¹ã‚¿ãƒ¼ãƒˆ
 		transport.start();
 		WebSocketConnectorHandler connectorHandler = new WebSocketConnectorHandler(transport);
 		Future<WebSocket> connectFuture = connectorHandler.connect(
@@ -135,7 +135,7 @@ public class GrizzlySubscriber extends AbstractSubscriber {
 	
 	protected void disconnect() {
 
-		// WebSocket‚ğƒNƒ[ƒY
+		// WebSocketã‚’ã‚¯ãƒ­ãƒ¼ã‚º
 		if (websocket != null && websocket.isConnected()) {
 			try {
 				websocket.close();
@@ -155,7 +155,7 @@ public class GrizzlySubscriber extends AbstractSubscriber {
 	}
 
 	/**
-	 * “o˜^‚³‚ê‚½ƒŠƒXƒi‚ğ‰ğœ‚µóM‚ğI—¹‚·‚éB
+	 * ç™»éŒ²ã•ã‚ŒãŸãƒªã‚¹ãƒŠã‚’è§£é™¤ã—å—ä¿¡ã‚’çµ‚äº†ã™ã‚‹ã€‚
 	 */
 	public void stop() {
 		super.stop();
@@ -227,20 +227,20 @@ public class GrizzlySubscriber extends AbstractSubscriber {
 	}
 	
 	/**
-	 * MessageListener‚ğ’Ç‰Á‚µ‚Ü‚·. ‚±‚Ì•ÏX‚Í‚·‚®‚É“K—p‚³‚ê‚Ü‚·.
+	 * MessageListenerã‚’è¿½åŠ ã—ã¾ã™. ã“ã®å¤‰æ›´ã¯ã™ãã«é©ç”¨ã•ã‚Œã¾ã™.
 	 * 
 	 * @param listener
-	 *            ƒŠƒXƒg‚Ö’Ç‰Á‚·‚éRealtimeMessageListener
+	 *            ãƒªã‚¹ãƒˆã¸è¿½åŠ ã™ã‚‹RealtimeMessageListener
 	 */
 	public void addMessageListener(MessageListener listener) {
 		messageListener.addMessageListener(listener);
 	}
 
 	/**
-	 * MessageListener‚ğíœ‚µ‚Ü‚·. ‚±‚Ì•ÏX‚Í‚·‚®‚É“K—p‚³‚ê‚Ü‚·.
+	 * MessageListenerã‚’å‰Šé™¤ã—ã¾ã™. ã“ã®å¤‰æ›´ã¯ã™ãã«é©ç”¨ã•ã‚Œã¾ã™.
 	 * 
 	 * @param listener
-	 *            ƒŠƒXƒg‚©‚çíœ‚·‚éRealtimeMessageListener
+	 *            ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤ã™ã‚‹RealtimeMessageListener
 	 */
 	public void removeMessageListener(MessageListener listener) {
 		messageListener.removeMessageListener(listener);

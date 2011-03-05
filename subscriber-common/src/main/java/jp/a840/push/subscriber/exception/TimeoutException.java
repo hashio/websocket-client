@@ -1,13 +1,13 @@
 package jp.a840.push.subscriber.exception;
 
 /**
- * ƒŒƒXƒ|ƒ“ƒX‚ªˆê’èŽžŠÔ‚½‚Á‚Ä‚à‚±‚È‚©‚Á‚½Žž‚ÌException
+ * ãƒ¬ã‚¹ãƒãƒ³ã‚¹ãŒä¸€å®šæ™‚é–“ãŸã£ã¦ã‚‚ã“ãªã‹ã£ãŸæ™‚ã®Exception
  * 
  */
 public class TimeoutException extends RuntimeException {
 
 	/**
-	 * ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	 * ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	 * 
 	 */
 	public TimeoutException() {
@@ -15,7 +15,7 @@ public class TimeoutException extends RuntimeException {
 	}
 
 	/**
-	 * ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	 * ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	 * 
 	 * @param message
 	 */
@@ -24,7 +24,7 @@ public class TimeoutException extends RuntimeException {
 	}
 
 	/**
-	 * ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	 * ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	 * 
 	 * @param cause
 	 */
@@ -33,7 +33,7 @@ public class TimeoutException extends RuntimeException {
 	}
 
 	/**
-	 * ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	 * ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	 * 
 	 * @param message
 	 * @param cause

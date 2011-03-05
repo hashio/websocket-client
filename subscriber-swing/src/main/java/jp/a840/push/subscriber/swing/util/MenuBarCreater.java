@@ -17,26 +17,26 @@ public class MenuBarCreater {
 		JMenuBar mb = createCommonMenuBar();
 		JMenuItem mi;
 
-		JMenu cm = new JMenu("Ú‘±/Ø’f");
-		mi = new JMenuItem("Ú‘±");
+		JMenu cm = new JMenu("æ¥ç¶š/åˆ‡æ–­");
+		mi = new JMenuItem("æ¥ç¶š");
 		mi.setEnabled(false);
 		mi.addActionListener(target);
 		mi.setActionCommand("RealtimeConnect");
 		cm.add(mi);
-		mi = new JMenuItem("Ø’f");
+		mi = new JMenuItem("åˆ‡æ–­");
 		mi.setEnabled(true);
 		mi.addActionListener(target);
 		mi.setActionCommand("RealtimeDisConnect");
 		cm.add(mi);
-		mi = new JMenuItem("Ú‘±æ•ÏX");
+		mi = new JMenuItem("æ¥ç¶šå…ˆå¤‰æ›´");
 		mi.addActionListener(target);
 		mi.setActionCommand("ChangeSource");
 		cm.add(mi);
-		mi = new JMenuItem("ƒwƒ‹ƒXƒ`ƒFƒbƒN ŠÔŠu•ÏX");
+		mi = new JMenuItem("ãƒ˜ãƒ«ã‚¹ãƒã‚§ãƒƒã‚¯ é–“éš”å¤‰æ›´");
 		mi.addActionListener(target);
 		mi.setActionCommand("ChangeHealthCheckInterval");
 		cm.add(mi);
-		mi = new JMenuItem("ÄÚ‘± ŠÔŠu•ÏX");
+		mi = new JMenuItem("å†æ¥ç¶š é–“éš”å¤‰æ›´");
 		mi.addActionListener(target);
 		mi.setActionCommand("ChangeReconnectInterval");
 		cm.add(mi);
@@ -56,17 +56,17 @@ public class MenuBarCreater {
 
 		JMenuBar mb = new JMenuBar();
 
-		JMenu dm = new JMenu("ƒf[ƒ^");
-		mi = new JMenuItem("‘Sƒf[ƒ^íœ");
+		JMenu dm = new JMenu("ãƒ‡ãƒ¼ã‚¿");
+		mi = new JMenuItem("å…¨ãƒ‡ãƒ¼ã‚¿å‰Šé™¤");
 		mi.addActionListener(target);
 		mi.setActionCommand("ClearAllTableData");
 		dm.add(mi);
 		mb.add(dm);
 
-		JMenu wm = new JMenu("ƒEƒBƒ“ƒhƒE");
+		JMenu wm = new JMenu("ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦");
 
-		JMenu rm = new JMenu("ƒŠƒAƒ‹ƒ^ƒCƒ€");
-		mi = new JMenuItem("Å—Ç‹C”z");
+		JMenu rm = new JMenu("ãƒªã‚¢ãƒ«ã‚¿ã‚¤ãƒ ");
+		mi = new JMenuItem("æœ€è‰¯æ°—é…");
 		mi.addActionListener(target);
 		mi.setActionCommand("Realtime-BestRate");
 		rm.add(mi);

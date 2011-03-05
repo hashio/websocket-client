@@ -4,7 +4,7 @@ abstract public class Event {
 	protected final Object source;
 
 	/**
-     * ƒCƒxƒ“ƒg”­MŒ³‚ÌƒIƒuƒWƒFƒNƒg‚ğ—^‚¦‚ÄƒIƒuƒWƒFƒNƒg‚ğ¶¬‚µ‚Ü‚·.
+     * ã‚¤ãƒ™ãƒ³ãƒˆç™ºä¿¡å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä¸ãˆã¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã—ã¾ã™.
      * @param source
 	 */
     public Event(Object source){
@@ -12,7 +12,7 @@ abstract public class Event {
 	}
 	
     /**
-     * ƒCƒxƒ“ƒg”­MŒ³‚ÌƒIƒuƒWƒFƒNƒg‚ğ•Ô‚µ‚Ü‚·.
+     * ã‚¤ãƒ™ãƒ³ãƒˆç™ºä¿¡å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¿”ã—ã¾ã™.
      */
 	public Object getSource(){
 		return source;

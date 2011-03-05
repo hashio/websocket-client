@@ -4,7 +4,7 @@ public class ExceptionEvent extends Event{
 	protected final Exception exception;
 
     /**
-     * ƒCƒxƒ“ƒg”­MŒ³‚ÌƒIƒuƒWƒFƒNƒg‚Æ”­¶‚µ‚½—áŠO‚ğ—^‚¦‚ÄƒIƒuƒWƒFƒNƒg‚ğ¶¬‚µ‚Ü‚·.
+     * ã‚¤ãƒ™ãƒ³ãƒˆç™ºä¿¡å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¨ç™ºç”Ÿã—ãŸä¾‹å¤–ã‚’ä¸ãˆã¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã—ã¾ã™.
      * @param source
      * @param exception
      */
@@ -14,7 +14,7 @@ public class ExceptionEvent extends Event{
 	}
 
     /**
-     * ”­¶‚µ‚½—áŠO‚ğ•Ô‚µ‚Ü‚·.
+     * ç™ºç”Ÿã—ãŸä¾‹å¤–ã‚’è¿”ã—ã¾ã™.
      * @return
      */
 	public Exception getException() {

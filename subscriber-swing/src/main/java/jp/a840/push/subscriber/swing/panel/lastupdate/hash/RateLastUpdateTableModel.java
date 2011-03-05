@@ -10,10 +10,10 @@ public class RateLastUpdateTableModel extends LastUpdateTableModel {
 	protected RowVector createHeader(Object obj) {
 		RowVector rv = new RowVector();
 		if(obj instanceof BestRateBean){
-			rv.add("’Ê‰İƒyƒA");
+			rv.add("é€šè²¨ãƒšã‚¢");
 			rv.add("Bid");
 			rv.add("Ask");
-			rv.add("óM“ú");
+			rv.add("å—ä¿¡æ—¥æ™‚");
 		}
 		return rv;
 	}

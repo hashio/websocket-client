@@ -4,7 +4,7 @@ import jp.a840.push.subscriber.event.MessageEvent;
 
 public interface MessageListener {
 	/**
-	 * ƒƒbƒZ[ƒW‚ğó‚¯‚½‚ÉŒÄ‚Î‚ê‚Ü‚·.
+	 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’å—ã‘ãŸæ™‚ã«å‘¼ã°ã‚Œã¾ã™.
 	 * 
 	 * @param e
 	 */

@@ -17,7 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Jar“™‚ÌƒA[ƒJƒCƒu“à‚ÌƒŠƒ\[ƒX‚ğæ“¾‚·‚é
+ * Jarç­‰ã®ã‚¢ãƒ¼ã‚«ã‚¤ãƒ–å†…ã®ãƒªã‚½ãƒ¼ã‚¹ã‚’å–å¾—ã™ã‚‹
  * 
  * Created: Thu Oct 12 16:56:15 2006
  * 
@@ -40,13 +40,13 @@ public class ResourceLoader {
 	}
 
 	/**
-	 * Jar‚ÌƒNƒ‰ƒXƒ[ƒ_‚ğæ“¾‚·‚é
+	 * Jarã®ã‚¯ãƒ©ã‚¹ãƒ­ãƒ¼ãƒ€ã‚’å–å¾—ã™ã‚‹
 	 * 
 	 * @param resourceName
-	 *            ƒŠƒ\[ƒX–¼
+	 *            ãƒªã‚½ãƒ¼ã‚¹å
 	 */
 	public static ClassLoader getJarClassLoader(String target) throws Exception {
-		if (!target.matches(".*\\..ar$")) {
+		if (!target.matches(".*Â¥Â¥..ar$")) {
 			target = target + ".jar";
 		}
 		JDKHooks hook = JDKHooks.getJDKHooks();
@@ -67,7 +67,7 @@ public class ResourceLoader {
 	}
 
 	/**
-	 * w’è‚³‚ê‚½ƒfƒBƒŒƒNƒgƒŠ‚É‚ ‚éJar‚ğ‘S‚ÄŠÜ‚ß‚½ƒNƒ‰ƒXƒ[ƒ_‚ğ•Ô‚·
+	 * æŒ‡å®šã•ã‚ŒãŸãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«ã‚ã‚‹Jarã‚’å…¨ã¦å«ã‚ãŸã‚¯ãƒ©ã‚¹ãƒ­ãƒ¼ãƒ€ã‚’è¿”ã™
 	 * 
 	 * @param directory
 	 * @return
@@ -89,7 +89,7 @@ public class ResourceLoader {
 			public boolean accept(File f) {
 				if (f.isDirectory())
 					return false;
-				if (f.getName().matches(".*\\.jar$"))
+				if (f.getName().matches(".*Â¥Â¥.jar$"))
 					return true;
 				return false;
 			}
@@ -115,45 +115,45 @@ public class ResourceLoader {
 	}
 
 	/**
-	 * ResourceLoader‚ÌƒNƒ‰ƒXƒ[ƒ_‚©‚çƒŠƒ\[ƒX‚ğæ“¾
+	 * ResourceLoaderã®ã‚¯ãƒ©ã‚¹ãƒ­ãƒ¼ãƒ€ã‹ã‚‰ãƒªã‚½ãƒ¼ã‚¹ã‚’å–å¾—
 	 * 
 	 * @param resourceName
-	 *            ƒŠƒ\[ƒX–¼
+	 *            ãƒªã‚½ãƒ¼ã‚¹å
 	 */
 	public InputStream findResource(String resourceName) {
 		return findResource(this.getClass(), resourceName);
 	}
 
 	/**
-	 * “n‚³‚ê‚½ƒIƒuƒWƒFƒNƒg‚ÌƒNƒ‰ƒXƒ[ƒ_‚©‚çƒŠƒ\[ƒX‚ğæ“¾
+	 * æ¸¡ã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¯ãƒ©ã‚¹ãƒ­ãƒ¼ãƒ€ã‹ã‚‰ãƒªã‚½ãƒ¼ã‚¹ã‚’å–å¾—
 	 * 
 	 * @param obj
-	 *            ƒIƒuƒWƒFƒNƒg
+	 *            ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	 * @param resourceName
-	 *            ƒŠƒ\[ƒX–¼
+	 *            ãƒªã‚½ãƒ¼ã‚¹å
 	 */
 	public static InputStream findResource(Object obj, String resourceName) {
 		return findResource(obj.getClass(), resourceName);
 	}
 
 	/**
-	 * “n‚³‚ê‚½ƒNƒ‰ƒX‚ÌƒNƒ‰ƒXƒ[ƒ_‚©‚çƒŠƒ\[ƒX‚ğæ“¾
+	 * æ¸¡ã•ã‚ŒãŸã‚¯ãƒ©ã‚¹ã®ã‚¯ãƒ©ã‚¹ãƒ­ãƒ¼ãƒ€ã‹ã‚‰ãƒªã‚½ãƒ¼ã‚¹ã‚’å–å¾—
 	 * 
-	 * @param class ƒNƒ‰ƒX
+	 * @param class ã‚¯ãƒ©ã‚¹
 	 * @param resourceName
-	 *            ƒŠƒ\[ƒX–¼
+	 *            ãƒªã‚½ãƒ¼ã‚¹å
 	 */
 	public static InputStream findResource(Class clazz, String resourceName) {
 		return findResource(clazz.getClassLoader(), resourceName);
 	}
 
 	/**
-	 * “n‚³‚ê‚½ƒNƒ‰ƒXƒ[ƒ_‚©‚çƒŠƒ\[ƒX‚ğæ“¾
+	 * æ¸¡ã•ã‚ŒãŸã‚¯ãƒ©ã‚¹ãƒ­ãƒ¼ãƒ€ã‹ã‚‰ãƒªã‚½ãƒ¼ã‚¹ã‚’å–å¾—
 	 * 
 	 * @param classLoader
-	 *            ƒNƒ‰ƒXƒ[ƒ_
+	 *            ã‚¯ãƒ©ã‚¹ãƒ­ãƒ¼ãƒ€
 	 * @param resourceName
-	 *            ƒŠƒ\[ƒX–¼
+	 *            ãƒªã‚½ãƒ¼ã‚¹å
 	 */
 	public static InputStream findResource(ClassLoader classLoader,
 			String resourceName) {

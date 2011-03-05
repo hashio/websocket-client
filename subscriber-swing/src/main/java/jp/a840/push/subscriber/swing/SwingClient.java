@@ -53,25 +53,25 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 	public static void main(String[] args) {
 		try {
 
-			// L&F ‚ğ Windows •—‚É
+			// L&F ã‚’ Windows é¢¨ã«
 			try {
 				UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 			} catch (Exception e) {
 			}
 
-			/* ©•ª©g‚ğì¬ */
+			/* è‡ªåˆ†è‡ªèº«ã‚’ä½œæˆ */
 			client = SwingClient.getInstance();
 
-			/* I—¹ˆ—‚ğ’Ç‰Á */
+			/* çµ‚äº†å‡¦ç†ã‚’è¿½åŠ  */
 			client.addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent e) {
 					close();
 				}
 			});
 
-			/* ƒTƒCƒY‚ÆˆÊ’u‚ğw’è */
+			/* ã‚µã‚¤ã‚ºã¨ä½ç½®ã‚’æŒ‡å®š */
 			client.setBounds(0, 0, 640, 480);
-			/* ÀÛ‚É•\¦‚·‚é */
+			/* å®Ÿéš›ã«è¡¨ç¤ºã™ã‚‹ */
 			client.setVisible(true);
 
 			client.realtimeStart();
@@ -197,7 +197,7 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 			if (!sub.isAlive()) {
 				realtimeStart();
 			} else {
-				JOptionPane.showMessageDialog(this, "‚·‚Å‚ÉÚ‘±‚µ‚Ä‚¢‚Ü‚·B");
+				JOptionPane.showMessageDialog(this, "ã™ã§ã«æ¥ç¶šã—ã¦ã„ã¾ã™ã€‚");
 			}
 		} else if (cmd.equals("ClearAllTableData")) {
 			RealtimeTableModelManager.getInstance().clearAll();
@@ -218,7 +218,7 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 				bse.printStackTrace();
 			}
 		} else if (cmd.equals("Realtime-BestRate")) {
-			JFrame frame = new JFrame("ƒŠƒAƒ‹ƒ^ƒCƒ€ - Å—Ç‹C”z");
+			JFrame frame = new JFrame("ãƒªã‚¢ãƒ«ã‚¿ã‚¤ãƒ  - æœ€è‰¯æ°—é…");
 			frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			frame.setJMenuBar(MenuBarCreater.createRealtimeMenuBar(this));
 			frame.setBounds(client.getBounds());
@@ -282,7 +282,7 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 
 	private void changeHealthCheckInterval() {
 		String defaultHealthCheckInterval = String.valueOf(preferences.getInt(SwingClientPreferences.KEY_HEALTHCHECK_INTERVAL));
-		String healthCheckIntervalStr = JOptionPane.showInputDialog(this, "ƒT[ƒo‚Æ‚Ìƒwƒ‹ƒXƒ`ƒFƒbƒN‚ÌŠÔŠu‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢F(ƒ~ƒŠ•b)", defaultHealthCheckInterval);
+		String healthCheckIntervalStr = JOptionPane.showInputDialog(this, "ã‚µãƒ¼ãƒã¨ã®ãƒ˜ãƒ«ã‚¹ãƒã‚§ãƒƒã‚¯ã®é–“éš”ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ï¼š(ãƒŸãƒªç§’)", defaultHealthCheckInterval);
 		if (healthCheckIntervalStr == null) {
 			healthCheckIntervalStr = defaultHealthCheckInterval;
 		}
@@ -302,7 +302,7 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 
 	private void changeReconnectInterval() {
 		String defaultReconnectInterval = String.valueOf(preferences.getInt(SwingClientPreferences.KEY_RECONNECT_INTERVAL));
-		String reconnectIntervalStr = JOptionPane.showInputDialog(this, "ƒT[ƒo‚Æ‚ÌÄÚ‘±‚ÌŠÔŠu‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢F(ƒ~ƒŠ•b)", defaultReconnectInterval);
+		String reconnectIntervalStr = JOptionPane.showInputDialog(this, "ã‚µãƒ¼ãƒã¨ã®å†æ¥ç¶šã®é–“éš”ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ï¼š(ãƒŸãƒªç§’)", defaultReconnectInterval);
 		if (reconnectIntervalStr == null) {
 			reconnectIntervalStr = defaultReconnectInterval;
 		}

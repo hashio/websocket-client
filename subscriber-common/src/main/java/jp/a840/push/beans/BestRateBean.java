@@ -8,43 +8,43 @@ public class BestRateBean implements Serializable {
 	/** */
 	private static final long serialVersionUID = 1L;
 
-	/** ‹Æ–±“ú•t */
+	/** æ¥­å‹™æ—¥ä»˜ */
 	private String businessDate;
 
-	/** –Á•¿ƒR[ƒh */
+	/** éŠ˜æŸ„ã‚³ãƒ¼ãƒ‰ */
 	private Integer productCode;
 
-	/** ˆ—’Ê”Ô */
+	/** å‡¦ç†é€šç•ª */
 	private Long processSeq;
 
-	/** æˆøŠXV“ú */
+	/** å–å¼•æ‰€æ›´æ–°æ—¥æ™‚ */
 	private Date marketUpdateDatetime;
 
-	/** ”ƒÅ—Ç‹C”z’l */
+	/** è²·æœ€è‰¯æ°—é…å€¤ */
 	private BigDecimal bid;
 
-	/** ”ƒÅ—Ç‹C”z”—Ê */
+	/** è²·æœ€è‰¯æ°—é…æ•°é‡ */
 	private Integer bidSize;
 
-	/** ”ƒ–³Œøƒtƒ‰ƒO */
+	/** è²·ç„¡åŠ¹ãƒ•ãƒ©ã‚° */
 	private boolean bidInvalidFlag;
 
-	/** ”ƒÅV—LŒøÅ—Ç‹C”z’l */
+	/** è²·æœ€æ–°æœ‰åŠ¹æœ€è‰¯æ°—é…å€¤ */
 	private BigDecimal bidLatestValid;
 
-	/** ”„Å—Ç‹C”z’l */
+	/** å£²æœ€è‰¯æ°—é…å€¤ */
 	private BigDecimal ask;
 
-	/** ”„Å—Ç‹C”z”—Ê */
+	/** å£²æœ€è‰¯æ°—é…æ•°é‡ */
 	private Integer askSize;
 
-	/** ”„–³Œøƒtƒ‰ƒO */
+	/** å£²ç„¡åŠ¹ãƒ•ãƒ©ã‚° */
 	private boolean askInvalidFlag;
 
-	/** ”„ÅV—LŒøÅ—Ç‹C”z’l */
+	/** å£²æœ€æ–°æœ‰åŠ¹æœ€è‰¯æ°—é…å€¤ */
 	private BigDecimal askLatestValid;
 
-	/** Šî€‰¿Ši */
+	/** åŸºæº–ä¾¡æ ¼ */
 	private BigDecimal limitCheckPrice;
 
 
@@ -57,7 +57,7 @@ public class BestRateBean implements Serializable {
 
 	/**
 	 * @param productCode
-	 *            ƒZƒbƒg‚·‚é productCode
+	 *            ã‚»ãƒƒãƒˆã™ã‚‹ productCode
 	 */
 	public void setProductCode(Integer productCode) {
 		this.productCode = productCode;
@@ -72,7 +72,7 @@ public class BestRateBean implements Serializable {
 
 	/**
 	 * @param marketUpdateDatetime
-	 *            ƒZƒbƒg‚·‚é marketUpdateDatetime
+	 *            ã‚»ãƒƒãƒˆã™ã‚‹ marketUpdateDatetime
 	 */
 	public void setMarketUpdateDatetime(Date marketUpdateDatetime) {
 		this.marketUpdateDatetime = marketUpdateDatetime;
@@ -87,7 +87,7 @@ public class BestRateBean implements Serializable {
 
 	/**
 	 * @param bid
-	 *            ƒZƒbƒg‚·‚é bid
+	 *            ã‚»ãƒƒãƒˆã™ã‚‹ bid
 	 */
 	public void setBid(BigDecimal bid) {
 		this.bid = bid;
@@ -102,7 +102,7 @@ public class BestRateBean implements Serializable {
 
 	/**
 	 * @param bidSize
-	 *            ƒZƒbƒg‚·‚é bidSize
+	 *            ã‚»ãƒƒãƒˆã™ã‚‹ bidSize
 	 */
 	public void setBidSize(Integer bidSize) {
 		this.bidSize = bidSize;
@@ -117,7 +117,7 @@ public class BestRateBean implements Serializable {
 
 	/**
 	 * @param bidInvalidFlag
-	 *            ƒZƒbƒg‚·‚é bidInvalidFlag
+	 *            ã‚»ãƒƒãƒˆã™ã‚‹ bidInvalidFlag
 	 */
 	public void setBidInvalidFlag(boolean bidInvalidFlag) {
 		this.bidInvalidFlag = bidInvalidFlag;
@@ -132,7 +132,7 @@ public class BestRateBean implements Serializable {
 
 	/**
 	 * @param askSize
-	 *            ƒZƒbƒg‚·‚é askSize
+	 *            ã‚»ãƒƒãƒˆã™ã‚‹ askSize
 	 */
 	public void setAskSize(Integer askSize) {
 		this.askSize = askSize;
@@ -147,7 +147,7 @@ public class BestRateBean implements Serializable {
 
 	/**
 	 * @param ask
-	 *            ƒZƒbƒg‚·‚é ask
+	 *            ã‚»ãƒƒãƒˆã™ã‚‹ ask
 	 */
 	public void setAsk(BigDecimal ask) {
 		this.ask = ask;
@@ -162,7 +162,7 @@ public class BestRateBean implements Serializable {
 
 	/**
 	 * @param askInvalidFlag
-	 *            ƒZƒbƒg‚·‚é askInvalidFlag
+	 *            ã‚»ãƒƒãƒˆã™ã‚‹ askInvalidFlag
 	 */
 	public void setAskInvalidFlag(boolean askInvalidFlag) {
 		this.askInvalidFlag = askInvalidFlag;
@@ -177,7 +177,7 @@ public class BestRateBean implements Serializable {
 
 	/**
 	 * @param limitCheckPrice
-	 *            ƒZƒbƒg‚·‚é limitCheckPrice
+	 *            ã‚»ãƒƒãƒˆã™ã‚‹ limitCheckPrice
 	 */
 	public void setLimitCheckPrice(BigDecimal limitCheckPrice) {
 		this.limitCheckPrice = limitCheckPrice;
@@ -199,7 +199,7 @@ public class BestRateBean implements Serializable {
 
 	/**
 	 * @param businessDate
-	 *            ƒZƒbƒg‚·‚é businessDate
+	 *            ã‚»ãƒƒãƒˆã™ã‚‹ businessDate
 	 */
 	public void setBusinessDate(String businessDate) {
 		this.businessDate = businessDate;
@@ -210,7 +210,7 @@ public class BestRateBean implements Serializable {
 	 */
 	public BigDecimal getBidLatestValid() {
 		if (bid != null && (bidLatestValid == null || bidLatestValid.doubleValue() == 0)) {
-			throw new RuntimeException("‚ ‚è“¾‚È‚¢ƒGƒ‰[ bid:" + bid + " bidLatestValid:" + bidLatestValid);
+			throw new RuntimeException("ã‚ã‚Šå¾—ãªã„ã‚¨ãƒ©ãƒ¼ bid:" + bid + " bidLatestValid:" + bidLatestValid);
 		}
 
 		return bidLatestValid;
@@ -218,7 +218,7 @@ public class BestRateBean implements Serializable {
 
 	/**
 	 * @param bidLatestValid
-	 *            ƒZƒbƒg‚·‚é bidLatestValid
+	 *            ã‚»ãƒƒãƒˆã™ã‚‹ bidLatestValid
 	 */
 	public void setBidLatestValid(BigDecimal bidLatestValid) {
 		this.bidLatestValid = bidLatestValid;
@@ -229,7 +229,7 @@ public class BestRateBean implements Serializable {
 	 */
 	public BigDecimal getAskLatestValid() {
 		if (ask != null && (askLatestValid == null || askLatestValid.doubleValue() == 0)) {
-			throw new RuntimeException("‚ ‚è“¾‚È‚¢ƒGƒ‰[ ask" + ask + " askLatestValid:" + askLatestValid);
+			throw new RuntimeException("ã‚ã‚Šå¾—ãªã„ã‚¨ãƒ©ãƒ¼ ask" + ask + " askLatestValid:" + askLatestValid);
 		}
 
 		return askLatestValid;
@@ -237,7 +237,7 @@ public class BestRateBean implements Serializable {
 
 	/**
 	 * @param askLatestValid
-	 *            ƒZƒbƒg‚·‚é askLatestValid
+	 *            ã‚»ãƒƒãƒˆã™ã‚‹ askLatestValid
 	 */
 	public void setAskLatestValid(BigDecimal askLatestValid) {
 		this.askLatestValid = askLatestValid;
@@ -252,7 +252,7 @@ public class BestRateBean implements Serializable {
 
 	/**
 	 * @param processSeq
-	 *            ƒZƒbƒg‚·‚é processSeq
+	 *            ã‚»ãƒƒãƒˆã™ã‚‹ processSeq
 	 */
 	public void setProcessSeq(Long processSeq) {
 		this.processSeq = processSeq;

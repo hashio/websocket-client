@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * ƒVƒXƒeƒ€ƒNƒ‰ƒXƒpƒXã‚©‚çƒvƒƒpƒeƒBƒtƒ@ƒCƒ‹‚ðŽæ“¾‚·‚éB
+ * ã‚·ã‚¹ãƒ†ãƒ ã‚¯ãƒ©ã‚¹ãƒ‘ã‚¹ä¸Šã‹ã‚‰ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å–å¾—ã™ã‚‹ã€‚
  *
  *
  * Created: Thu Oct 12 16:56:15 2006

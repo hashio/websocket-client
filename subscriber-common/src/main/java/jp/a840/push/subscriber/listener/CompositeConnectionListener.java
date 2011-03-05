@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * •¡”‚ÌƒŠƒXƒi[‚ÖƒvƒƒLƒV‚·‚é‚½‚ß‚ÌƒNƒ‰ƒX.
- * ˆê•”‚ÌƒŠƒXƒi[‚©‚ç‚¾‚¯ƒtƒB[ƒh‚µ‚½ƒf[ƒ^‚ğƒtƒBƒ‹ƒ^‚µ‚½‚¢‚Í‚±‚ê‚ğŒp³‚µ‚ÄÀ‘•‚µ‚Ä‚İ‚Ä‚­‚¾‚³‚¢.
+ * è¤‡æ•°ã®ãƒªã‚¹ãƒŠãƒ¼ã¸ãƒ—ãƒ­ã‚­ã‚·ã™ã‚‹ãŸã‚ã®ã‚¯ãƒ©ã‚¹.
+ * ä¸€éƒ¨ã®ãƒªã‚¹ãƒŠãƒ¼ã‹ã‚‰ã ã‘ãƒ•ã‚£ãƒ¼ãƒ‰ã—ãŸãƒ‡ãƒ¼ã‚¿ã‚’ãƒ•ã‚£ãƒ«ã‚¿ã—ãŸã„æ™‚ã¯ã“ã‚Œã‚’ç¶™æ‰¿ã—ã¦å®Ÿè£…ã—ã¦ã¿ã¦ãã ã•ã„.
  * <br>
  */
 public class CompositeConnectionListener implements ConnectionListener {
@@ -45,7 +45,7 @@ public class CompositeConnectionListener implements ConnectionListener {
     }
 
     /**
-     * V‹K‚É’Ç‰Á‚³‚ê‚½ƒŠƒXƒi[‚ğÀÛ‚ÉóM‚ÌÛ‚É—˜—p‚Å‚«‚é‚æ‚¤‚É‚µ‚Ü‚·.
+     * æ–°è¦ã«è¿½åŠ ã•ã‚ŒãŸãƒªã‚¹ãƒŠãƒ¼ã‚’å®Ÿéš›ã«å—ä¿¡ã®éš›ã«åˆ©ç”¨ã§ãã‚‹ã‚ˆã†ã«ã—ã¾ã™.
      *
      */
     private void synchronizeConnectionListenerList(){
@@ -55,7 +55,7 @@ public class CompositeConnectionListener implements ConnectionListener {
     }
     
     /**
-     * ConnectionListener‚ğ’Ç‰Á‚µ‚Ü‚·.
+     * ConnectionListenerã‚’è¿½åŠ ã—ã¾ã™.
      * @param listener ConnectionListener
      */
     public void addConnectionListener(ConnectionListener listener){
@@ -72,7 +72,7 @@ public class CompositeConnectionListener implements ConnectionListener {
     }
 
     /**
-     * w’è‚³‚ê‚½ConnectionListner‚ğƒŠƒXƒi[ƒŠƒXƒg‚©‚çíœ‚µ‚Ü‚·.
+     * æŒ‡å®šã•ã‚ŒãŸConnectionListnerã‚’ãƒªã‚¹ãƒŠãƒ¼ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤ã—ã¾ã™.
      * @param listener
      */
     public void removeConnectionListener(ConnectionListener listener){
@@ -98,7 +98,7 @@ public class CompositeConnectionListener implements ConnectionListener {
     }
 
     /**
-     * ƒŠƒXƒi[‚ÌƒŠƒXƒg‚ğæ“¾‚µ‚Ü‚·.
+     * ãƒªã‚¹ãƒŠãƒ¼ã®ãƒªã‚¹ãƒˆã‚’å–å¾—ã—ã¾ã™.
      * @return
      */
     public List getConnectionListenerList() {

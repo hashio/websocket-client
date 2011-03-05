@@ -4,7 +4,7 @@ import jp.a840.push.subscriber.event.ExceptionEvent;
 
 public interface ExceptionListener {
 	/**
-	 * JMSƒT[ƒo‚Æ‚ÌÚ‘±’†‚Ì—áŠO‚âJMSƒT[ƒo“à‚Å”­¶‚µ‚½—áŠO‚ª—ˆ‚½‚ÉŒÄ‚Î‚ê‚Ü‚·.
+	 * JMSã‚µãƒ¼ãƒã¨ã®æ¥ç¶šä¸­ã®ä¾‹å¤–ã‚„JMSã‚µãƒ¼ãƒå†…ã§ç™ºç”Ÿã—ãŸä¾‹å¤–ãŒæ¥ãŸæ™‚ã«å‘¼ã°ã‚Œã¾ã™.
 	 * 
 	 * @param e
 	 */

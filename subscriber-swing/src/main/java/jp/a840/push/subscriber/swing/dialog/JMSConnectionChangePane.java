@@ -54,7 +54,7 @@ public class JMSConnectionChangePane extends JComponent {
 		GridBagConstraints gbc = new GridBagConstraints();
 
 		gbc.anchor = GridBagConstraints.WEST;
-		JLabel urlLabel = new JLabel("Ú‘±æ", JLabel.LEFT);
+		JLabel urlLabel = new JLabel("æ¥ç¶šå…ˆ", JLabel.LEFT);
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.gridwidth = 1;
@@ -75,7 +75,7 @@ public class JMSConnectionChangePane extends JComponent {
 		layout.setConstraints(urlField, gbc);
 		this.add(urlField);
 
-		JLabel factoryInfoLabel = new JLabel("<html><p>Ú‘±æ‚ÌJMSƒvƒƒoƒCƒ_‚ª—˜—p‚·‚éƒtƒ@ƒNƒgƒŠ‚ğw’è‚·‚é•K—v‚ª‚ ‚è‚Ü‚·B</p></html>", JLabel.LEFT);
+		JLabel factoryInfoLabel = new JLabel("<html><p>æ¥ç¶šå…ˆã®JMSãƒ—ãƒ­ãƒã‚¤ãƒ€ãŒåˆ©ç”¨ã™ã‚‹ãƒ•ã‚¡ã‚¯ãƒˆãƒªã‚’æŒ‡å®šã™ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚</p></html>", JLabel.LEFT);
 		factoryInfoLabel.setPreferredSize(new Dimension(300, 50));
 		gbc.gridx = 1;
 		gbc.gridy = 1;
@@ -85,7 +85,7 @@ public class JMSConnectionChangePane extends JComponent {
 		layout.setConstraints(factoryInfoLabel, gbc);
 		this.add(factoryInfoLabel);
 
-		JLabel factoryLabel = new JLabel("ƒvƒƒoƒCƒ_", JLabel.LEFT);
+		JLabel factoryLabel = new JLabel("ãƒ—ãƒ­ãƒã‚¤ãƒ€", JLabel.LEFT);
 		gbc.gridx = 0;
 		gbc.gridy = 2;
 		gbc.gridwidth = 1;
@@ -114,7 +114,7 @@ public class JMSConnectionChangePane extends JComponent {
 		gbc.gridheight = 1;
 		gbc.insets = RIGHT_INSETS;
 		
-		JLabel versionInfoLabel = new JLabel("<html><p>JBossJMS‚Ìê‡‚¾‚¯‹Œƒo[ƒWƒ‡ƒ“‚ğw’è‚Å‚«‚Ü‚·B</p></html>", JLabel.LEFT);
+		JLabel versionInfoLabel = new JLabel("<html><p>JBossJMSã®å ´åˆã ã‘æ—§ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã‚’æŒ‡å®šã§ãã¾ã™ã€‚</p></html>", JLabel.LEFT);
 		versionInfoLabel.setPreferredSize(new Dimension(300, 50));
 		gbc.gridx = 1;
 		gbc.gridy = 4;
@@ -159,7 +159,7 @@ public class JMSConnectionChangePane extends JComponent {
 	}
 	
 	private JDialog createDialog(Component parentComponent) {
-		final JDialog dialog = createDialog(parentComponent, "Ú‘±æ•ÏX");
+		final JDialog dialog = createDialog(parentComponent, "æ¥ç¶šå…ˆå¤‰æ›´");
 		dialog.setResizable(false);
 		dialog.setLocationRelativeTo(parentComponent);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

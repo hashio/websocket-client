@@ -41,7 +41,7 @@ public class SwingClientDefaultTableModelUtil {
     }
     
     /**
-     * getterメソッドをかき集める
+     * getter繝｡繧ｽ繝�繝峨ｒ縺九″髮�繧√ｋ
      * 
      * @param obj
      * @return

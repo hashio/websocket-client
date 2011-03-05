@@ -4,14 +4,14 @@ import jp.a840.push.subscriber.event.ConnectionEvent;
 
 public interface ConnectionListener {
 	/**
-	 * JMSƒT[ƒo‚ÆÚ‘±‚µ‚½‚ÉŒÄ‚Î‚ê‚Ü‚·.
+	 * JMSã‚µãƒ¼ãƒã¨æ¥ç¶šã—ãŸæ™‚ã«å‘¼ã°ã‚Œã¾ã™.
 	 * 
 	 * @param e
 	 */
 	public void onConnected(ConnectionEvent e);
 
 	/**
-	 * JMSƒT[ƒo‚Æ‚ÌÚ‘±‚ªØ’f(ƒT[ƒoAƒNƒ‰ƒCƒAƒ“ƒg‚Ç‚¿‚ç‚©‚ç‚Å‚à)‚µ‚½‚ÉŒÄ‚Î‚ê‚Ü‚·.
+	 * JMSã‚µãƒ¼ãƒã¨ã®æ¥ç¶šãŒåˆ‡æ–­(ã‚µãƒ¼ãƒã€ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã©ã¡ã‚‰ã‹ã‚‰ã§ã‚‚)ã—ãŸæ™‚ã«å‘¼ã°ã‚Œã¾ã™.
 	 * 
 	 * @param e
 	 */

@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * ƒŠƒAƒ‹ƒ^ƒCƒ€ƒf[ƒ^óM—pƒNƒ‰ƒCƒAƒ“ƒgƒ}ƒl[ƒWƒƒB<br>
- * JMS‚ğg—p‚µ‚½ƒf[ƒ^‚ÌóM‚ğƒRƒ“ƒgƒ[ƒ‹‚·‚éB<br>
- * ƒ†[ƒU‚Í‚±‚ÌƒNƒ‰ƒX‚ğ‰î‚µ‚ÄƒT[ƒo‚Æ‚Ìƒf[ƒ^‚Ì‚â‚èæ‚è‚ğs‚¤B
+ * ãƒªã‚¢ãƒ«ã‚¿ã‚¤ãƒ ãƒ‡ãƒ¼ã‚¿å—ä¿¡ç”¨ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆãƒãƒãƒ¼ã‚¸ãƒ£ã€‚<br>
+ * JMSã‚’ä½¿ç”¨ã—ãŸãƒ‡ãƒ¼ã‚¿ã®å—ä¿¡ã‚’ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã™ã‚‹ã€‚<br>
+ * ãƒ¦ãƒ¼ã‚¶ã¯ã“ã®ã‚¯ãƒ©ã‚¹ã‚’ä»‹ã—ã¦ã‚µãƒ¼ãƒã¨ã®ãƒ‡ãƒ¼ã‚¿ã®ã‚„ã‚Šå–ã‚Šã‚’è¡Œã†ã€‚
  * 
  * @author t-hashimoto
  */
@@ -53,7 +53,7 @@ public class JMSSubscriber extends AbstractSubscriber {
 
 	InitialContext ctx = null;
 
-	/** HOST:1099‚Æ‚© */
+	/** HOST:1099ã¨ã‹ */
 	private String namingProviderUrl = null;
 
 	// JMS
@@ -74,7 +74,7 @@ public class JMSSubscriber extends AbstractSubscriber {
 	public Object lock = new Object();
 
 	/**
-	 * ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	 * ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	 */
 	public JMSSubscriber() {
 		super();
@@ -90,8 +90,8 @@ public class JMSSubscriber extends AbstractSubscriber {
 	}
 
 	/**
-	 * ‰Šúˆ—B<br>
-	 * ƒRƒlƒNƒVƒ‡ƒ“AƒZƒbƒVƒ‡ƒ“AƒgƒsƒbƒNƒTƒuƒXƒNƒ‰ƒCƒoAƒLƒ…[ƒZƒ“ƒ_[‚Ìì¬B
+	 * åˆæœŸå‡¦ç†ã€‚<br>
+	 * ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã€ã‚»ãƒƒã‚·ãƒ§ãƒ³ã€ãƒˆãƒ”ãƒƒã‚¯ã‚µãƒ–ã‚¹ã‚¯ãƒ©ã‚¤ãƒã€ã‚­ãƒ¥ãƒ¼ã‚»ãƒ³ãƒ€ãƒ¼ã®ä½œæˆã€‚
 	 * 
 	 */
 	public void init() throws InitializeException {
@@ -100,15 +100,15 @@ public class JMSSubscriber extends AbstractSubscriber {
 		}
 		try {
 			// INITIALIZE JMS
-			// JNDI ƒRƒ“ƒeƒLƒXƒg‚Ìì¬
+			// JNDI ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆã®ä½œæˆ
 			if (namingFactoryInitial == null) {
-				throw new InitializeException("NamingFactoryInitial‚ª‰Šú‰»‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ");
+				throw new InitializeException("NamingFactoryInitialãŒåˆæœŸåŒ–ã•ã‚Œã¦ã„ã¾ã›ã‚“");
 			}
 			if (namingFactoryUrlPkgs == null) {
-				throw new InitializeException("NamingFactoryUrlPkgs‚ª‰Šú‰»‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ");
+				throw new InitializeException("NamingFactoryUrlPkgsãŒåˆæœŸåŒ–ã•ã‚Œã¦ã„ã¾ã›ã‚“");
 			}
 			if (namingProviderUrl == null) {
-				throw new InitializeException("NamingProviderUrl‚ª‰Šú‰»‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ");
+				throw new InitializeException("NamingProviderUrlãŒåˆæœŸåŒ–ã•ã‚Œã¦ã„ã¾ã›ã‚“");
 			}
 
 			envContext.put(NAMING_FACTORY_INITIAL_KEY, namingFactoryInitial);
@@ -126,10 +126,10 @@ public class JMSSubscriber extends AbstractSubscriber {
      *                J N D I
      * -------------------------------------------------------- */
 	/**
-	 * JNDIƒRƒ“ƒeƒLƒXƒg‚ğì¬‚·‚éB
+	 * JNDIã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆã‚’ä½œæˆã™ã‚‹ã€‚
 	 * 
 	 * @param propertieFileName
-	 * @return ì¬‚³‚ê‚½JNDIƒRƒ“ƒeƒLƒXƒg
+	 * @return ä½œæˆã•ã‚ŒãŸJNDIã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆ
 	 * @throws IOException
 	 * @throws NamingException
 	 */
@@ -138,10 +138,10 @@ public class JMSSubscriber extends AbstractSubscriber {
 	}
 	
 	/**
-	 * JNDIƒRƒ“ƒeƒLƒXƒg‚ğƒNƒ‰ƒXƒpƒXã‚ÌƒvƒƒpƒeƒBƒtƒ@ƒCƒ‹‚©‚çì¬‚·‚éB
+	 * JNDIã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆã‚’ã‚¯ãƒ©ã‚¹ãƒ‘ã‚¹ä¸Šã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ä½œæˆã™ã‚‹ã€‚
 	 * 
 	 * @param propertieFileName
-	 * @return ì¬‚³‚ê‚½JNDIƒRƒ“ƒeƒLƒXƒg
+	 * @return ä½œæˆã•ã‚ŒãŸJNDIã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆ
 	 * @throws IOException
 	 * @throws NamingException
 	 */
@@ -153,15 +153,15 @@ public class JMSSubscriber extends AbstractSubscriber {
 	}    
 
 	/**
-	 * ƒNƒ‰ƒCƒAƒ“ƒgƒ}ƒl[ƒWƒƒ‚ğ‹N“®‚µAƒT[ƒo‚©‚çƒf[ƒ^‚ÌóM‚ğŠJn‚µ‚Ü‚·.
-	 * addSubscribe(),addSubscribeList(),setSubscribeList()‚Ì‚¢‚¸‚ê‚©‚ÅRealtimeRequest‚ğ“o˜^‚µ‚Ä‚¨‚­•K—v‚ª‚ ‚è‚Ü‚·.
+	 * ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆãƒãƒãƒ¼ã‚¸ãƒ£ã‚’èµ·å‹•ã—ã€ã‚µãƒ¼ãƒã‹ã‚‰ãƒ‡ãƒ¼ã‚¿ã®å—ä¿¡ã‚’é–‹å§‹ã—ã¾ã™.
+	 * addSubscribe(),addSubscribeList(),setSubscribeList()ã®ã„ãšã‚Œã‹ã§RealtimeRequestã‚’ç™»éŒ²ã—ã¦ãŠãå¿…è¦ãŒã‚ã‚Šã¾ã™.
 	 * 
 	 * @throws InitializeException
-	 *             RealtimeRequest‚ª1‚Â‚à“o˜^‚³‚ê‚Ä‚¢‚È‚©‚Á‚½“™‚É”­¶‚µ‚Ü‚·.
+	 *             RealtimeRequestãŒ1ã¤ã‚‚ç™»éŒ²ã•ã‚Œã¦ã„ãªã‹ã£ãŸæ™‚ç­‰ã«ç™ºç”Ÿã—ã¾ã™.
 	 * @throws ConnectionException
-	 *             JBoss,î•ñƒT[ƒo‚Æ‚ÌÚ‘±‚ª‚Å‚«‚È‚Á‚½‚É”­¶‚µ‚Ü‚·.
+	 *             JBoss,æƒ…å ±ã‚µãƒ¼ãƒã¨ã®æ¥ç¶šãŒã§ããªã£ãŸæ™‚ã«ç™ºç”Ÿã—ã¾ã™.
 	 * @throws TimeoutException
-	 *             î•ñƒT[ƒo‚Æ‚ÌÚ‘±‚ªƒ^ƒCƒ€ƒAƒEƒg‚µ‚½‚É”­¶‚µ‚Ü‚·.
+	 *             æƒ…å ±ã‚µãƒ¼ãƒã¨ã®æ¥ç¶šãŒã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã—ãŸæ™‚ã«ç™ºç”Ÿã—ã¾ã™.
 	 */
 	public void start() throws InitializeException {
 		boolean failFlag = true;
@@ -184,7 +184,7 @@ public class JMSSubscriber extends AbstractSubscriber {
 	}
 
 	/**
-	 * JMS—p‚ÌƒTƒuƒXƒNƒ‰ƒCƒo[‚ğ’Ç‰Á‚·‚é
+	 * JMSç”¨ã®ã‚µãƒ–ã‚¹ã‚¯ãƒ©ã‚¤ãƒãƒ¼ã‚’è¿½åŠ ã™ã‚‹
 	 * 
 	 * @param topic
 	 * @param messageSelector
@@ -193,17 +193,17 @@ public class JMSSubscriber extends AbstractSubscriber {
 		if (connected == false) {
 			subscriberList.add(new Subscriber(destination, messageSelector));
 		} else {
-			throw new IllegalStateException("ƒNƒ‰ƒCƒAƒ“ƒgƒ}ƒl[ƒWƒƒ‹N“®’†‚ÉƒŠƒNƒGƒXƒg‚ğ•ÏX‚·‚é‚±‚Æ‚Í‚Å‚«‚Ü‚¹‚ñB");
+			throw new IllegalStateException("ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆãƒãƒãƒ¼ã‚¸ãƒ£èµ·å‹•ä¸­ã«ãƒªã‚¯ã‚¨ã‚¹ãƒˆã‚’å¤‰æ›´ã™ã‚‹ã“ã¨ã¯ã§ãã¾ã›ã‚“ã€‚");
 		}
 	}
 
 	/**
-	 * RealtimeRequest‚ğƒŠƒXƒg‚©‚çíœ‚·‚é. start()ŒÄ‚Ño‚µ‘O‚És‚Á‚Ä‚­‚¾‚³‚¢.
-	 * start()ŒÄ‚Ño‚µŒã‚Ístop()‚ğŒÄ‚Î‚ê‚é‚Ü‚Å‚±‚±‚Ì•ÏX‚ğs‚¤‚Æ—áŠO‚ª”­¶‚µ‚Ü‚·.
+	 * RealtimeRequestã‚’ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤ã™ã‚‹. start()å‘¼ã³å‡ºã—å‰ã«è¡Œã£ã¦ãã ã•ã„.
+	 * start()å‘¼ã³å‡ºã—å¾Œã¯stop()ã‚’å‘¼ã°ã‚Œã‚‹ã¾ã§ã“ã“ã®å¤‰æ›´ã‚’è¡Œã†ã¨ä¾‹å¤–ãŒç™ºç”Ÿã—ã¾ã™.
 	 * 
 	 * @param request
 	 * @throws RequestException
-	 *             start()ŒÄ‚Ño‚µŒã‚©‚çstop()‚ğŒÄ‚Î‚ê‚é‚Ü‚Å‚ÉƒŠƒXƒg‚ğ•ÏX‚µ‚æ‚¤‚µ‚½ê‡‚É”­¶‚µ‚Ü‚·.
+	 *             start()å‘¼ã³å‡ºã—å¾Œã‹ã‚‰stop()ã‚’å‘¼ã°ã‚Œã‚‹ã¾ã§ã«ãƒªã‚¹ãƒˆã‚’å¤‰æ›´ã—ã‚ˆã†ã—ãŸå ´åˆã«ç™ºç”Ÿã—ã¾ã™.
 	 */
 	public void removeSubscribe(String destination, String messageSelector) {
 		if (connected == false) {
@@ -217,12 +217,12 @@ public class JMSSubscriber extends AbstractSubscriber {
 			}
 			subscriberList.remove(removeTarget);
 		} else {
-			throw new IllegalStateException("ƒNƒ‰ƒCƒAƒ“ƒgƒ}ƒl[ƒWƒƒ‹N“®’†‚ÉƒŠƒNƒGƒXƒg‚ğ•ÏX‚·‚é‚±‚Æ‚Í‚Å‚«‚Ü‚¹‚ñB");
+			throw new IllegalStateException("ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆãƒãƒãƒ¼ã‚¸ãƒ£èµ·å‹•ä¸­ã«ãƒªã‚¯ã‚¨ã‚¹ãƒˆã‚’å¤‰æ›´ã™ã‚‹ã“ã¨ã¯ã§ãã¾ã›ã‚“ã€‚");
 		}
 	}
 
 	/**
-	 * ƒŠƒXƒi‚ğ“o˜^‚µƒf[ƒ^‚ÌóM‚ğŠJn‚·‚éB
+	 * ãƒªã‚¹ãƒŠã‚’ç™»éŒ²ã—ãƒ‡ãƒ¼ã‚¿ã®å—ä¿¡ã‚’é–‹å§‹ã™ã‚‹ã€‚
 	 * 
 	 * @throws Exception
 	 */
@@ -235,13 +235,13 @@ public class JMSSubscriber extends AbstractSubscriber {
 		prepareConnect();
 		super.connect();
 
-		// ƒƒbƒZ[ƒW‚Ì”z‘—‚ğƒXƒ^[ƒg
+		// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®é…é€ã‚’ã‚¹ã‚¿ãƒ¼ãƒˆ
 		connection.start();
 	}
 
 	protected void prepareConnect() throws Exception{
-		// ƒRƒlƒNƒVƒ‡ƒ“‚ğì¬
-		// ƒgƒsƒbƒNƒRƒlƒNƒVƒ‡ƒ“ƒtƒ@ƒNƒgƒŠ[‚ğƒ‹ƒbƒNƒAƒbƒv
+		// ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã‚’ä½œæˆ
+		// ãƒˆãƒ”ãƒƒã‚¯ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ãƒ•ã‚¡ã‚¯ãƒˆãƒªãƒ¼ã‚’ãƒ«ãƒƒã‚¯ã‚¢ãƒƒãƒ—
 		ConnectionFactory connectionFactory = (ConnectionFactory) ctx.lookup(JMS_FACTORY);
 		connection = connectionFactory.createConnection();
 		connection.setExceptionListener(new javax.jms.ExceptionListener() {			
@@ -252,18 +252,18 @@ public class JMSSubscriber extends AbstractSubscriber {
 			}
 		});
 		
-		// ƒZƒbƒVƒ‡ƒ“‚ğì¬
+		// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’ä½œæˆ
 		session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
 
 		for(Subscriber subscriber : subscriberList){
 			MessageConsumer consumer;
-			// ƒTƒuƒXƒNƒ‰ƒCƒo‚ğì¬iğŒ•¶‚ğw’èj
+			// ã‚µãƒ–ã‚¹ã‚¯ãƒ©ã‚¤ãƒã‚’ä½œæˆï¼ˆæ¡ä»¶æ–‡ã‚’æŒ‡å®šï¼‰
 			Destination destination = (Destination) ctx.lookup(subscriber.getDestination());
 			if (destination == null) {
 				throw new JMSException("Can't find topic: " + subscriber.getDestination());
 			}
 
-			// ’Êí‚Ì’l’i‚ª”zM‚³‚ê‚éƒTƒuƒXƒNƒ‰ƒCƒo(Feeder,Dataset‚Åi‚è‚İ‰Â)
+			// é€šå¸¸ã®å€¤æ®µãŒé…ä¿¡ã•ã‚Œã‚‹ã‚µãƒ–ã‚¹ã‚¯ãƒ©ã‚¤ãƒ(Feeder,Datasetã§çµã‚Šè¾¼ã¿å¯)
 			consumer = session.createConsumer(destination, subscriber.getMessageSelector(), false);
 			jmsMessageListener = new JMSMessageListener();
 			consumer.setMessageListener(jmsMessageListener);
@@ -293,7 +293,7 @@ public class JMSSubscriber extends AbstractSubscriber {
 			return;
 		}
 
-		// ƒTƒuƒXƒNƒ‰ƒCƒo‚ğƒNƒ[ƒY
+		// ã‚µãƒ–ã‚¹ã‚¯ãƒ©ã‚¤ãƒã‚’ã‚¯ãƒ­ãƒ¼ã‚º
 		while(messageConsumerList.size() > 0){
 			MessageConsumer consumer = (MessageConsumer)messageConsumerList.remove(0);
 			if (consumer != null) {
@@ -304,7 +304,7 @@ public class JMSSubscriber extends AbstractSubscriber {
 				}
 			}
 		}
-		// ƒZƒbƒVƒ‡ƒ“‚ğƒNƒ[ƒY
+		// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’ã‚¯ãƒ­ãƒ¼ã‚º
 		if (session != null) {
 			try {
 				session.close();
@@ -312,7 +312,7 @@ public class JMSSubscriber extends AbstractSubscriber {
 				log.error("Can't close session.", e);
 			}
 		}
-		// ƒRƒlƒNƒVƒ‡ƒ“‚ğƒNƒ[ƒY
+		// ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã‚’ã‚¯ãƒ­ãƒ¼ã‚º
 		if (connection != null) {
 			try {
 				connection.close();
@@ -324,7 +324,7 @@ public class JMSSubscriber extends AbstractSubscriber {
 	}
 
 	/**
-	 * “o˜^‚³‚ê‚½ƒŠƒXƒi‚ğ‰ğœ‚µóM‚ğI—¹‚·‚éB
+	 * ç™»éŒ²ã•ã‚ŒãŸãƒªã‚¹ãƒŠã‚’è§£é™¤ã—å—ä¿¡ã‚’çµ‚äº†ã™ã‚‹ã€‚
 	 */
 	public void stop() {
 		super.stop();
@@ -337,9 +337,9 @@ public class JMSSubscriber extends AbstractSubscriber {
         private Hashtable exceptionTable = new Hashtable();
         
         /**
-         * ƒgƒsƒbƒN‚Éƒf[ƒ^‚ª“’…‚µ‚½Û‚Éƒf[ƒ^‚ğó‚¯“n‚³‚ê‚éƒƒ\ƒbƒh
-         * I—¹ƒƒbƒZ[ƒW‚ğóM‚µ‚½‚©ƒ`ƒFƒbƒN‚ğs‚¢A‚±‚Ìƒƒ\ƒbƒh‚©‚ç
-         * fireResponce‚ğÀs‚·‚éB
+         * ãƒˆãƒ”ãƒƒã‚¯ã«ãƒ‡ãƒ¼ã‚¿ãŒåˆ°ç€ã—ãŸéš›ã«ãƒ‡ãƒ¼ã‚¿ã‚’å—ã‘æ¸¡ã•ã‚Œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰
+         * çµ‚äº†ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’å—ä¿¡ã—ãŸã‹ãƒã‚§ãƒƒã‚¯ã‚’è¡Œã„ã€ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‹ã‚‰
+         * fireResponceã‚’å®Ÿè¡Œã™ã‚‹ã€‚
          * 
          * @param msg
          * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
@@ -400,20 +400,20 @@ public class JMSSubscriber extends AbstractSubscriber {
 	}
 	
 	/**
-	 * MessageListener‚ğ’Ç‰Á‚µ‚Ü‚·. ‚±‚Ì•ÏX‚Í‚·‚®‚É“K—p‚³‚ê‚Ü‚·.
+	 * MessageListenerã‚’è¿½åŠ ã—ã¾ã™. ã“ã®å¤‰æ›´ã¯ã™ãã«é©ç”¨ã•ã‚Œã¾ã™.
 	 * 
 	 * @param listener
-	 *            ƒŠƒXƒg‚Ö’Ç‰Á‚·‚éRealtimeMessageListener
+	 *            ãƒªã‚¹ãƒˆã¸è¿½åŠ ã™ã‚‹RealtimeMessageListener
 	 */
 	public void addMessageListener(MessageListener listener) {
 		messageListener.addMessageListener(listener);
 	}
 
 	/**
-	 * MessageListener‚ğíœ‚µ‚Ü‚·. ‚±‚Ì•ÏX‚Í‚·‚®‚É“K—p‚³‚ê‚Ü‚·.
+	 * MessageListenerã‚’å‰Šé™¤ã—ã¾ã™. ã“ã®å¤‰æ›´ã¯ã™ãã«é©ç”¨ã•ã‚Œã¾ã™.
 	 * 
 	 * @param listener
-	 *            ƒŠƒXƒg‚©‚çíœ‚·‚éRealtimeMessageListener
+	 *            ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤ã™ã‚‹RealtimeMessageListener
 	 */
 	public void removeMessageListener(MessageListener listener) {
 		messageListener.removeMessageListener(listener);
@@ -436,7 +436,7 @@ public class JMSSubscriber extends AbstractSubscriber {
 	}
 
 	/**
-	 * Ú‘±æ‚ÌƒT[ƒo(JBoss‚ÌJMS—p‚Ìƒ|[ƒg)‚Ö‚ÌƒAƒhƒŒƒX‚ğ•Ô‚µ‚Ü‚·. ƒtƒH[ƒ}ƒbƒg‚ÍIPƒAƒhƒŒƒX:PORT‚Å‚·. —á:
+	 * æ¥ç¶šå…ˆã®ã‚µãƒ¼ãƒ(JBossã®JMSç”¨ã®ãƒãƒ¼ãƒˆ)ã¸ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¿”ã—ã¾ã™. ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã¯IPã‚¢ãƒ‰ãƒ¬ã‚¹:PORTã§ã™. ä¾‹:
 	 * xxx.xxx.xxx.xxx:1099
 	 * 
 	 * @return
@@ -446,11 +446,11 @@ public class JMSSubscriber extends AbstractSubscriber {
 	}
 
 	/**
-	 * Ú‘±æ‚ÌƒT[ƒo(JBoss‚ÌJMS—p‚Ìƒ|[ƒg)‚Ö‚ÌƒAƒhƒŒƒX‚ğw’è‚µ‚Ü‚·. ƒtƒH[ƒ}ƒbƒg‚ÍIPƒAƒhƒŒƒX:PORT‚Å‚·. —á:
+	 * æ¥ç¶šå…ˆã®ã‚µãƒ¼ãƒ(JBossã®JMSç”¨ã®ãƒãƒ¼ãƒˆ)ã¸ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æŒ‡å®šã—ã¾ã™. ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã¯IPã‚¢ãƒ‰ãƒ¬ã‚¹:PORTã§ã™. ä¾‹:
 	 * xxx.xxx.xxx.xxx:1099
 	 * 
 	 * @param namingProviderUrl
-	 *            IPƒAƒhƒŒƒX:PORT
+	 *            IPã‚¢ãƒ‰ãƒ¬ã‚¹:PORT
 	 */
 	public void setNamingProviderUrl(String namingProviderUrl) {
 		this.namingProviderUrl = namingProviderUrl;

@@ -48,7 +48,7 @@ public class GrizzlyConnectionChangePane extends JComponent {
 		GridBagConstraints gbc = new GridBagConstraints();
 
 		gbc.anchor = GridBagConstraints.WEST;
-		JLabel urlLabel = new JLabel("Ú‘±æ", JLabel.LEFT);
+		JLabel urlLabel = new JLabel("æ¥ç¶šå…ˆ", JLabel.LEFT);
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.gridwidth = 1;
@@ -102,7 +102,7 @@ public class GrizzlyConnectionChangePane extends JComponent {
 	}
 	
 	private JDialog createDialog(Component parentComponent) {
-		final JDialog dialog = createDialog(parentComponent, "Ú‘±æ•ÏX");
+		final JDialog dialog = createDialog(parentComponent, "æ¥ç¶šå…ˆå¤‰æ›´");
 		dialog.setResizable(false);
 		dialog.setLocationRelativeTo(parentComponent);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

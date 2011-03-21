@@ -30,6 +30,7 @@
     <module>publisher-websocket</module>
     <module>subscriber-websocket</module>
     <module>subscriber-jms</module>
+    <module>websocket-client</module>
   </modules>
 
   <dependencyManagement>

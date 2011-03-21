@@ -135,7 +135,15 @@ abstract public class WebSocketBase implements WebSocket {
 			throw new WebSocketException(3010);
 		}
 	}
+	
+	public void send(Object obj) throws WebSocketException {
+		send(createFrame(obj));
+	}
 
+	public void send(String str) throws WebSocketException {
+		send(createFrame(str));		
+	}
+	
 	public void connect() throws WebSocketException {
 		try {
 			socket = SocketChannel.open();
@@ -334,6 +342,10 @@ abstract public class WebSocketBase implements WebSocket {
 	}
 
 	abstract protected ByteBuffer createHandshakeRequest() throws WebSocketException;
+	
+	abstract protected Frame createFrame(Object obj) throws WebSocketException;
+	
+	abstract protected Frame createFrame(String str) throws WebSocketException;
 	
 	protected static String readLine(ByteBuffer buf){
 		int position = buf.position();

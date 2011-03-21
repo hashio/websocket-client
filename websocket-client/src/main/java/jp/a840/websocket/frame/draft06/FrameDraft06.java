@@ -1,4 +1,9 @@
-package jp.a840.websocket.frame;
+package jp.a840.websocket.frame.draft06;
+
+import java.nio.ByteBuffer;
+
+import jp.a840.websocket.frame.Frame;
+import jp.a840.websocket.frame.FrameHeader;
 
 /**
  *  WebSocket Frame class
@@ -30,48 +35,29 @@ package jp.a840.websocket.frame;
  * @author t-hashimoto
  *
  */
-public class FrameFactory {
-	private enum Opcode {
-		CONNECTION_CLOSE(1),
-		PING(2),
-		PONG(3),
-		TEXT_FRAME(4),
-		BINARY_FRAME(5);
-		// 0x6-F reserved
-		
-		private final int opcode;
-		private Opcode(int opcode){
-			this.opcode = opcode;
-		}
-		public int intValue(){
-			return opcode;
-		}
-	}
-
-	private static final int  FIN_MASK  = 1 << 7;
-	private static final byte RSV1_MASK = 1 << 6;
-	private static final byte RSV2_MASK = 1 << 5;
-	private static final byte RSV3_MASK = 1 << 4;
-	private static final byte OPCODE_MASK = 0xF;
-
-	private static final int  RSV4_MASK  = 1 << 7;
-	private static final int  PAYLOAD_LEN_MASK  = 0x7F;
-
-	private byte[] frame;
-	private int extendedPayloadLength;
+abstract public class FrameDraft06 extends Frame {
 	
-	public FrameFactory(){
+	private FrameBuilderDraft06 builder = new FrameBuilderDraft06();
+	
+	protected FrameDraft06(){
 	}
 
-	public boolean isBinaryFrame(){
-		return Opcode.BINARY_FRAME.intValue() == getOpcode();
+	protected FrameDraft06(byte[] bodyData){
+		super();
+		FrameHeader header = builder.createFrameHeader(ByteBuffer.wrap(bodyData));
+		setHeader(header);
+		setBody(bodyData);
+	}
+
+	protected FrameDraft06(FrameHeader header, byte[] bodyData){
+		super(header, bodyData);
 	}
 	
-	public int getOpcode(){
-		return frame[0] & OPCODE_MASK;
-	}
-	
-	private void parseFrame(){
-		
+	public ByteBuffer toByteBuffer(){
+		ByteBuffer headerBuffer = header.toByteBuffer();
+		ByteBuffer buf = ByteBuffer.allocate(headerBuffer.limit() + body.length);
+		buf.put(headerBuffer);
+		buf.put(body);
+		return buf;
 	}
 }

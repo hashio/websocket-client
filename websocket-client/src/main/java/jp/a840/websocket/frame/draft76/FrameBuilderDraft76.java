@@ -1,11 +1,12 @@
-package jp.a840.websocket.frame;
+package jp.a840.websocket.frame.draft76;
 
-import static jp.a840.websocket.frame.FrameHeader.*;
-
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 
-import jp.a840.websocket.frame.FrameHeader.Opcode;
-import jp.a840.websocket.frame.FrameHeader.PayloadLengthType;
+import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.frame.Frame;
+import jp.a840.websocket.frame.FrameHeader;
 
 public class FrameBuilderDraft76 {
 	
@@ -32,9 +33,7 @@ public class FrameBuilderDraft76 {
 		if(type == 0x80){
 			while(chunkData.get() != 0xFF);
 			payloadLength = chunkData.position() - position;
-			return new FrameHeader(false, 1, 0, payloadLength, Opcode.TEXT_FRAME);
 		}else{
-			int i = 1;
 			while(chunkData.hasRemaining()){
 				int lengthByte = chunkData.get();
 				int length7Bit = lengthByte & 0x7F;
@@ -43,18 +42,15 @@ public class FrameBuilderDraft76 {
 					break;
 				}
 			}
-			return new FrameHeader(false, 1, 0, payloadLength, Opcode.BINARY_FRAME);
 		}
-		
+		return new FrameHeaderDraft76((byte)type, payloadLength);
 	}
 	
-	public Frame createFrame(FrameHeader header, byte[] bodyData){
-		switch(header.getOpcode()){
-		case CONNECTION_CLOSE: return new ConnectionCloseFrame(header, bodyData);
-		case PING:             return new PingFrame(header, bodyData);
-		case PONG:             return new PongFrame(header, bodyData);
-		case TEXT_FRAME:       return new TextFrame(header, bodyData);
-		case BINARY_FRAME:     return new BinaryFrame(header, bodyData);
+	public Frame createFrame(FrameHeader h, byte[] bodyData){
+		FrameHeaderDraft76 header = (FrameHeaderDraft76)h;
+		switch(header.getFrameType()){
+		case (byte)0x80:     return new TextFrame(header, bodyData);
+		case (byte)0xFF:     return new BinaryFrame(header, bodyData);
 		default: throw new IllegalStateException("Not found Opcode type!");
 		}
 	}

@@ -22,6 +22,7 @@ import jp.a840.websocket.WebSocketDraft76;
 import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.WebSocketHandlerAdapter;
 import jp.a840.websocket.frame.Frame;
+import jp.a840.websocket.frame.draft06.TextFrame;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,7 +174,7 @@ public class WSCSubscriber extends AbstractSubscriber {
                 if(quit){
                     return;
                 }
-                ByteBuffer buffer = frame.toByteBuffer();
+                ByteBuffer buffer = frame.getRawBody();
                 byte[] bytes = new byte[buffer.limit() - buffer.position()];
                 buffer.get(bytes);
                 ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
@@ -258,11 +259,12 @@ public class WSCSubscriber extends AbstractSubscriber {
 			public void onMessage(MessageEvent e) {
 				Message msg = e.getMessage();
 				RateBean dto = (RateBean)msg.getBody();
-				System.out.println(dto.getBid());
+			//	System.out.println(dto.getBid());
 			}
 		});
 		while(true){
-			Thread.sleep(1000);
+			Thread.sleep(1000);			
+			sub.websocket.send(new TextFrame("TEST"));
 		}
 	}
 

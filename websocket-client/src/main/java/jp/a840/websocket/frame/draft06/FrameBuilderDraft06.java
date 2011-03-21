@@ -1,13 +1,21 @@
-package jp.a840.websocket.frame;
+package jp.a840.websocket.frame.draft06;
 
-import static jp.a840.websocket.frame.FrameHeader.*;
+import static jp.a840.websocket.frame.draft06.FrameHeaderDraft06.FIN_MASK;
+import static jp.a840.websocket.frame.draft06.FrameHeaderDraft06.OPCODE_MASK;
+import static jp.a840.websocket.frame.draft06.FrameHeaderDraft06.PAYLOAD_LEN_MASK;
+import static jp.a840.websocket.frame.draft06.FrameHeaderDraft06.RSV1_MASK;
+import static jp.a840.websocket.frame.draft06.FrameHeaderDraft06.RSV2_MASK;
+import static jp.a840.websocket.frame.draft06.FrameHeaderDraft06.RSV3_MASK;
+import static jp.a840.websocket.frame.draft06.FrameHeaderDraft06.RSV4_MASK;
 
 import java.nio.ByteBuffer;
 
-import jp.a840.websocket.frame.FrameHeader.Opcode;
-import jp.a840.websocket.frame.FrameHeader.PayloadLengthType;
+import jp.a840.websocket.frame.Frame;
+import jp.a840.websocket.frame.FrameHeader;
+import jp.a840.websocket.frame.draft06.FrameHeaderDraft06.Opcode;
+import jp.a840.websocket.frame.draft06.FrameHeaderDraft06.PayloadLengthType;
 
-public class FrameBuilder {
+public class FrameBuilderDraft06 {
 	
 	/**
 	 * create frame header from parameter bytes
@@ -15,7 +23,7 @@ public class FrameBuilder {
 	 * @param chunkData
 	 * @return a sub class of Frame
 	 */
-	public FrameHeader createFrameHeader(ByteBuffer chunkData) {
+	public FrameHeaderDraft06 createFrameHeader(ByteBuffer chunkData) {
 		if(chunkData == null){
 			throw new IllegalArgumentException("Data is null.");
 		}
@@ -73,10 +81,11 @@ public class FrameBuilder {
 			payloadOffset += 8;
 		}
 		
-		return new FrameHeader(fragmented, 2, payloadOffset, payloadLength, opcode);
+		return new FrameHeaderDraft06(fragmented, 2, payloadOffset, payloadLength, opcode);
 	}
 	
-	public Frame createFrame(FrameHeader header, byte[] bodyData){
+	public Frame createFrame(FrameHeader h, byte[] bodyData){
+		FrameHeaderDraft06 header = (FrameHeaderDraft06)h;
 		switch(header.getOpcode()){
 		case CONNECTION_CLOSE: return new ConnectionCloseFrame(header, bodyData);
 		case PING:             return new PingFrame(header, bodyData);

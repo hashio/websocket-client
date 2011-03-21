@@ -1,12 +1,12 @@
 package jp.a840.websocket;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.io.ObjectOutputStream;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,8 +14,10 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import jp.a840.websocket.frame.Frame;
-import jp.a840.websocket.frame.FrameBuilder;
-import jp.a840.websocket.frame.FrameHeader;
+import jp.a840.websocket.frame.draft06.BinaryFrame;
+import jp.a840.websocket.frame.draft06.FrameBuilderDraft06;
+import jp.a840.websocket.frame.draft06.FrameHeaderDraft06;
+import jp.a840.websocket.frame.draft76.TextFrame;
 import jp.a840.websocket.handler.WebSocketPipeline;
 import util.Base64;
 
@@ -36,7 +38,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 	
 	protected String[] serverExtentions;
 	                 
-	private FrameBuilder builder = new FrameBuilder();
+	private FrameBuilderDraft06 builder = new FrameBuilderDraft06();
 	
 	public WebSocketDraft06(String url, WebSocketHandler handler, String... protocols) throws URISyntaxException, IOException {
 		super(url, handler, protocols);
@@ -133,7 +135,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 	protected void readFrame(List<Frame> frameList, ByteBuffer buffer)
 			throws IOException {
 		Frame frame = null;
-		FrameHeader header = null;
+		FrameHeaderDraft06 header = null;
 		if (header == null) {
 			// 1. create frame header
 			header = builder.createFrameHeader(buffer);
@@ -145,8 +147,8 @@ public class WebSocketDraft06 extends WebSocketBase {
 
 			byte[] bodyData;
 			if ((buffer.limit() - buffer.position()) < header.getFrameLength()) {
-				if (header.getPayloadLength() <= 0xFFFF) {
-					bodyData = new byte[(int) header.getPayloadLength()];
+				if (header.getBodyLength() <= 0xFFFF) {
+					bodyData = new byte[(int) header.getBodyLength()];
 					buffer.get(bodyData, buffer.position(), buffer.limit());
 					ByteBuffer largeBuffer = ByteBuffer.wrap(bodyData);
 					largeBuffer.position(buffer.limit() - buffer.position());
@@ -156,7 +158,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 					throw new IllegalStateException("Not supported yet");
 				}
 			} else {
-				bodyData = new byte[(int) header.getPayloadLength()];
+				bodyData = new byte[(int) header.getBodyLength()];
 				buffer.get(bodyData);
 			}
 
@@ -171,18 +173,25 @@ public class WebSocketDraft06 extends WebSocketBase {
 		}
 	}
 	
-	public static void main(String[] argv) throws Exception {
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost/rate",
-		new WebSocketHandlerAdapter() {
-			@Override
-			public void onOpen(WebSocket socket) {
-				logger.info("onOpen");
-			}
+	@Override
+	protected Frame createFrame(Object obj) throws WebSocketException {
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			oos.writeObject(obj);
+			
+			byte[] bodyData = baos.toByteArray();
+			return new BinaryFrame(bodyData);
+		} catch (Exception e) {
+			throw new WebSocketException(3801, e);
 		}
-		,"rate");
-		ws.connect(); // connect and start receive messages;		
 	}
 
+	@Override
+	protected Frame createFrame(String str) throws WebSocketException {
+		return new TextFrame(str);
+	}
+	
 	@Override
 	protected int getWebSocketVersion() {
 		return VERSION;
@@ -195,5 +204,5 @@ public class WebSocketDraft06 extends WebSocketBase {
 	public void removeExtension(String extension){
 		extensions.remove(extension);
 	}
-	
+
 }

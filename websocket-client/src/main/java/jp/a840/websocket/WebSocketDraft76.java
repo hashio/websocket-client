@@ -1,6 +1,8 @@
 package jp.a840.websocket;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -9,8 +11,10 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import jp.a840.websocket.frame.Frame;
-import jp.a840.websocket.frame.FrameBuilderDraft76;
 import jp.a840.websocket.frame.FrameHeader;
+import jp.a840.websocket.frame.draft76.BinaryFrame;
+import jp.a840.websocket.frame.draft76.FrameBuilderDraft76;
+import jp.a840.websocket.frame.draft76.TextFrame;
 import jp.a840.websocket.handler.WebSocketPipeline;
 
 /**
@@ -151,15 +155,15 @@ public class WebSocketDraft76 extends WebSocketBase {
 
 			byte[] bodyData;
 			if ((buffer.limit() - buffer.position()) < header.getFrameLength()) {
-				if (header.getPayloadLength() <= 0xFFFF) {
-					bodyData = new byte[(int) header.getPayloadLength()];
+				if (header.getBodyLength() <= 0xFFFF) {
+					bodyData = new byte[(int) header.getBodyLength()];
 					int bufferLength = buffer.limit() - buffer.position();
 					buffer.get(
 							bodyData,
 							0,
 							(int) Math.min(bufferLength,
-									header.getPayloadLength()));
-					if (bufferLength < header.getPayloadLength()) {
+									header.getBodyLength()));
+					if (bufferLength < header.getBodyLength()) {
 						// read large buffer
 						ByteBuffer largeBuffer = ByteBuffer.wrap(bodyData);
 						socket.read(largeBuffer);
@@ -169,7 +173,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 					throw new IllegalStateException("Not supported yet");
 				}
 			} else {
-				bodyData = new byte[(int) header.getPayloadLength()];
+				bodyData = new byte[(int) header.getBodyLength()];
 				buffer.get(bodyData);
 			}
 
@@ -183,6 +187,8 @@ public class WebSocketDraft76 extends WebSocketBase {
 			}
 		}
 	}
+	
+	
 
 	@Override
 	protected int getWebSocketVersion() {
@@ -234,5 +240,24 @@ public class WebSocketDraft76 extends WebSocketBase {
 			random.nextBytes(key3);
 			return key3;
 		}
+	}
+
+	@Override
+	protected Frame createFrame(Object obj) throws WebSocketException {
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			oos.writeObject(obj);
+			
+			byte[] bodyData = baos.toByteArray();
+			return new BinaryFrame(bodyData);
+		} catch (Exception e) {
+			throw new WebSocketException(3801, e);
+		}
+	}
+
+	@Override
+	protected Frame createFrame(String str) throws WebSocketException {
+		return new TextFrame(str);
 	}
 }

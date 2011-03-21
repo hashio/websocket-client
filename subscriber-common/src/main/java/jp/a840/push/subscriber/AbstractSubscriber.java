@@ -110,7 +110,7 @@ abstract public class AbstractSubscriber implements Subscriber {
 	}
 
 	protected void quit(){
-		if(disconnecterThread == null){
+		if(disconnecter == null){
 			disconnect();
 		}else{
 			synchronized (disconnecter) {
@@ -224,14 +224,15 @@ abstract public class AbstractSubscriber implements Subscriber {
 	 *                    D I S C O N N E C T E R
 	 * -------------------------------------------------------- */
 	protected class ClientManagerDisconnecter {
-		private CountDownLatch disconnectLatch = new CountDownLatch(1);
-		private CountDownLatch stopWaitLatch = new CountDownLatch(1);
+		private volatile CountDownLatch disconnectLatch;
+		private volatile CountDownLatch stopWaitLatch;
 		    
 		private ExecutorService executor;
 		    
 		public void start(){
+			disconnectLatch = new CountDownLatch(1);
 			executor = Executors.newSingleThreadExecutor();
-			executor.execute(new Runnable() {
+			executor.submit(new Runnable() {
 						public void run() {
 			            try{
 			                synchronized (this) {
@@ -248,6 +249,7 @@ abstract public class AbstractSubscriber implements Subscriber {
 	        
 		public void stop(){
 			try{
+				stopWaitLatch = new CountDownLatch(1);
 				disconnectLatch.countDown();
 				stopWaitLatch.await(60, TimeUnit.SECONDS);
 			}catch(InterruptedException e){

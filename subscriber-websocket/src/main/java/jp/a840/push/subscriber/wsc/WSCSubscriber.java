@@ -11,18 +11,19 @@ import java.util.Properties;
 import jp.a840.push.beans.RateBean;
 import jp.a840.push.subscriber.AbstractSubscriber;
 import jp.a840.push.subscriber.Message;
+import jp.a840.push.subscriber.event.ExceptionEvent;
 import jp.a840.push.subscriber.event.MessageEvent;
 import jp.a840.push.subscriber.exception.ConnectionException;
 import jp.a840.push.subscriber.exception.InitializeException;
 import jp.a840.push.subscriber.exception.TimeoutException;
 import jp.a840.push.subscriber.listener.CompositeMessageListener;
+import jp.a840.push.subscriber.listener.ExceptionListener;
 import jp.a840.push.subscriber.listener.MessageListener;
 import jp.a840.websocket.WebSocket;
 import jp.a840.websocket.WebSocketDraft76;
 import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.WebSocketHandlerAdapter;
 import jp.a840.websocket.frame.Frame;
-import jp.a840.websocket.frame.draft06.TextFrame;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -255,16 +256,23 @@ public class WSCSubscriber extends AbstractSubscriber {
 		WSCSubscriber sub = new WSCSubscriber();
 		sub.setLocation("ws://localhost:8088/rate");
 		sub.start();
+		sub.addExceptionListener(new ExceptionListener() {
+			@Override
+			public void onException(ExceptionEvent e) {
+				e.getException().printStackTrace();
+			}
+		});
 		sub.addMessageListener(new MessageListener() {			
 			public void onMessage(MessageEvent e) {
 				Message msg = e.getMessage();
 				RateBean dto = (RateBean)msg.getBody();
-			//	System.out.println(dto.getBid());
+//				System.out.println(dto.getBid());
 			}
 		});
 		while(true){
-			Thread.sleep(1000);			
-			sub.websocket.send(new TextFrame("TEST"));
+			Thread.sleep(1000);
+			sub.websocket.send(sub.websocket.createFrame("TEST"));
+			System.out.println("Sent");
 		}
 	}
 

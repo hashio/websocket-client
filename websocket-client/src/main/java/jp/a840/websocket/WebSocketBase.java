@@ -129,10 +129,12 @@ abstract public class WebSocketBase implements WebSocket {
 	
 	public void send(Frame frame) throws WebSocketException {
 		try{
-			upstreamQueue.add(frame);
+			upstreamQueue.put(frame);
 			socket.register(selector, OP_READ | OP_WRITE);
+		}catch(InterruptedException e){
+			throw new WebSocketException(3011, e);
 		}catch(ClosedChannelException e){
-			throw new WebSocketException(3010);
+			throw new WebSocketException(3010, e);
 		}
 	}
 	
@@ -188,7 +190,7 @@ abstract public class WebSocketBase implements WebSocket {
 								if (key.isValid() && key.isWritable()) {
 									SocketChannel channel = (SocketChannel) key
 											.channel();
-									channel.write(upstreamQueue.poll()
+									channel.write(upstreamQueue.take()
 											.toByteBuffer());
 								} else if (key.isValid() && key.isReadable()) {
 									try {
@@ -343,9 +345,9 @@ abstract public class WebSocketBase implements WebSocket {
 
 	abstract protected ByteBuffer createHandshakeRequest() throws WebSocketException;
 	
-	abstract protected Frame createFrame(Object obj) throws WebSocketException;
+	abstract public Frame createFrame(Object obj) throws WebSocketException;
 	
-	abstract protected Frame createFrame(String str) throws WebSocketException;
+	abstract public Frame createFrame(String str) throws WebSocketException;
 	
 	protected static String readLine(ByteBuffer buf){
 		int position = buf.position();

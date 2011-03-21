@@ -243,7 +243,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	}
 
 	@Override
-	protected Frame createFrame(Object obj) throws WebSocketException {
+	public Frame createFrame(Object obj) throws WebSocketException {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -257,7 +257,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	}
 
 	@Override
-	protected Frame createFrame(String str) throws WebSocketException {
+	public Frame createFrame(String str) throws WebSocketException {
 		return new TextFrame(str);
 	}
 }

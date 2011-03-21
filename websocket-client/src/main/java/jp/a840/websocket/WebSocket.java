@@ -13,4 +13,6 @@ public interface WebSocket {
 	public void setBlockingMode(boolean blockingMode);
 	public int getConnectionTimeout();
 	public void setConnectionTimeout(int connectionTimeout);
+	public Frame createFrame(Object obj) throws WebSocketException;
+	public Frame createFrame(String str) throws WebSocketException;
 }

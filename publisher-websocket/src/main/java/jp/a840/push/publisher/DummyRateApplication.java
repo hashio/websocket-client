@@ -65,9 +65,9 @@ public class DummyRateApplication extends WebSocketApplication<RateWebSocket> {
 	public void startSubscribe() throws Exception {
 		executorService = Executors.newFixedThreadPool(30);
 		final List<Iterator<RateBean>> its = new ArrayList<Iterator<RateBean>>();
-		its.add(new RateGenerateIterator("USD/JPY"));
-		its.add(new RateGenerateIterator("EUR/JPY"));
-		its.add(new RateGenerateIterator("EUR/USD"));
+		for(int i = 0; i < 10; i++){
+			its.add(new RateGenerateIterator(String.valueOf(i)));
+		}
 		
 		for(final Iterator<RateBean> it : its){
 			executorService.execute(new Runnable() {

@@ -31,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jp.a840.websocket.frame.Frame;
+import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.handler.WebSocketPipeline;
 import jp.a840.websocket.handler.WebSocketStreamHandler;
 
@@ -364,6 +365,7 @@ abstract public class WebSocketBase implements WebSocket {
 				break;
 			}
 		}
+		
 		byte[] tmp = new byte[i + 1];
 		buf.get(tmp);
 		try{
@@ -403,7 +405,56 @@ abstract public class WebSocketBase implements WebSocket {
 		sb.append(key + ": " + value + "\r\n");
 	}
 
-	abstract protected void readFrame(List<Frame> frameList, ByteBuffer buffer) throws IOException;
+	protected void readFrame(List<Frame> frameList, ByteBuffer buffer)
+			throws IOException {
+		Frame frame = null;
+		FrameHeader header = null;
+		if (header == null) {
+			// 1. create frame header
+			header = createFrameHeader(buffer);
+			if (header == null) {
+				handler.onError(this, new WebSocketException(3200));
+				buffer.clear();
+				return;
+			}
+
+			byte[] bodyData;
+			if ((buffer.limit() - buffer.position()) < header.getFrameLength()) {
+				if (header.getBodyLength() <= 0xFFFF) {
+					bodyData = new byte[(int) header.getBodyLength()];
+					int bufferLength = buffer.limit() - buffer.position();
+					buffer.get(bodyData, 0, (int) Math.min(bufferLength,
+							header.getBodyLength()));
+					if (bufferLength < header.getBodyLength()) {
+						// read large buffer
+						ByteBuffer largeBuffer = ByteBuffer.wrap(bodyData);
+						largeBuffer.position(bufferLength);
+						socket.read(largeBuffer);
+					}
+				} else {
+					// TODO large frame data
+					throw new IllegalStateException("Not supported yet");
+				}
+			} else {
+				bodyData = new byte[(int) header.getBodyLength()];
+				buffer.get(bodyData);
+			}
+
+			if (bodyData != null) {
+				frame = createFrame(header, bodyData);
+				frameList.add(frame);
+			}
+
+			if (buffer.position() < buffer.limit()) {
+				readFrame(frameList, buffer);
+			}
+		}
+	}
+
+	abstract protected FrameHeader createFrameHeader(ByteBuffer chunkData);
+
+	abstract protected Frame createFrame(FrameHeader h, byte[] bodyData);
+
 	abstract protected int getWebSocketVersion();
 
 	public int getConnectionTimeout() {

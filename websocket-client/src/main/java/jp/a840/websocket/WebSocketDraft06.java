@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import jp.a840.websocket.frame.Frame;
+import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.draft06.BinaryFrame;
 import jp.a840.websocket.frame.draft06.FrameBuilderDraft06;
 import jp.a840.websocket.frame.draft06.FrameHeaderDraft06;
@@ -190,6 +191,16 @@ public class WebSocketDraft06 extends WebSocketBase {
 	@Override
 	public Frame createFrame(String str) throws WebSocketException {
 		return new TextFrame(str);
+	}
+
+	@Override
+	protected FrameHeader createFrameHeader(ByteBuffer chunkData) {
+		return builder.createFrameHeader(chunkData);
+	}
+
+	@Override
+	protected Frame createFrame(FrameHeader h, byte[] bodyData) {
+		return builder.createFrame(h, bodyData);
 	}
 	
 	@Override

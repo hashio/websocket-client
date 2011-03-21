@@ -1,10 +1,7 @@
 package jp.a840.websocket.frame.draft76;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 
-import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 

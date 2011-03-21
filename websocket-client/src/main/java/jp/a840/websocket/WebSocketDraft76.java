@@ -6,7 +6,6 @@ import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -140,53 +139,6 @@ public class WebSocketDraft76 extends WebSocketBase {
 
 	}
 
-	protected void readFrame(List<Frame> frameList, ByteBuffer buffer)
-			throws IOException {
-		Frame frame = null;
-		FrameHeader header = null;
-		if (header == null) {
-			// 1. create frame header
-			header = builder.createFrameHeader(buffer);
-			if (header == null) {
-				handler.onError(this, new WebSocketException(3200));
-				buffer.clear();
-				return;
-			}
-
-			byte[] bodyData;
-			if ((buffer.limit() - buffer.position()) < header.getFrameLength()) {
-				if (header.getBodyLength() <= 0xFFFF) {
-					bodyData = new byte[(int) header.getBodyLength()];
-					int bufferLength = buffer.limit() - buffer.position();
-					buffer.get(
-							bodyData,
-							0,
-							(int) Math.min(bufferLength,
-									header.getBodyLength()));
-					if (bufferLength < header.getBodyLength()) {
-						// read large buffer
-						ByteBuffer largeBuffer = ByteBuffer.wrap(bodyData);
-						socket.read(largeBuffer);
-					}
-				} else {
-					// TODO large frame data
-					throw new IllegalStateException("Not supported yet");
-				}
-			} else {
-				bodyData = new byte[(int) header.getBodyLength()];
-				buffer.get(bodyData);
-			}
-
-			if (bodyData != null) {
-				frame = builder.createFrame(header, bodyData);
-				frameList.add(frame);
-			}
-
-			if (buffer.position() < buffer.limit()) {
-				readFrame(frameList, buffer);
-			}
-		}
-	}
 	
 	
 
@@ -260,4 +212,14 @@ public class WebSocketDraft76 extends WebSocketBase {
 	public Frame createFrame(String str) throws WebSocketException {
 		return new TextFrame(str);
 	}
+
+	@Override
+	protected FrameHeader createFrameHeader(ByteBuffer chunkData) {
+		return builder.createFrameHeader(chunkData);
+	}
+
+	@Override
+	protected Frame createFrame(FrameHeader h, byte[] bodyData) {
+		return builder.createFrame(h, bodyData);
+	}	
 }

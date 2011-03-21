@@ -2,12 +2,15 @@ package jp.a840.websocket;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jp.a840.websocket.frame.Frame;
@@ -19,6 +22,8 @@ import util.Base64;
 
 /**
  * A simple websocket client
+ * 
+ * @see http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-06
  * @author t-hashimoto
  *
  */
@@ -26,10 +31,14 @@ public class WebSocketDraft06 extends WebSocketBase {
 	private static Logger logger = Logger.getLogger(WebSocketDraft06.class.getName());
 	
 	private static final int VERSION = 6;
-		
+	
+	protected Set<String> extensions = new HashSet<String>();
+	
+	protected String[] serverExtentions;
+	                 
 	private FrameBuilder builder = new FrameBuilder();
 	
-	public WebSocketDraft06(String url, WebSocketHandler handler, String... protocols) throws MalformedURLException, IOException {
+	public WebSocketDraft06(String url, WebSocketHandler handler, String... protocols) throws URISyntaxException, IOException {
 		super(url, handler, protocols);
 		
 		this.origin = System.getProperty("websocket.origin");
@@ -38,7 +47,6 @@ public class WebSocketDraft06 extends WebSocketBase {
 	protected void initializePipeline(WebSocketPipeline pipeline){
 	}
 	
-
 	/**
 	 * Create a handshake requtest
 	 * 
@@ -70,6 +78,10 @@ public class WebSocketDraft06 extends WebSocketBase {
 		if (protocols != null && protocols.length > 0) {
 			addHeader(sb, "Sec-WebSocket-Protocol", join(",", protocols));
 		}
+		// TODO Sec-WebSocket-Extensions
+		if(extensions.size() > 0){
+			addHeader(sb, "Sec-WebSocket-Extensions", join(",", extensions));
+		}
 		addHeader(sb, "Sec-WebSocket-Version", String.valueOf(getWebSocketVersion()));
 		sb.append("\r\n");
 		return ByteBuffer.wrap(sb.toString().getBytes());
@@ -87,31 +99,26 @@ public class WebSocketDraft06 extends WebSocketBase {
 	 * 
 	 * @param buffer
 	 */
-	protected void handshakeResponse(ByteBuffer buffer) throws WebSocketException {		
-		String line = readLine(downstreamBuffer);
-		if (logger.isLoggable(Level.FINE)) {
-			logger.fine(line);
+	protected void handshakeResponse(ByteBuffer buffer)
+			throws WebSocketException {
+		super.handshakeResponse(buffer);
+		if(!"websocket".equalsIgnoreCase(responseHeaderMap.get("upgrade"))){
+			throw new WebSocketException(3101, "Upgrade response header is not match websocket. Upgrade: " + responseHeaderMap.get("upgrade"));
 		}
-		if (!line.startsWith("HTTP/1.1")) {
-			throw new WebSocketException(3001,
-					"Invalid server response.(HTTP version) " + line);
+		if(!"upgrade".equalsIgnoreCase(responseHeaderMap.get("connection"))){
+			throw new WebSocketException(3101, "Connection response header is not match Upgrade. Connection: " + responseHeaderMap.get("connection"));
 		}
-		if (!"101".equals(line.substring(9, 11))) {
-			throw new WebSocketException(3001,
-					"Invalid server response.(Status Code) " + line);
+		if(!responseHeaderMap.containsKey("sec-websocket-accept")){
+			throw new WebSocketException(3101, "Sec-WebSocket-Accept response header is not found");
 		}
-
-		// header lines
-		do {
-			line = readLine(downstreamBuffer);
-			if (logger.isLoggable(Level.FINE)) {
-				logger.fine(line);
-			}
-			if (line.indexOf(':') > 0) {
-				String[] keyValue = line.split(":", 1);
-				responseHeaderMap.put(keyValue[0].trim(), keyValue[1].trim());
-			}
-		} while ("\r\n".compareTo(line) != 0);
+		String protocolStr = responseHeaderMap.get("sec-websocket-protocol");
+		if(protocolStr != null){
+			serverProtocols = protocolStr.split(",");
+		}
+		String extensionsStr = responseHeaderMap.get("sec-websocket-extensions");
+		if(extensionsStr != null){
+			serverExtentions = extensionsStr.split(",");
+		}
 	}
 	
 	private String generateWebSocketKey(){
@@ -180,4 +187,13 @@ public class WebSocketDraft06 extends WebSocketBase {
 	protected int getWebSocketVersion() {
 		return VERSION;
 	}
+	
+	public void addExtension(String extension){
+		extensions.add(extension);
+	}
+	
+	public void removeExtension(String extension){
+		extensions.remove(extension);
+	}
+	
 }

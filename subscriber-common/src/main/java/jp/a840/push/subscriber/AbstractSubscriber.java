@@ -249,9 +249,11 @@ abstract public class AbstractSubscriber implements Subscriber {
 	        
 		public void stop(){
 			try{
-				stopWaitLatch = new CountDownLatch(1);
-				disconnectLatch.countDown();
-				stopWaitLatch.await(60, TimeUnit.SECONDS);
+				if(disconnectLatch != null){
+					stopWaitLatch = new CountDownLatch(1);
+					disconnectLatch.countDown();
+					stopWaitLatch.await(60, TimeUnit.SECONDS);
+				}
 			}catch(InterruptedException e){
 				;
 			}

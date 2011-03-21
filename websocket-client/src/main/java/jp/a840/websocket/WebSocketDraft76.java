@@ -1,63 +1,61 @@
 package jp.a840.websocket;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jp.a840.push.beans.RateBean;
 import jp.a840.websocket.frame.Frame;
-import jp.a840.websocket.frame.FrameBuilder;
 import jp.a840.websocket.frame.FrameBuilderDraft76;
 import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.handler.WebSocketPipeline;
 
-
 /**
  * A simple websocket client
+ * 
  * @author t-hashimoto
- *
+ * 
  */
 public class WebSocketDraft76 extends WebSocketBase {
-	private static Logger logger = Logger.getLogger(WebSocketDraft76.class.getName());
-	
-	private static final int VERSION = 6;
-		
+	private static Logger logger = Logger.getLogger(WebSocketDraft76.class
+			.getName());
+
+	private static final int VERSION = 76;
+
 	private FrameBuilderDraft76 builder = new FrameBuilderDraft76();
-	
-	public WebSocketDraft76(String url, WebSocketHandler handler, String... protocols) throws MalformedURLException, IOException {
+
+	public WebSocketDraft76(String url, WebSocketHandler handler,
+			String... protocols) throws URISyntaxException, IOException {
 		super(url, handler, protocols);
-		
+
 		this.origin = System.getProperty("websocket.origin");
 	}
-	
-	protected void initializePipeline(WebSocketPipeline pipeline){
+
+	protected void initializePipeline(WebSocketPipeline pipeline) {
 	}
-	
 
 	/**
 	 * Create a handshake requtest
 	 * 
-	 * Sample (Draft76)
-	 * client => server
-	 *   GET /chat HTTP/1.1
-	 *   Host: server.example.com
-	 *   Upgrade: websocket
-	 *   Connection: Upgrade
-	 *   Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
-	 *   Sec-WebSocket-Origin: http://example.com
-	 *   Sec-WebSocket-Protocol: chat, superchat
-	 *   Sec-WebSocket-Version:6
-	 *   
+	 * Sample (Draft76) client => server
+	 * GET /demo HTTP/1.1
+	 * Host: example.com
+	 * Connection: Upgrade
+	 * Sec-WebSocket-Key2: 12998 5 Y3 1  .P00
+	 * Sec-WebSocket-Protocol: sample
+	 * Upgrade: WebSocket
+	 * Sec-WebSocket-Key1: 4 @1  46546xW%0l 1 5
+	 * Origin: http://example.com
+	 * 
+	 * ^n:ds[4U
+	 * 
 	 * @param socket
 	 */
 	@Override
-	protected ByteBuffer createHandshakeRequest(){
+	protected ByteBuffer createHandshakeRequest() {
 		// Send GET request to server
 		StringBuilder sb = new StringBuilder();
 		sb.append("GET " + path + " HTTP/1.1\r\n");
@@ -72,64 +70,72 @@ public class WebSocketDraft76 extends WebSocketBase {
 		if (protocols != null && protocols.length > 0) {
 			addHeader(sb, "Sec-WebSocket-Protocol", join(",", protocols));
 		}
-		addHeader(sb, "Sec-WebSocket-Version", String.valueOf(getWebSocketVersion()));
 		sb.append("\r\n");
-		
+
 		ByteBuffer buf = ByteBuffer.allocate(512);
 		buf.put(sb.toString().getBytes());
 		buf.put(SecWebSocketKey.generateKey3());
-		buf.put((byte)0xd);
-		buf.put((byte)0xa);
+		buf.put((byte) 0xd);
+		buf.put((byte) 0xa);
 		buf.flip();
-		
+
 		return buf;
 	}
-	
+
 	/**
 	 * check handshake response
 	 * 
 	 * server => client
-	 * HTTP/1.1 101 Switching Protocols
-	 * Upgrade: websocket
+	 * HTTP/1.1 101 WebSocket Protocol Handshake
+	 * Upgrade: WebSocket
 	 * Connection: Upgrade
-	 * Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
-	 * Sec-WebSocket-Protocol: chat
+	 * Sec-WebSocket-Origin: http://example.com
+	 * Sec-WebSocket-Location: ws://example.com/demo
+	 * Sec-WebSocket-Protocol: sample
+	 * 
+	 * 8jKS'y:G*Co,Wxa-
 	 * 
 	 * @param buffer
 	 */
-	protected void handshakeResponse(ByteBuffer buffer) throws WebSocketException {		
-		String line = readLine(downstreamBuffer);
-		if (logger.isLoggable(Level.FINE)) {
-			logger.fine(line);
+	protected void handshakeResponse(ByteBuffer buffer)
+			throws WebSocketException {
+		super.handshakeResponse(buffer);
+		byte[] responseByte = new byte[16];
+		downstreamBuffer.get(responseByte);
+		// TODO check response md5
+		
+		if(!"websocket".equalsIgnoreCase(responseHeaderMap.get("upgrade"))){
+			throw new WebSocketException(3101, "Upgrade response header is not match websocket. Upgrade: " + responseHeaderMap.get("upgrade"));
 		}
-		if (!line.startsWith("HTTP/1.1")) {
-			throw new WebSocketException(3001,
-					"Invalid server response.(HTTP version) " + line);
+		if(!"upgrade".equalsIgnoreCase(responseHeaderMap.get("connection"))){
+			throw new WebSocketException(3101, "Connection response header is not match Upgrade. Connection: " + responseHeaderMap.get("connection"));
 		}
-		if (!"101".equals(line.substring(9, 12))) {
-			throw new WebSocketException(3001,
-					"Invalid server response.(Status Code) " + line);
+		String serverOrigin = responseHeaderMap.get("sec-websocket-origin");
+		if(origin != null && serverOrigin != null && !serverOrigin.equals(origin)){
+			throw new WebSocketException(3101, "Sec-WebSocket-Origin response header is not match request Origin header. Origin: " + origin + " Sec-WebSocket-Origin: " + serverOrigin);
+		}
+		String serverLocation = responseHeaderMap.get("sec-websocket-location");
+		try{
+			// reformat location URI.
+			// drop custom port
+			URI uri = new URI(location.getScheme(),
+						  	location.getHost(),
+						  	location.getPath(),
+						  	location.getFragment()
+						  	);
+			if(serverLocation != null && !serverLocation.equals(uri.toString())){
+				throw new WebSocketException(3101, "Sec-WebSocket-Location response header is not match request URL. request uri: " + uri.toString() + " Sec-WebSocket-Location: " + serverLocation);
+			}
+		}catch(URISyntaxException e){
+			;
+		}
+		String protocolStr = responseHeaderMap.get("sec-websocket-protocol");
+		if(protocolStr != null){
+			serverProtocols = protocolStr.split(",");
 		}
 
-		// header lines
-		do {
-			line = readLine(downstreamBuffer);
-			if (logger.isLoggable(Level.FINE)) {
-				logger.fine(line);
-			}
-			if (line.indexOf(':') > 0) {
-				String[] keyValue = line.split(":", 2);
-				if(keyValue.length > 1){
-					responseHeaderMap.put(keyValue[0].trim(), keyValue[1].trim());
-				}
-			}
-		} while ("\r\n".compareTo(line) != 0);
 	}
-	
-	private String generateWebSocketKey(){
-		return SecWebSocketKey.generateKey();
-	}
-	
+
 	protected void readFrame(List<Frame> frameList, ByteBuffer buffer)
 			throws IOException {
 		Frame frame = null;
@@ -148,8 +154,12 @@ public class WebSocketDraft76 extends WebSocketBase {
 				if (header.getPayloadLength() <= 0xFFFF) {
 					bodyData = new byte[(int) header.getPayloadLength()];
 					int bufferLength = buffer.limit() - buffer.position();
-					buffer.get(bodyData, 0, (int)Math.min(bufferLength, header.getPayloadLength()));
-					if(bufferLength < header.getPayloadLength()){
+					buffer.get(
+							bodyData,
+							0,
+							(int) Math.min(bufferLength,
+									header.getPayloadLength()));
+					if (bufferLength < header.getPayloadLength()) {
 						// read large buffer
 						ByteBuffer largeBuffer = ByteBuffer.wrap(bodyData);
 						socket.read(largeBuffer);
@@ -173,95 +183,56 @@ public class WebSocketDraft76 extends WebSocketBase {
 			}
 		}
 	}
-	
-	public static void main(String[] argv) throws Exception {
-		WebSocketDraft76 ws = new WebSocketDraft76("ws://localhost:8088/rate",
-		new WebSocketHandlerAdapter() {
-			@Override
-			public void onOpen(WebSocket socket) {
-				logger.info("onOpen");
-			}
-
-			@Override
-			public void onClose(WebSocket socket) {
-				logger.info("onClose");
-			}
-
-			@Override
-			public void onError(WebSocket socket, WebSocketException e) {
-				e.printStackTrace();
-			}
-
-					@Override
-					public void onMessage(WebSocket socket, Frame frame) {
-						try {
-							ByteArrayInputStream bais = new ByteArrayInputStream(
-									frame.toByteBuffer().array());
-							ObjectInputStream ois = new ObjectInputStream(bais);
-							RateBean bean = (RateBean) ois.readObject();
-							logger.info(bean.getCurrencyPair() + " "
-									+ bean.getBid());
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-		}
-		,"rate");
-		ws.setBlockingMode(false);
-		ws.connect(); // connect and start receive messages;		
-		Thread.sleep(60000);
-		ws.close();
-	}
 
 	@Override
 	protected int getWebSocketVersion() {
 		return VERSION;
 	}
-	
-	private static class SecWebSocketKey{
-	    private static final Random random = new Random();
 
-	    private static final long LARGEST_INTEGER = 4294967295L;
-	    
-	    private static final char[] CHARS = new char[84];
-	    
-	    static {
-	    	int i = 0;
-	    	for(int c = 0x21; c <= 0x2F; c++){
-	    		CHARS[i++] = (char)c; 
-	    	}
-	    	for(int c = 0x3A; c <= 0x7E; c++){
-	    		CHARS[i++] = (char)c; 
-	    	}	    	
-	    }
-	    
-		public static String generateKey(){
+	private static class SecWebSocketKey {
+		private static final Random random = new Random();
+
+		private static final long LARGEST_INTEGER = 4294967295L;
+
+		private static final char[] CHARS = new char[84];
+
+		static {
+			int i = 0;
+			for (int c = 0x21; c <= 0x2F; c++) {
+				CHARS[i++] = (char) c;
+			}
+			for (int c = 0x3A; c <= 0x7E; c++) {
+				CHARS[i++] = (char) c;
+			}
+		}
+
+		public static String generateKey() {
 			int spaces = random.nextInt(12) + 1;
 			long max = LARGEST_INTEGER / spaces;
 			long number = Math.abs(random.nextLong()) % max;
 			long product = number * spaces;
-			
+
 			StringBuilder key = new StringBuilder();
 			key.append(product);
-			
+
 			int charsNum = random.nextInt(12) + 1;
-			for(int i = 0; i < charsNum; i++){
+			for (int i = 0; i < charsNum; i++) {
 				int position = random.nextInt(key.length());
 				char c = CHARS[random.nextInt(CHARS.length)];
 				key.insert(position, c);
 			}
-			
-	        for (int i = 0; i < spaces; i++) {
-	            int position = random.nextInt(key.length() - 1) + 1;
-	            key.insert(position, ' ');
-	        }
+
+			for (int i = 0; i < spaces; i++) {
+				int position = random.nextInt(key.length() - 1) + 1;
+				key.insert(position, ' ');
+			}
 			return key.toString();
 		}
-		
-		public static byte[] generateKey3(){
-	        byte[] key3 = new byte[8];
-	        random.nextBytes(key3);
-	        return key3;
+
+		public static byte[] generateKey3() {
+			byte[] key3 = new byte[8];
+			random.nextBytes(key3);
+			return key3;
 		}
 	}
 }

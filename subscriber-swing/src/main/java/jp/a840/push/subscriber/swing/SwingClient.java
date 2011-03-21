@@ -19,8 +19,10 @@ import javax.swing.WindowConstants;
 import jp.a840.push.subscriber.JMSSubscriber;
 import jp.a840.push.subscriber.Subscriber;
 import jp.a840.push.subscriber.event.ConnectionEvent;
+import jp.a840.push.subscriber.event.ExceptionEvent;
 import jp.a840.push.subscriber.grizzly.GrizzlySubscriber;
 import jp.a840.push.subscriber.listener.ConnectionListener;
+import jp.a840.push.subscriber.listener.ExceptionListener;
 import jp.a840.push.subscriber.swing.dialog.GrizzlyConnectionChangePane;
 import jp.a840.push.subscriber.swing.dialog.GrizzlyConnectionChangeResult;
 import jp.a840.push.subscriber.swing.dialog.JMSConnectionChangePane;
@@ -30,6 +32,7 @@ import jp.a840.push.subscriber.swing.panel.lastupdate.hash.LastUpdatePane;
 import jp.a840.push.subscriber.swing.panel.lastupdate.hash.RateLastUpdateTableModel;
 import jp.a840.push.subscriber.swing.panel.set.RatePane;
 import jp.a840.push.subscriber.swing.util.MenuBarCreater;
+import jp.a840.push.subscriber.wsc.WSCSubscriber;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -109,17 +112,28 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 	public void init() {
 		preferences = new SwingClientPreferences();
 
-		GrizzlySubscriber grizzlySubscriber = new GrizzlySubscriber();
 //		sub = new JMSSubscriber();
 //		sub.setNamingFactoryInitial( preferences.get(    SwingClientPreferences.KEY_NAMING_FACTORY_INITIAL));
 //		sub.setNamingProviderUrl(    preferences.get(    SwingClientPreferences.KEY_NAMING_PROVIDER_URL));
 //		sub.setHealthCheckInterval(  preferences.getInt( SwingClientPreferences.KEY_HEALTHCHECK_INTERVAL));
 //		sub.setReconnectInterval(    preferences.getInt( SwingClientPreferences.KEY_RECONNECT_INTERVAL));
-		grizzlySubscriber.setLocation(preferences.get(SwingClientPreferences.KEY_WEBSOCKET_URL));
-		grizzlySubscriber.setConnectionTimeout(10);
-		sub = grizzlySubscriber;
+//		GrizzlySubscriber grizzlySubscriber = new GrizzlySubscriber();
+//		grizzlySubscriber.setLocation(preferences.get(SwingClientPreferences.KEY_WEBSOCKET_URL));
+//		grizzlySubscriber.setConnectionTimeout(10);
+//		sub = grizzlySubscriber;
+		WSCSubscriber wscSubscriber = new WSCSubscriber();
+		wscSubscriber.setLocation(preferences.get(SwingClientPreferences.KEY_WEBSOCKET_URL));
+		wscSubscriber.setConnectionTimeout(60);
+		sub = wscSubscriber;
+
 		sub.addConnectionListener(this);
 		sub.addMessageListener(RealtimeTableModelManager.getInstance());
+		sub.addExceptionListener(new ExceptionListener() {
+			@Override
+			public void onException(ExceptionEvent e) {
+				e.getException().printStackTrace();
+			}
+		});
 
 //		sub.addSubscribe("tfxinfotopic", null);
 

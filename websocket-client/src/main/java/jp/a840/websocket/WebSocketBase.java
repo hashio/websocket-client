@@ -160,9 +160,7 @@ abstract public class WebSocketBase implements WebSocket {
 				public void run() {
 					try {
 						socket.connect(endpoint);
-						while (!socket.finishConnect())
-							;
-
+						while (!socket.finishConnect());
 						handshake(socket);
 						handler.onOpen(WebSocketBase.this);
 					} catch (WebSocketException we) {

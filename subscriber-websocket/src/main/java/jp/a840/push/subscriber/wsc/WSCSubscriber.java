@@ -254,7 +254,7 @@ public class WSCSubscriber extends AbstractSubscriber {
 	
 	public static void main(String[] args) throws Exception {
 		WSCSubscriber sub = new WSCSubscriber();
-		sub.setLocation("ws://192.168.0.135:8088/rate");
+		sub.setLocation("ws://localhost:8088/rate");
 		sub.start();
 		sub.addExceptionListener(new ExceptionListener() {
 			public void onException(ExceptionEvent e) {

@@ -12,13 +12,11 @@ public class WebSocketStreamHandler implements StreamHandler {
 		this.handler = handler;
 	}
 	
-	@Override
 	public void nextUpstreamHandler(WebSocket ws, Frame frame,
 			StreamHandlerChain chain) {
 		chain.nextUpstreamHandler(ws, frame);
 	}
 
-	@Override
 	public void nextDownstreamHandler(WebSocket ws, Frame frame,
 			StreamHandlerChain chain) {
 		handler.onMessage(ws, frame);

@@ -257,7 +257,6 @@ public class WSCSubscriber extends AbstractSubscriber {
 		sub.setLocation("ws://localhost:8088/rate");
 		sub.start();
 		sub.addExceptionListener(new ExceptionListener() {
-			@Override
 			public void onException(ExceptionEvent e) {
 				e.getException().printStackTrace();
 			}

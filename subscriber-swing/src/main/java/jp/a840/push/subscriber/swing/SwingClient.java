@@ -129,7 +129,6 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 		sub.addConnectionListener(this);
 		sub.addMessageListener(RealtimeTableModelManager.getInstance());
 		sub.addExceptionListener(new ExceptionListener() {
-			@Override
 			public void onException(ExceptionEvent e) {
 				e.getException().printStackTrace();
 			}

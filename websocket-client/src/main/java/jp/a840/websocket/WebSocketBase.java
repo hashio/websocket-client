@@ -156,7 +156,6 @@ abstract public class WebSocketBase implements WebSocket {
 
 			final AtomicReference<WebSocketException> exceptionHolder = new AtomicReference<WebSocketException>();
 			Future future = executorService.submit(new Runnable() {
-				@Override
 				public void run() {
 					try {
 						socket.connect(endpoint);
@@ -179,7 +178,6 @@ abstract public class WebSocketBase implements WebSocket {
 			
 			Runnable worker = new Runnable() {
 				
-				@Override
 				public void run() {
 					try {
 						socket.register(selector, SelectionKey.OP_READ);

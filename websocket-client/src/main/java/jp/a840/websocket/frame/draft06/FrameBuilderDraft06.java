@@ -81,7 +81,11 @@ public class FrameBuilderDraft06 {
 			payloadOffset += 8;
 		}
 		
-		return new FrameHeaderDraft06(fragmented, 2, payloadOffset, payloadLength, opcode);
+		if(payloadLength > Integer.MAX_VALUE){
+			throw new IllegalArgumentException("large data is not support yet");
+		}
+		
+		return new FrameHeaderDraft06(fragmented, 2, payloadOffset, (int)payloadLength, opcode);
 	}
 	
 	public Frame createFrame(FrameHeader h, byte[] bodyData){

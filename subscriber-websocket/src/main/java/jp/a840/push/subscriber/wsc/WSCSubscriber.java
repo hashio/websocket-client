@@ -254,7 +254,7 @@ public class WSCSubscriber extends AbstractSubscriber {
 	
 	public static void main(String[] args) throws Exception {
 		WSCSubscriber sub = new WSCSubscriber();
-		sub.setLocation("ws://localhost:8088/rate");
+		sub.setLocation("ws://192.168.0.135:8088/rate");
 		sub.start();
 		sub.addExceptionListener(new ExceptionListener() {
 			public void onException(ExceptionEvent e) {
@@ -265,13 +265,13 @@ public class WSCSubscriber extends AbstractSubscriber {
 			public void onMessage(MessageEvent e) {
 				Message msg = e.getMessage();
 				RateBean dto = (RateBean)msg.getBody();
-//				System.out.println(dto.getBid());
+				System.out.println(dto.getBid());
 			}
 		});
 		while(true){
 			Thread.sleep(1000);
-			sub.websocket.send(sub.websocket.createFrame("TEST"));
-			System.out.println("Sent");
+//			sub.websocket.send(sub.websocket.createFrame("TEST"));
+//			System.out.println("Sent");
 		}
 	}
 

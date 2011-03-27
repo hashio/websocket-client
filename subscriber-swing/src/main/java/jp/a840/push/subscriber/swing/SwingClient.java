@@ -291,6 +291,27 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
+		}else if(sub instanceof WSCSubscriber){
+			WSCSubscriber wscSubscriber = (WSCSubscriber)sub;
+			GrizzlyConnectionChangeResult result = GrizzlyConnectionChangePane
+			.showDialog(
+					this,
+					preferences
+							.get(SwingClientPreferences.KEY_WEBSOCKET_URL));
+			if (result.isCancel()) {
+				return;
+			}
+			try {
+				realtimeStop();
+				wscSubscriber.setLocation(result.getUrl());
+				wscSubscriber.init();
+				realtimeStart();
+				preferences.put(SwingClientPreferences.KEY_WEBSOCKET_URL,
+						result.getUrl());
+				preferences.flush();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 	}
 

@@ -26,6 +26,9 @@ import java.util.logging.Logger;
 
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameParser;
+import jp.a840.websocket.handler.StreamHandler;
+import jp.a840.websocket.handler.StreamHandlerAdapter;
+import jp.a840.websocket.handler.StreamHandlerChain;
 import jp.a840.websocket.handler.WebSocketPipeline;
 import jp.a840.websocket.handler.WebSocketStreamHandler;
 import jp.a840.websocket.handshake.Handshake;
@@ -68,7 +71,7 @@ abstract public class WebSocketBase implements WebSocket {
 
 	protected String origin;
 
-	protected BlockingQueue<Frame> upstreamQueue = new LinkedBlockingQueue<Frame>();
+	protected BlockingQueue<ByteBuffer> upstreamQueue = new LinkedBlockingQueue<ByteBuffer>();
 
 	/** websocket handler */
 	protected WebSocketHandler handler;
@@ -82,8 +85,6 @@ abstract public class WebSocketBase implements WebSocket {
 	private Handshake handshake;
 
 	private FrameParser frameParser;
-
-	private ExecutorService executorService = Executors.newCachedThreadPool();
 
 	protected Map<String, String> responseHeaderMap;
 	protected Map<String, String> requestHeaderMap = new HashMap<String, String>();
@@ -100,8 +101,47 @@ abstract public class WebSocketBase implements WebSocket {
 		parseUrl(url);
 
 		this.pipeline = new WebSocketPipeline();
-		this.pipeline.addStreamHandler(new WebSocketStreamHandler(handler));
+		this.pipeline.addStreamHandler(new StreamHandlerAdapter() {
+			public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
+					Frame frame, StreamHandlerChain chain) throws WebSocketException {
+				try {
+					upstreamQueue.put(buffer);
+					socket.register(selector, OP_READ | OP_WRITE);
+				} catch (InterruptedException e) {
+					throw new WebSocketException(3011, e);
+				} catch (ClosedChannelException e) {
+					throw new WebSocketException(3010, e);
+				}
+			}
+			public void nextHandshakeUpstreamHandler(WebSocket ws, ByteBuffer buffer,
+					StreamHandlerChain chain) throws WebSocketException {
+				try{
+					upstreamQueue.put(buffer);
+				} catch (InterruptedException e) {
+					throw new WebSocketException(3012, e);
+				}
+			}
+		});
 		initializePipeline(pipeline);
+		this.pipeline.addStreamHandler(new StreamHandlerAdapter() {
+			public void nextDownstreamHandler(WebSocket ws, ByteBuffer buffer,
+					Frame frame, StreamHandlerChain chain) throws WebSocketException {
+				WebSocketBase.this.handler.onMessage(ws, frame);
+			}
+
+			public void nextHandshakeDownstreamHandler(WebSocket ws, ByteBuffer buffer,
+					StreamHandlerChain chain) throws WebSocketException {
+				// set response status
+				responseHeaderMap = getHandshake()
+						.getResponseHeaderMap();
+				responseStatus = getHandshake()
+						.getResponseStatus();
+				getFrameParser().init();
+				transitionTo(State.WAIT);
+				// HANDSHAKE -> WAIT
+				WebSocketBase.this.handler.onOpen(WebSocketBase.this);
+			}
+		});
 
 		this.origin = System.getProperty("websocket.origin");
 
@@ -111,6 +151,7 @@ abstract public class WebSocketBase implements WebSocket {
 	}
 
 	protected void initializePipeline(WebSocketPipeline pipeline) {
+		this.pipeline.addStreamHandler(new WebSocketStreamHandler(getHandshake(), getFrameParser()));
 	}
 
 	private void parseUrl(String urlStr) throws URISyntaxException {
@@ -136,14 +177,7 @@ abstract public class WebSocketBase implements WebSocket {
 	}
 
 	public void send(Frame frame) throws WebSocketException {
-		try {
-			upstreamQueue.put(frame);
-			socket.register(selector, OP_READ | OP_WRITE);
-		} catch (InterruptedException e) {
-			throw new WebSocketException(3011, e);
-		} catch (ClosedChannelException e) {
-			throw new WebSocketException(3010, e);
-		}
+		pipeline.sendUpstream(this, null, frame);
 	}
 
 	public void send(Object obj) throws WebSocketException {
@@ -155,8 +189,12 @@ abstract public class WebSocketBase implements WebSocket {
 	}
 
 	/**
-	 * CONNECTED -> HANDSHAKE, CLOSED HANDSHAKE -> WAIT, CLOSED WAIT -> WAIT,
-	 * CLOSED CLOSED -> CONNECTED, CLOSED
+	 * <pre>
+	 * CONNECTED -> HANDSHAKE, CLOSED
+	 * HANDSHAKE -> WAIT, CLOSED
+	 * WAIT -> WAIT, CLOSED
+	 * CLOSED -> CONNECTED, CLOSED
+	 * </pre>
 	 */
 	enum State {
 		CONNECTED, HANDSHAKE, WAIT, CLOSED;
@@ -231,7 +269,9 @@ abstract public class WebSocketBase implements WebSocket {
 
 			transitionTo(State.CONNECTED);
 			socket.register(selector, SelectionKey.OP_READ);
-			getHandshake().handshake(socket); // send handshake request
+			getHandshake().init();
+			pipeline.sendHandshakeUpstream(this, null); // send handshake request
+			socket.write(upstreamQueue.take());
 			transitionTo(State.HANDSHAKE);
 
 			Runnable worker = new Runnable() {
@@ -243,25 +283,14 @@ abstract public class WebSocketBase implements WebSocket {
 								if (key.isValid() && key.isWritable()) {
 									SocketChannel channel = (SocketChannel) key
 											.channel();
-									channel.write(upstreamQueue.take()
-											.toByteBuffer());
+									channel.write(upstreamQueue.take());
 								} else if (key.isValid() && key.isReadable()) {
 									read(socket, downstreamBuffer); // read
 									// response
 									switch (state) {
 									case HANDSHAKE: // CONNECTED -> HANDSHAKE
-										if (getHandshake().handshakeResponse(
-												downstreamBuffer)) {
-											// set response status
-											responseHeaderMap = getHandshake()
-													.getResponseHeaderMap();
-											responseStatus = getHandshake()
-													.getResponseStatus();
-											getFrameParser().init();
-											transitionTo(State.WAIT); // HANDSHAKE
-											// ->
-											// WAIT
-											handler.onOpen(WebSocketBase.this);
+										pipeline.sendHandshakeDownstream(WebSocketBase.this, downstreamBuffer);
+										if (getHandshake().isDone()){
 											if (downstreamBuffer.hasRemaining()) {
 												processFrame(downstreamBuffer);
 											}
@@ -314,11 +343,7 @@ abstract public class WebSocketBase implements WebSocket {
 
 	protected void processFrame(ByteBuffer buffer) throws WebSocketException {
 		while (buffer.hasRemaining()) {
-			Frame frame = getFrameParser().parse(buffer);
-			if(frame != null){
-				pipeline.sendDownstream(WebSocketBase.this, frame);
-				getFrameParser().init();
-			}
+			pipeline.sendDownstream(this, buffer, null);
 		}
 		return;
 	}

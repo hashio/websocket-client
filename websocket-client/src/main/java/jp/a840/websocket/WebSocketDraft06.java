@@ -8,7 +8,6 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -18,7 +17,6 @@ import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.FrameParser;
 import jp.a840.websocket.frame.draft06.BinaryFrame;
 import jp.a840.websocket.frame.draft06.FrameBuilderDraft06;
-import jp.a840.websocket.frame.draft06.FrameHeaderDraft06;
 import jp.a840.websocket.frame.draft76.TextFrame;
 import jp.a840.websocket.handler.WebSocketPipeline;
 import jp.a840.websocket.handshake.Handshake;
@@ -49,7 +47,9 @@ public class WebSocketDraft06 extends WebSocketBase {
 		this.origin = System.getProperty("websocket.origin");
 	}
 	
+	@Override
 	protected void initializePipeline(WebSocketPipeline pipeline){
+		super.initializePipeline(pipeline);
 	}
 	
 	@Override
@@ -72,7 +72,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 			 * @param socket
 			 */
 			@Override
-			protected ByteBuffer createHandshakeRequest() throws WebSocketException {
+			public ByteBuffer createHandshakeRequest() throws WebSocketException {
 				// Send GET request to server
 				StringBuilder sb = new StringBuilder();
 				sb.append("GET " + path + " HTTP/1.1\r\n");

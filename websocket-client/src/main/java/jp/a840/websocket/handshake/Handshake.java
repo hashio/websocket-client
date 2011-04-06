@@ -80,12 +80,15 @@ public abstract class Handshake {
 		return state;
 	}
 
+	public void init(){
+		responseStatus = -1;
+		lineBuf = new StringBuilder();
+		responseHeaderMap = new HashMap<String, String>();
+		state = State.METHOD;
+	}
+
 	public void handshake(SocketChannel socket) throws WebSocketException {
 		try {
-			responseStatus = -1;
-			lineBuf = new StringBuilder();
-			responseHeaderMap = new HashMap<String, String>();
-			state = State.METHOD;
 			
 			ByteBuffer request = createHandshakeRequest();
 			socket.write(request);
@@ -108,6 +111,10 @@ public abstract class Handshake {
 	protected boolean done(){
 		transitionTo(State.DONE);
 		return true;
+	}
+	
+	public boolean isDone(){
+		return State.DONE.equals(state);
 	}
 		
 	protected boolean parseHandshakeResponseBody(ByteBuffer buffer) throws WebSocketException {
@@ -209,7 +216,7 @@ public abstract class Handshake {
 		return completed;
 	}
 
-	abstract protected ByteBuffer createHandshakeRequest()
+	abstract public ByteBuffer createHandshakeRequest()
 			throws WebSocketException;
 
 	public int getResponseStatus() {

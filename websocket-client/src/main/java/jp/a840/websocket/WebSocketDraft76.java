@@ -39,7 +39,9 @@ public class WebSocketDraft76 extends WebSocketBase {
 		this.origin = System.getProperty("websocket.origin");
 	}
 
+	@Override
 	protected void initializePipeline(WebSocketPipeline pipeline) {
+		super.initializePipeline(pipeline);
 	}
 	
 	
@@ -66,7 +68,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 			 * @param socket
 			 */
 			@Override
-			protected ByteBuffer createHandshakeRequest() {
+			public ByteBuffer createHandshakeRequest() {
 				bodyBuf.clear(); // initilize a buffer
 				
 				// Send GET request to server

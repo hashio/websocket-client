@@ -155,8 +155,12 @@ abstract public class WebSocketBase implements WebSocket {
 	}
 
 	/**
-	 * CONNECTED -> HANDSHAKE, CLOSED HANDSHAKE -> WAIT, CLOSED WAIT -> WAIT,
-	 * CLOSED CLOSED -> CONNECTED, CLOSED
+	 * <pre>
+	 * CONNECTED -> HANDSHAKE, CLOSED
+	 * HANDSHAKE -> WAIT, CLOSED
+	 * WAIT -> WAIT, CLOSED
+	 * CLOSED -> CONNECTED, CLOSED
+	 * <pre>
 	 */
 	enum State {
 		CONNECTED, HANDSHAKE, WAIT, CLOSED;
@@ -263,12 +267,12 @@ abstract public class WebSocketBase implements WebSocket {
 											// WAIT
 											handler.onOpen(WebSocketBase.this);
 											if (downstreamBuffer.hasRemaining()) {
-												processFrame(downstreamBuffer);
+												processBuffer(downstreamBuffer);
 											}
 										}
 										break;
 									case WAIT: // read frames
-										processFrame(downstreamBuffer);
+										processBuffer(downstreamBuffer);
 										break;
 									case CLOSED:
 										break;
@@ -312,13 +316,9 @@ abstract public class WebSocketBase implements WebSocket {
 		}
 	}
 
-	protected void processFrame(ByteBuffer buffer) throws WebSocketException {
+	protected void processBuffer(ByteBuffer buffer) throws WebSocketException {
 		while (buffer.hasRemaining()) {
-			Frame frame = getFrameParser().parse(buffer);
-			if(frame != null){
-				pipeline.sendDownstream(WebSocketBase.this, frame);
-				getFrameParser().init();
-			}
+			pipeline.sendDownstream(WebSocketBase.this, buffer, null);
 		}
 		return;
 	}

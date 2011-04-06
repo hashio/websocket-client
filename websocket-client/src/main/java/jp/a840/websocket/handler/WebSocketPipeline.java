@@ -1,5 +1,6 @@
 package jp.a840.websocket.handler;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -11,14 +12,14 @@ public class WebSocketPipeline {
 	private List<StreamHandler> upstreamHandlerList = new CopyOnWriteArrayList<StreamHandler>();
 	private List<StreamHandler> downstreamHandlerList = new CopyOnWriteArrayList<StreamHandler>();
 
-	public void sendUpstream(WebSocket ws, Frame frame){
+	public void sendUpstream(WebSocket ws, ByteBuffer buffer, Frame frame){
 		StreamHandlerChain chain = new StreamHandlerChain(upstreamHandlerList.iterator());
-		chain.nextUpstreamHandler(ws, frame);
+		chain.nextUpstreamHandler(ws, buffer, frame);
 	}
 	
-	public void sendDownstream(WebSocket ws, Frame frame){
+	public void sendDownstream(WebSocket ws, ByteBuffer buffer, Frame frame){
 		StreamHandlerChain chain = new StreamHandlerChain(downstreamHandlerList.iterator());
-		chain.nextDownstreamHandler(ws, frame);
+		chain.nextDownstreamHandler(ws, buffer, frame);
 	}
 	
 	public void addStreamHandler(StreamHandler handler){

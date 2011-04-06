@@ -1,5 +1,6 @@
 package jp.a840.websocket.handler;
 
+import java.nio.ByteBuffer;
 import java.util.Iterator;
 
 import jp.a840.websocket.WebSocket;
@@ -12,15 +13,15 @@ public class StreamHandlerChain {
 		this.it = it;
 	}
 
-	public void nextUpstreamHandler(WebSocket ws, Frame frame) {
+	public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer, Frame frame) {
 		if(it.hasNext()){
-			this.it.next().nextUpstreamHandler(ws, frame, this);
+			this.it.next().nextUpstreamHandler(ws, buffer, frame, this);
 		}
 	}
 
-	public void nextDownstreamHandler(WebSocket ws, Frame frame) {
+	public void nextDownstreamHandler(WebSocket ws, ByteBuffer buffer, Frame frame) {
 		if(it.hasNext()){
-			this.it.next().nextDownstreamHandler(ws, frame, this);
+			this.it.next().nextDownstreamHandler(ws, buffer, frame, this);
 		}
 	}
 }

@@ -33,6 +33,7 @@ public class TextFrame extends FrameDraft76 {
 		buf.put(header.toByteBuffer());
 		buf.put(body);
 		buf.put((byte)0xFF);
+		buf.flip();
 		return buf;
 	}
 }

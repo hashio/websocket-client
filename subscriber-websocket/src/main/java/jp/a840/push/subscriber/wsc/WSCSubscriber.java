@@ -24,6 +24,7 @@ import jp.a840.websocket.WebSocketDraft76;
 import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.WebSocketHandlerAdapter;
 import jp.a840.websocket.frame.Frame;
+import jp.a840.websocket.handler.PacketDumpStreamHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,17 +157,17 @@ public class WSCSubscriber extends AbstractSubscriber {
 
 		@Override
 		public void onError(WebSocket socket, WebSocketException e) {
-			log.error("Caught Exception.", e);
+			fireException(e);
 		}
 
 		@Override
 		public void onOpen(WebSocket socket) {
-			log.debug("OPEN!");
+			fireConnected();
 		}
 
 		@Override
 		public void onClose(WebSocket websocket) {
-			log.debug("CLOSE!");
+			fireDisconnected();
 		}
 
 		@Override
@@ -253,8 +254,14 @@ public class WSCSubscriber extends AbstractSubscriber {
 	}
 	
 	public static void main(String[] args) throws Exception {
+		System.setProperty("websocket.packatdump", String.valueOf(
+				                                   PacketDumpStreamHandler.HS_UP
+				                                  |PacketDumpStreamHandler.HS_DOWN
+				                                  |PacketDumpStreamHandler.FR_UP
+				                                  ));
 		WSCSubscriber sub = new WSCSubscriber();
 		sub.setLocation("ws://localhost:8088/rate");
+		sub.setConnectionTimeout(600000);
 		sub.start();
 		sub.addExceptionListener(new ExceptionListener() {
 			public void onException(ExceptionEvent e) {
@@ -268,10 +275,13 @@ public class WSCSubscriber extends AbstractSubscriber {
 				System.out.println(dto.getBid());
 			}
 		});
+//		sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:5"));
+//		Thread.sleep(1000);
+//		System.out.println("Sent");
 		while(true){
 			Thread.sleep(1000);
-//			sub.websocket.send(sub.websocket.createFrame("TEST"));
-//			System.out.println("Sent");
+			sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:5"));
+			System.out.println("Sent");
 		}
 	}
 

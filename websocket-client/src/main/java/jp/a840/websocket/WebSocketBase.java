@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameParser;
+import jp.a840.websocket.handler.PacketDumpStreamHandler;
 import jp.a840.websocket.handler.StreamHandler;
 import jp.a840.websocket.handler.StreamHandlerAdapter;
 import jp.a840.websocket.handler.StreamHandlerChain;
@@ -58,6 +59,8 @@ abstract public class WebSocketBase implements WebSocket {
 	private int connectionTimeout = 60 * 1000;
 
 	private int connectionReadTimeout = 0;
+	
+	private int packatdumpMode;
 
 	/** blocking mode */
 	private boolean blockingMode = true;
@@ -101,19 +104,30 @@ abstract public class WebSocketBase implements WebSocket {
 		this.protocols = protocols;
 		this.handler = handler;
 
+		// init properties
+		this.origin = System.getProperty("websocket.origin");
+
+		int downstreamBufferSize = Integer.getInteger("websocket.buffersize",
+				8192);
+		this.downstreamBuffer = ByteBuffer.allocate(downstreamBufferSize);
+		this.packatdumpMode = Integer.getInteger("websocket.packatdump");
+
+		// parse url
 		parseUrl(url);
 
+		// setup pipeline
 		this.pipeline = new WebSocketPipeline();
+		
+		// Add upstream qeueue handler first.
+		// it push the upstream buffer to a sendqueue and then wakeup a selector if needed
 		this.pipeline.addStreamHandler(new StreamHandlerAdapter() {
 			public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
 					Frame frame, StreamHandlerChain chain) throws WebSocketException {
 				try {
 					upstreamQueue.put(buffer);
-					socket.register(selector, OP_READ | OP_WRITE);
+					selector.wakeup();
 				} catch (InterruptedException e) {
 					throw new WebSocketException(3011, e);
-				} catch (ClosedChannelException e) {
-					throw new WebSocketException(3010, e);
 				}
 			}
 			public void nextHandshakeUpstreamHandler(WebSocket ws, ByteBuffer buffer,
@@ -125,7 +139,16 @@ abstract public class WebSocketBase implements WebSocket {
 				}
 			}
 		});
+		
+		// for debug
+		if(packatdumpMode > 0){
+			this.pipeline.addStreamHandler(new PacketDumpStreamHandler(packatdumpMode));
+		}
+		
+		// orverriding initilize method by subclass
 		initializePipeline(pipeline);
+		
+		// Add base response handler
 		this.pipeline.addStreamHandler(new StreamHandlerAdapter() {
 			public void nextDownstreamHandler(WebSocket ws, ByteBuffer buffer,
 					Frame frame, StreamHandlerChain chain) throws WebSocketException {
@@ -146,11 +169,6 @@ abstract public class WebSocketBase implements WebSocket {
 			}
 		});
 
-		this.origin = System.getProperty("websocket.origin");
-
-		int downstreamBufferSize = Integer.getInteger("websocket.buffersize",
-				8192);
-		this.downstreamBuffer = ByteBuffer.allocate(downstreamBufferSize);
 	}
 
 	protected void initializePipeline(WebSocketPipeline pipeline) {
@@ -262,7 +280,7 @@ abstract public class WebSocketBase implements WebSocket {
 			socket = SocketChannel.open();
 			socket.configureBlocking(false);
 			selector = Selector.open();
-			socket.register(selector, SelectionKey.OP_READ);
+			socket.register(selector, SelectionKey.OP_READ | OP_WRITE);
 
 			long start = System.currentTimeMillis();
 			if (socket.connect(endpoint)) {
@@ -275,10 +293,11 @@ abstract public class WebSocketBase implements WebSocket {
 			}
 
 			transitionTo(State.CONNECTED);
-			socket.register(selector, SelectionKey.OP_READ);
+			
 			getHandshake().init();
 			pipeline.sendHandshakeUpstream(this, null); // send handshake request
 			socket.write(upstreamQueue.take());
+
 			transitionTo(State.HANDSHAKE);
 
 			Runnable worker = new Runnable() {
@@ -287,10 +306,10 @@ abstract public class WebSocketBase implements WebSocket {
 						while (!quit) {
 							selector.select(connectionReadTimeout);
 							for (SelectionKey key : selector.selectedKeys()) {
-								if (key.isValid() && key.isWritable()) {
+								if (key.isValid() && key.isWritable() && upstreamQueue.peek() != null) {
 									SocketChannel channel = (SocketChannel) key
 											.channel();
-									channel.write(upstreamQueue.take());
+									channel.write(upstreamQueue.poll());
 								} else if (key.isValid() && key.isReadable()) {
 									read(socket, downstreamBuffer); // read
 									// response

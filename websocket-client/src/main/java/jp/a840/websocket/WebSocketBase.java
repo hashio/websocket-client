@@ -5,6 +5,8 @@ import static java.nio.channels.SelectionKey.OP_WRITE;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -16,6 +18,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -251,6 +254,10 @@ abstract public class WebSocketBase implements WebSocket {
 						"Can't transit state to CONNECTED. current state="
 								+ state);
 			}
+			
+			URI proxyUri = new URI("http", null, location.getHost(), location.getPort(), null,null,null);
+			List<Proxy> proxyList = ProxySelector.getDefault().select(proxyUri);
+			proxyList.get(0).address();
 
 			socket = SocketChannel.open();
 			socket.configureBlocking(false);

@@ -31,6 +31,10 @@
     </dependency>
     <dependency>
 	  <groupId>jp.a840.push</groupId>
+  	  <artifactId>subscriber-swing-annotations</artifactId>
+  	</dependency>
+    <dependency>
+	  <groupId>jp.a840.push</groupId>
   	  <artifactId>subscriber-websocket</artifactId>
   	</dependency>
     <dependency>

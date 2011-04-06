@@ -260,7 +260,7 @@ public class WSCSubscriber extends AbstractSubscriber {
 				                                  |PacketDumpStreamHandler.FR_UP
 				                                  ));
 		WSCSubscriber sub = new WSCSubscriber();
-		sub.setLocation("ws://localhost:8088/rate");
+		sub.setLocation(args[0]);
 		sub.setConnectionTimeout(600000);
 		sub.start();
 		sub.addExceptionListener(new ExceptionListener() {

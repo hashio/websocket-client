@@ -1,6 +1,8 @@
 package jp.a840.push.publisher;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,6 +54,9 @@ public class DummyRateApplication extends WebSocketApplication<RateWebSocket> {
 	public void onMessage(RateWebSocket websocket, Frame frame)
 			throws IOException {
 		log.info("message");
+		ByteArrayInputStream bais = new ByteArrayInputStream(frame.getAsBinary().toByteBuffer().array());
+		ObjectInputStream ois = new ObjectInputStream(bais);
+		ControlBean ois.readObject();
 	}
 
 	

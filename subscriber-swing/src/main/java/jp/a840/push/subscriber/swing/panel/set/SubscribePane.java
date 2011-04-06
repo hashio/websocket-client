@@ -14,26 +14,28 @@ import javax.swing.JTable;
 import javax.swing.event.AncestorListener;
 import javax.swing.table.TableModel;
 
-import jp.a840.push.subscriber.swing.panel.set.hash.RateHashTablePane;
-import jp.a840.push.subscriber.swing.panel.set.list.BestRateListTablePane;
+import jp.a840.push.subscriber.swing.panel.set.hash.HashTablePane;
+import jp.a840.push.subscriber.swing.panel.set.list.ListTablePane;
+import jp.a840.push.subscriber.swing.table.HashTableModel;
+import jp.a840.push.subscriber.swing.table.ListTableModel;
 import jp.a840.push.subscriber.swing.table.SwingClientTableModel;
 
 
-public class RatePane extends JPanel {
+public class SubscribePane extends JPanel {
 
 	private int dividerLocation = 300;
 
 	private boolean oneTouchExpandable = true;
 
-	public RatePane() {
+	public SubscribePane(HashTableModel hashTableModel, ListTableModel listTableModel) {
 		super();
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-		RateHashTablePane top = new RateHashTablePane();
-		BestRateListTablePane bottom = new BestRateListTablePane();
+		HashTablePane top = new HashTablePane(hashTableModel);
+		ListTablePane bottom = new ListTablePane(listTableModel);
 
-		this.addAncestorListener(top);
-		this.addAncestorListener(bottom);
+//		this.addAncestorListener(top);
+//		this.addAncestorListener(bottom);
 
 		splitPane.setTopComponent(top);
 		splitPane.setBottomComponent(bottom);
@@ -60,24 +62,6 @@ public class RatePane extends JPanel {
 					itm.clear();
 				}
 			});
-		}
-	}
-
-	private void applyListener(Object obj) {
-		if (obj instanceof AncestorListener) {
-			this.addAncestorListener((AncestorListener) obj);
-		}
-		if (obj instanceof ComponentListener) {
-			this.addComponentListener((ComponentListener) obj);
-		}
-		if (obj instanceof ContainerListener) {
-			this.addContainerListener((ContainerListener) obj);
-		}
-		if (obj instanceof FocusListener) {
-			this.addFocusListener((FocusListener) obj);
-		}
-		if (obj instanceof FocusListener) {
-			this.addFocusListener((FocusListener) obj);
 		}
 	}
 

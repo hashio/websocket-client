@@ -110,7 +110,7 @@ abstract public class WebSocketBase implements WebSocket {
 		int downstreamBufferSize = Integer.getInteger("websocket.buffersize",
 				8192);
 		this.downstreamBuffer = ByteBuffer.allocate(downstreamBufferSize);
-		this.packatdumpMode = Integer.getInteger("websocket.packatdump");
+		this.packatdumpMode = Integer.getInteger("websocket.packatdump", 0);
 
 		// parse url
 		parseUrl(url);

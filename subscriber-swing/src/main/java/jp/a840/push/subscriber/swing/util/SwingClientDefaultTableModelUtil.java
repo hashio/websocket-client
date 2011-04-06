@@ -11,12 +11,39 @@ import jp.a840.push.subscriber.swing.util.comparator.ProductTimestampMethodCompa
 
 
 public class SwingClientDefaultTableModelUtil {
-
-
+	
+	public static Method[] convertStringsToMethods(Class clazz, String[] methodNames){
+		Method[] methods = new Method[methodNames.length];
+		for(int i = 0; i < methods.length; i++){
+			Method m = getMethod(clazz, methodNames[i]);
+			if(m == null){
+				throw new IllegalArgumentException("Not found method. methodName: "+ methodNames[i]);
+			}
+			methods[i] = m;
+		}
+		return methods;
+	}
+	
+	public static Method getMethod(Class clazz, String methodName){
+		Method[] methods = clazz.getDeclaredMethods();
+		for (int i = 0; i < methods.length; i++) {
+			if(methods[i].getName().equalsIgnoreCase(methodName)
+					|| methods[i].getName().equalsIgnoreCase("get" + methodName)){
+				return methods[i];
+			}
+		}
+		return null;
+	}
 	
     public static Vector createHeader(Object obj){
-        Class clazz = obj.getClass();
-        Method[] methods = clazz.getMethods();
+    	return createHeader(obj.getClass());
+    }
+	
+    public static Vector createHeader(Class clazz){
+    	return createHeader(clazz.getMethods());
+    }
+	
+    public static Vector createHeader(Method[] methods){
         Arrays.sort(methods, new ProductTimestampMethodComparator());
         Vector itemNames = new Vector();
         for (int i = 0; i < methods.length; i++) {
@@ -47,7 +74,10 @@ public class SwingClientDefaultTableModelUtil {
      * @return
      */
     public static Method[] compileData(Object obj){
-        Class clazz = obj.getClass();
+    	return compileData(obj.getClass());
+    }
+    
+    public static Method[] compileData(Class clazz){
         Method[] methods = clazz.getMethods();
         Arrays.sort(methods, new ProductTimestampMethodComparator());
         

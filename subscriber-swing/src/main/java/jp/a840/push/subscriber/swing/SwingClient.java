@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
+import jp.a840.push.beans.RateBean;
 import jp.a840.push.subscriber.JMSSubscriber;
 import jp.a840.push.subscriber.Subscriber;
 import jp.a840.push.subscriber.event.ConnectionEvent;
@@ -29,8 +30,9 @@ import jp.a840.push.subscriber.swing.dialog.JMSConnectionChangePane;
 import jp.a840.push.subscriber.swing.dialog.JMSConnectionChangeResult;
 import jp.a840.push.subscriber.swing.listener.RealtimeTableModelManager;
 import jp.a840.push.subscriber.swing.panel.lastupdate.hash.LastUpdatePane;
-import jp.a840.push.subscriber.swing.panel.lastupdate.hash.RateLastUpdateTableModel;
-import jp.a840.push.subscriber.swing.panel.set.RatePane;
+import jp.a840.push.subscriber.swing.panel.set.SubscribePane;
+import jp.a840.push.subscriber.swing.table.HashTableModel;
+import jp.a840.push.subscriber.swing.table.ListTableModel;
 import jp.a840.push.subscriber.swing.util.MenuBarCreater;
 import jp.a840.push.subscriber.wsc.WSCSubscriber;
 
@@ -139,7 +141,7 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 		Container content = this.getContentPane();
 
 		this.setJMenuBar(MenuBarCreater.createRealtimeMenuBar(this));
-		JComponent component = new LastUpdatePane(new RateLastUpdateTableModel());
+		JComponent component = new LastUpdatePane(new HashTableModel(RateBean.class,"currencyPair", new String[]{"currencyPair","ask","bid","updateTime"}));
 
 		content.add(component, BorderLayout.CENTER);
 		/*
@@ -236,7 +238,8 @@ public class SwingClient extends JFrame implements ActionListener, ConnectionLis
 			frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			frame.setJMenuBar(MenuBarCreater.createRealtimeMenuBar(this));
 			frame.setBounds(client.getBounds());
-			JComponent p = new RatePane();
+			JComponent p = new SubscribePane(new HashTableModel(RateBean.class,"currencyPair", new String[]{"currencyPair","ask","bid","updateTime"}),
+					new ListTableModel(RateBean.class,new String[]{"currencyPair","ask","bid","updateTime"}));
 			frame.getContentPane().add(p);
 			frame.setVisible(true);
 		}

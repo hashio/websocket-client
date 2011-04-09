@@ -10,7 +10,7 @@ public class TextFrame extends FrameDraft76 {
 	public TextFrame(String str) {
 		super();
 		byte[] body = convertStringToByteArray(str);
-		FrameHeaderDraft76 header = new FrameHeaderDraft76((byte)0x80, body.length + 1);
+		FrameHeaderDraft76 header = new FrameHeaderDraft76((byte)0x00, body.length + 1);
 		setHeader(header);
 		setBody(body);
 	}

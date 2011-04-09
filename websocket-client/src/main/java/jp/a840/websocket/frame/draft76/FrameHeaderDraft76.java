@@ -35,6 +35,7 @@ public class FrameHeaderDraft76 implements FrameHeader {
 	public ByteBuffer toByteBuffer(){
 		ByteBuffer buf = ByteBuffer.allocate(1);
 		buf.put(frameType);
+		buf.flip();
 		return buf;
 	}
 }

@@ -163,6 +163,7 @@ public class FrameHeaderDraft06 implements FrameHeader {
 		}else if(payloadLen == 0x7F){
 			buf.putLong(payloadLength);
 		}
+		buf.flip();
 		return buf;
 	}
 }

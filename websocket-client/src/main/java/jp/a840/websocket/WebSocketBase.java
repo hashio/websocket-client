@@ -10,7 +10,6 @@ import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -30,7 +29,6 @@ import java.util.logging.Logger;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameParser;
 import jp.a840.websocket.handler.PacketDumpStreamHandler;
-import jp.a840.websocket.handler.StreamHandler;
 import jp.a840.websocket.handler.StreamHandlerAdapter;
 import jp.a840.websocket.handler.StreamHandlerChain;
 import jp.a840.websocket.handler.WebSocketPipeline;
@@ -38,7 +36,7 @@ import jp.a840.websocket.handler.WebSocketStreamHandler;
 import jp.a840.websocket.handshake.Handshake;
 
 /**
- * A simple websocket client
+ * A websocket base client
  * 
  * @author t-hashimoto
  * 
@@ -162,7 +160,6 @@ abstract public class WebSocketBase implements WebSocket {
 						.getResponseHeaderMap();
 				responseStatus = getHandshake()
 						.getResponseStatus();
-				getFrameParser().init();
 				transitionTo(State.WAIT);
 				// HANDSHAKE -> WAIT
 				WebSocketBase.this.handler.onOpen(WebSocketBase.this);
@@ -198,6 +195,9 @@ abstract public class WebSocketBase implements WebSocket {
 	}
 
 	public void send(Frame frame) throws WebSocketException {
+		if(!isConnected()){
+			throw new WebSocketException(3800, "WebSocket is not connected");
+		}
 		pipeline.sendUpstream(this, null, frame);
 	}
 
@@ -280,7 +280,7 @@ abstract public class WebSocketBase implements WebSocket {
 			socket = SocketChannel.open();
 			socket.configureBlocking(false);
 			selector = Selector.open();
-			socket.register(selector, SelectionKey.OP_READ | OP_WRITE);
+			socket.register(selector, OP_READ | OP_WRITE);
 
 			long start = System.currentTimeMillis();
 			if (socket.connect(endpoint)) {
@@ -294,7 +294,6 @@ abstract public class WebSocketBase implements WebSocket {
 
 			transitionTo(State.CONNECTED);
 			
-			getHandshake().init();
 			pipeline.sendHandshakeUpstream(this, null); // send handshake request
 			socket.write(upstreamQueue.take());
 

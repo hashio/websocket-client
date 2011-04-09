@@ -255,14 +255,19 @@ public class WSCSubscriber extends AbstractSubscriber {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		System.setProperty("websocket.packatdump", String.valueOf(
-				                                   PacketDumpStreamHandler.HS_UP
-				                                  |PacketDumpStreamHandler.HS_DOWN
-				                                  |PacketDumpStreamHandler.FR_UP
-				                                  ));
+		System.setProperty("websocket.buffersize", "65535");
+//		System.setProperty("websocket.packatdump", String.valueOf(
+//				                                   PacketDumpStreamHandler.HS_UP
+//				                                  |PacketDumpStreamHandler.HS_DOWN
+//				                                  |PacketDumpStreamHandler.FR_UP
+//				                                  ));
+//		System.setProperty("websocket.packatdump", String.valueOf(
+//                PacketDumpStreamHandler.ALL
+//               ));
 		WSCSubscriber sub = new WSCSubscriber();
 		sub.setLocation(args[0]);
 		sub.setConnectionTimeout(600000);
+		sub.setHealthCheckInterval(0);
 		sub.start();
 		sub.addExceptionListener(new ExceptionListener() {
 			public void onException(ExceptionEvent e) {
@@ -279,24 +284,24 @@ public class WSCSubscriber extends AbstractSubscriber {
 //		sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:5"));
 //		Thread.sleep(1000);
 //		System.out.println("Sent");
-//		while(true){
-//			Thread.sleep(5000);
-//			sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:30000"));
-//			System.out.println("Sent");
-//		}
-		Thread.sleep(5000);
-		sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:30000"));
-		Thread.sleep(5000);
-		sub.websocket.send(sub.websocket.createFrame("ADD PAIR:HOGE"));
-		Thread.sleep(5000);
-		sub.websocket.send(sub.websocket.createFrame("REMOVE PAIR:3"));
-		Thread.sleep(60000);
-		sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:500"));
 		while(true){
-			int interval = (int)(System.nanoTime() % 10000);
-			Thread.sleep(interval);
-			sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:"+String.valueOf(interval)));
+		Thread.sleep(1000);
+//			sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:30000"));
+			System.out.println("Sent");
 		}
+//		Thread.sleep(5000);
+//		sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:100"));
+//		Thread.sleep(5000);
+//		sub.websocket.send(sub.websocket.createFrame("ADD PAIR:HOGE"));
+//		Thread.sleep(5000);
+//		sub.websocket.send(sub.websocket.createFrame("REMOVE PAIR:3"));
+//		Thread.sleep(60000);
+//		sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:500"));
+//		while(true){
+//			int interval = (int)(System.nanoTime() % 10000);
+//			Thread.sleep(interval);
+//			sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:"+String.valueOf(interval)));
+//		}
 	
 	}
 

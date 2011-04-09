@@ -32,11 +32,9 @@ public class FrameBuilderDraft06 {
 		int position = chunkData.position();
 
 		if(length < 2){
-			throw new IllegalArgumentException("Too short frame data.");	
+			return null;
 		}
 
-	// TODO OFFSET!!!
-		
 		// check frameData[0]
 		// No check FIN. because FIN bit permit 0 or 1.
 		boolean fragmented = (chunkData.get(position) & FIN_MASK) == 0;
@@ -69,13 +67,13 @@ public class FrameBuilderDraft06 {
 		int payloadOffset = position + 2;
 		if(PayloadLengthType.LEN_16.equals(payloadLengthType)){
 			if(length < 4){
-				throw new IllegalArgumentException("Too short frame data.");
+				return null;
 			}
 			payloadLength = chunkData.getChar(payloadOffset);
 			payloadOffset += 2;
 		}else if(PayloadLengthType.LEN_63.equals(payloadLengthType)){
 			if(length < 10){
-				throw new IllegalArgumentException("Too short frame data.");
+				return null;
 			}
 			payloadLength = chunkData.getLong(payloadOffset);
 			payloadOffset += 8;

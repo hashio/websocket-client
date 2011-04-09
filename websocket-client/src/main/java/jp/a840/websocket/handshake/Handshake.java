@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jp.a840.websocket.BufferManager;
 import jp.a840.websocket.WebSocketException;
 
 /**
@@ -40,8 +41,6 @@ public abstract class Handshake {
 	private static Logger logger = Logger.getLogger(Handshake.class
 			.getName());
 
-	private StringBuilder lineBuf;
-
 	private int responseStatus;	
 
 	private Map<String, String> responseHeaderMap;
@@ -51,10 +50,10 @@ public abstract class Handshake {
 		
 		private static EnumMap<State, EnumSet<State>> stateMap = new EnumMap<State, EnumSet<State>>(State.class);
 		static {
-			stateMap.put(METHOD,   EnumSet.of(State.METHOD, State.HEADER));
-			stateMap.put(HEADER,    EnumSet.of(State.HEADER, State.BODY, State.DONE));
-			stateMap.put(BODY,    EnumSet.of(State.BODY, State.DONE));
-			stateMap.put(DONE,     EnumSet.of(State.DONE));
+			stateMap.put(METHOD,   EnumSet.of(State.HEADER));
+			stateMap.put(HEADER,    EnumSet.of(State.BODY, State.DONE));
+			stateMap.put(BODY,    EnumSet.of(State.DONE));
+			stateMap.put(DONE,     EnumSet.of(State.METHOD));
 		}
 		
 		boolean canTransitionTo(State state){
@@ -74,22 +73,16 @@ public abstract class Handshake {
 		}
 	}
 	
-	volatile private State state;
+	volatile private State state = State.DONE;
 	
 	protected State state(){
 		return state;
 	}
 
-	public void init(){
-		responseStatus = -1;
-		lineBuf = new StringBuilder();
-		responseHeaderMap = new HashMap<String, String>();
-		state = State.METHOD;
-	}
-
+	protected BufferManager bufferManager = new BufferManager();
+	
 	public void handshake(SocketChannel socket) throws WebSocketException {
 		try {
-			
 			ByteBuffer request = createHandshakeRequest();
 			socket.write(request);
 		} catch (IOException ioe) {
@@ -97,15 +90,44 @@ public abstract class Handshake {
 		}
 	}
 
-	final public boolean handshakeResponse(ByteBuffer buffer) throws WebSocketException {
-		if(!parseHandshakeResponseHeader(buffer)){
-			return false;
+	final public boolean handshakeResponse(ByteBuffer downloadBuffer) throws WebSocketException {
+		ByteBuffer buffer = null;
+		try{
+			if (State.DONE.equals(state)) {
+				transitionTo(State.METHOD);
+				responseStatus = -1;
+				responseHeaderMap = new HashMap<String, String>();
+				bufferManager.init();
+				buffer = downloadBuffer;
+			} else {
+				buffer = bufferManager.getBuffer(downloadBuffer);
+			}
+
+			if (State.METHOD.equals(state) || State.HEADER.equals(state)) {
+				int position = buffer.position();
+				if (!parseHandshakeResponseHeader(buffer)) {
+					buffer.position(position);
+					bufferManager.storeFragmentBuffer(buffer);
+					return false;
+				}
+				transitionTo(State.BODY);
+			}
+
+			if (State.BODY.equals(state)) {
+				int position = buffer.position();
+				if (!parseHandshakeResponseBody(buffer)) {
+					buffer.position(position);
+					bufferManager.storeFragmentBuffer(buffer);
+					return false;
+				}
+			}
+
+			return done();
+		}finally{
+			if(buffer != null && buffer != downloadBuffer){
+				downloadBuffer.position(downloadBuffer.limit() - buffer.remaining());
+			}
 		}
-		transitionTo(State.BODY);
-		if(!parseHandshakeResponseBody(buffer)){
-			return false;
-		}
-		return done();
 	}
 
 	protected boolean done(){
@@ -169,51 +191,37 @@ public abstract class Handshake {
 		return true;
 	}
 
-	protected String readLine(ByteBuffer buffer){
-		boolean complete = readLine(lineBuf, buffer);
-		if (!complete) {
-			return null;
-		}
-		String line = lineBuf.toString();
-		lineBuf = new StringBuilder();
-
-		if (logger.isLoggable(Level.FINE)) {
-			logger.fine(line);
-		}
-		return line;
-	}
-	
-	protected boolean readLine(StringBuilder sb, ByteBuffer buf) {
-		int position = buf.position();
-		int limit = buf.limit() - buf.position();
-		int i = 0;
+	protected String readLine(ByteBuffer buf) {
 		boolean completed = false;
-		for (; i < limit; i++) {
-			if (buf.get(position + i) == '\r') {
-				if(buf.get(position + i + 1) == '\n'){
-					i++;
+		buf.mark();
+		while (buf.hasRemaining() && !completed) {
+			byte b = buf.get();
+			if (b == '\r') {
+				if(buf.hasRemaining() && buf.get() == '\n'){
 					completed = true;
-					break;
 				}
 			}
-			if (buf.get(position + i) == '\n') {
-				completed = true;
-				break;
-			}
 		}
 
-		byte[] tmp = new byte[i + 1];
-		buf.get(tmp);
+		if(!completed){
+			return null;
+		}
+
+		int limit = buf.position();
+		buf.reset();
+		int length = limit - buf.position();
+		byte[] tmp = new byte[length];
+		buf.get(tmp, 0, length);
 		try {
 			String line = new String(tmp, "US-ASCII");
 			if (logger.isLoggable(Level.FINE)) {
 				logger.fine(line.trim());
 			}
-			sb.append(line);
+			return line;
 		} catch (UnsupportedEncodingException e) {
 			;
 		}
-		return completed;
+		return null;
 	}
 
 	abstract public ByteBuffer createHandshakeRequest()

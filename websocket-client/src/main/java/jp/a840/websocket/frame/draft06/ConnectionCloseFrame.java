@@ -1,6 +1,5 @@
 package jp.a840.websocket.frame.draft06;
 
-import jp.a840.websocket.frame.Frame;
 
 public class ConnectionCloseFrame extends FrameDraft06 {
 

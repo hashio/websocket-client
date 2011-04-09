@@ -13,10 +13,11 @@ import jp.a840.websocket.frame.Frame;
  * 
  * <pre>
  * Dump mode:
+ *   HS_UP  : dump buffer of handshake upstream
+ *   HS_DOWN: dump buffer of handshake downstream
  *   FR_UP  : dump buffer of frame upstream
  *   FR_DOWN: dump buffer of frame downstream
- *   FR_DOWN: dump buffer of frame downstream
- *   FR_DOWN: dump buffer of frame downstream
+ *   ALL    : dump these streams
  * </pre>
  * 
  * @author t-hashimoto

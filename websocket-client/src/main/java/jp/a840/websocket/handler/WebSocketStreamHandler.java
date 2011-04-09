@@ -31,7 +31,6 @@ public class WebSocketStreamHandler implements StreamHandler {
 			Frame frame = frameParser.parse(buffer);
 			if(frame != null){
 				chain.nextDownstreamHandler(ws, buffer, frame);
-				frameParser.init();
 			}
 		}
 	}

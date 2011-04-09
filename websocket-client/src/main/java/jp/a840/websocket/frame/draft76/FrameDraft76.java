@@ -1,7 +1,5 @@
 package jp.a840.websocket.frame.draft76;
 
-import java.nio.ByteBuffer;
-
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 

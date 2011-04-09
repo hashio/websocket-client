@@ -26,6 +26,8 @@ import util.Base64;
 /**
  * A simple websocket client
  * 
+ *  this class is implement the WebSocket Draft06 specification.
+ *  
  * @see http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-06
  * @author t-hashimoto
  *

@@ -20,7 +20,9 @@ import jp.a840.websocket.handshake.Handshake;
 
 /**
  * A simple websocket client
+ * this class is implement the WebSocket Draft76 specification.
  * 
+ * @see http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76
  * @author t-hashimoto
  * 
  */
@@ -155,12 +157,13 @@ public class WebSocketDraft76 extends WebSocketBase {
 				if(!super.parseHandshakeResponseBody(buffer)){
 					return false;
 				}
-				int limit = buffer.limit();
-				buffer.limit(buffer.position() + Math.min(bodyBuf.remaining(), buffer.remaining()));
-				bodyBuf.put(buffer);
-				buffer.limit(limit);
 				
-				return !bodyBuf.hasRemaining();
+				if(buffer.remaining() < bodyBuf.capacity()){
+					return false;
+				}
+
+				buffer.get(bodyBuf.array(), 0, bodyBuf.capacity());				
+				return true;
 			}
 
 		};

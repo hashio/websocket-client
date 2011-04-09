@@ -1,15 +1,17 @@
 package jp.a840.push.publisher;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import jp.a840.push.beans.RateBean;
 import jp.a840.push.subscriber.exception.InitializeException;
@@ -24,16 +26,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class DummyRateApplication extends WebSocketApplication<RateWebSocket> {
+	public class DummyRateApplication extends WebSocketApplication<RateWebSocket> {
 
 	private Logger log = LoggerFactory.getLogger(DummyRateApplication.class);
 	
 	private ExecutorService executorService;
 	
+	private AtomicInteger updateInterval = new AtomicInteger(1000);
+	
+	private AtomicBoolean canSend = new AtomicBoolean(true);
+
+	private ConcurrentHashMap<String, Iterator<RateBean>> its = new ConcurrentHashMap<String, Iterator<RateBean>>();
+
 	public DummyRateApplication() throws InitializeException {
-	}
-	
-	
+		for(int i = 0; i < 10; i++){
+			its.put(String.valueOf(i), new RateGenerateIterator(String.valueOf(i)));
+		}
+	}	
 	
 	@Override
 	public void onAccept(RateWebSocket websocket) throws IOException {
@@ -49,17 +58,21 @@ public class DummyRateApplication extends WebSocketApplication<RateWebSocket> {
 		super.onClose(websocket);
 	}
 
-
-
 	public void onMessage(RateWebSocket websocket, Frame frame)
 			throws IOException {
 		log.info("message");
-		ByteArrayInputStream bais = new ByteArrayInputStream(frame.getAsBinary().toByteBuffer().array());
-		ObjectInputStream ois = new ObjectInputStream(bais);
-		ControlBean ois.readObject();
+		String text = frame.getAsText();
+		String[] params = text.split(":");
+		if("UPDATE INTERVAL".equalsIgnoreCase(params[0])){
+			updateInterval.set(Integer.valueOf(params[1]));
+		}else if("ADD PAIR".equalsIgnoreCase(params[0])){
+			String pair = params[1];
+			its.putIfAbsent(pair, new RateGenerateIterator(pair));
+		}else if("REMOVE PAIR".equalsIgnoreCase(params[0])){
+			String pair = params[1];
+			its.remove(pair);
+		}
 	}
-
-	
 	
 	@Override
 	protected RateWebSocket createWebSocket(Connection connection,
@@ -69,20 +82,18 @@ public class DummyRateApplication extends WebSocketApplication<RateWebSocket> {
 
 	public void startSubscribe() throws Exception {
 		executorService = Executors.newFixedThreadPool(30);
-		final List<Iterator<RateBean>> its = new ArrayList<Iterator<RateBean>>();
-		for(int i = 0; i < 10; i++){
-			its.add(new RateGenerateIterator(String.valueOf(i)));
-		}
 		
-		for(final Iterator<RateBean> it : its){
+		for(final Iterator<RateBean> it : its.values()){
 			executorService.execute(new Runnable() {
 				public void run() {
 					try{
 						while(true){
-							for(final RateWebSocket rws : getWebSockets()){
-								rws.sendRate(it.next());
+							if(canSend.get()){
+								for(final RateWebSocket rws : getWebSockets()){
+									rws.sendRate(it.next());
+								}
 							}
-							Thread.sleep(RandomUtils.nextInt(1000));
+							Thread.sleep(RandomUtils.nextInt(updateInterval.get()));
 						}
 					}catch(InterruptedException e){
 						;

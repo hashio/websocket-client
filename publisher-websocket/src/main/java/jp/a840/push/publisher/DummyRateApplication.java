@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -34,9 +35,7 @@ import org.slf4j.LoggerFactory;
 	
 	private AtomicInteger updateInterval = new AtomicInteger(1000);
 	
-	private AtomicBoolean canSend = new AtomicBoolean(true);
-
-	private ConcurrentHashMap<String, Iterator<RateBean>> its = new ConcurrentHashMap<String, Iterator<RateBean>>();
+	private ConcurrentHashMap<String, RateGenerateIterator> its = new ConcurrentHashMap<String, RateGenerateIterator>();
 
 	public DummyRateApplication() throws InitializeException {
 		for(int i = 0; i < 10; i++){
@@ -67,10 +66,16 @@ import org.slf4j.LoggerFactory;
 			updateInterval.set(Integer.valueOf(params[1]));
 		}else if("ADD PAIR".equalsIgnoreCase(params[0])){
 			String pair = params[1];
-			its.putIfAbsent(pair, new RateGenerateIterator(pair));
+			RateGenerateIterator it = new RateGenerateIterator(pair);
+			if(its.putIfAbsent(pair, it) == null){
+				doExecuteService(it);	
+			}
 		}else if("REMOVE PAIR".equalsIgnoreCase(params[0])){
 			String pair = params[1];
-			its.remove(pair);
+			RateGenerateIterator it = its.remove(pair);
+			if(it != null){
+				it.stop();
+			}
 		}
 	}
 	
@@ -84,23 +89,25 @@ import org.slf4j.LoggerFactory;
 		executorService = Executors.newFixedThreadPool(30);
 		
 		for(final Iterator<RateBean> it : its.values()){
-			executorService.execute(new Runnable() {
-				public void run() {
-					try{
-						while(true){
-							if(canSend.get()){
-								for(final RateWebSocket rws : getWebSockets()){
-									rws.sendRate(it.next());
-								}
-							}
-							Thread.sleep(RandomUtils.nextInt(updateInterval.get()));
-						}
-					}catch(InterruptedException e){
-						;
-					}
-				}
-			});
+			doExecuteService(it);
 		}
+	}
+	
+	private void doExecuteService(final Iterator<RateBean> it){
+		executorService.execute(new Runnable() {
+			public void run() {
+				try{
+					while(it.hasNext()){
+						for(final RateWebSocket rws : getWebSockets()){
+							rws.sendRate(it.next());
+						}
+						Thread.sleep(RandomUtils.nextInt(updateInterval.get()));
+					}
+				}catch(InterruptedException e){
+					;
+				}
+			}
+		});		
 	}
 	
 	public void stopSubscribe(){
@@ -112,6 +119,8 @@ import org.slf4j.LoggerFactory;
 	public class RateGenerateIterator implements Iterator<RateBean> {
 		private RateBean currentDto;
 		
+		volatile private boolean hasNextFlg = true;
+		
 		public RateGenerateIterator(String currencyPair){
 			RateBean dto = new RateBean();
 			dto.setCurrencyPair(currencyPair);
@@ -121,7 +130,7 @@ import org.slf4j.LoggerFactory;
 		}
 		
 		public boolean hasNext() {
-			return true;
+			return hasNextFlg;
 		}
 
 		synchronized public RateBean next() {
@@ -136,6 +145,10 @@ import org.slf4j.LoggerFactory;
 		}
 
 		public void remove() {
+		}
+		
+		public void stop(){
+			hasNextFlg = false;
 		}
 		
 		private BigDecimal generateRate(BigDecimal rate){

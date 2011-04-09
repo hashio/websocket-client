@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.nio.ByteBuffer;
 import java.util.Properties;
+import java.util.Random;
 
 import jp.a840.push.beans.RateBean;
 import jp.a840.push.subscriber.AbstractSubscriber;
@@ -272,17 +273,31 @@ public class WSCSubscriber extends AbstractSubscriber {
 			public void onMessage(MessageEvent e) {
 				Message msg = e.getMessage();
 				RateBean dto = (RateBean)msg.getBody();
-				System.out.println(dto.getBid());
+				System.out.println(dto.getCurrencyPair() + " - " + dto.getBid());
 			}
 		});
 //		sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:5"));
 //		Thread.sleep(1000);
 //		System.out.println("Sent");
+//		while(true){
+//			Thread.sleep(5000);
+//			sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:30000"));
+//			System.out.println("Sent");
+//		}
+		Thread.sleep(5000);
+		sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:30000"));
+		Thread.sleep(5000);
+		sub.websocket.send(sub.websocket.createFrame("ADD PAIR:HOGE"));
+		Thread.sleep(5000);
+		sub.websocket.send(sub.websocket.createFrame("REMOVE PAIR:3"));
+		Thread.sleep(60000);
+		sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:500"));
 		while(true){
-			Thread.sleep(1000);
-			sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:5"));
-			System.out.println("Sent");
+			int interval = (int)(System.nanoTime() % 10000);
+			Thread.sleep(interval);
+			sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:"+String.valueOf(interval)));
 		}
+	
 	}
 
 }

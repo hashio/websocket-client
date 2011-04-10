@@ -86,7 +86,7 @@ public abstract class Handshake {
 			ByteBuffer request = createHandshakeRequest();
 			socket.write(request);
 		} catch (IOException ioe) {
-			throw new WebSocketException(3000, ioe);
+			throw new WebSocketException(3100, ioe);
 		}
 	}
 
@@ -154,12 +154,12 @@ public abstract class Handshake {
 				return false;
 			}
 			if (!line.startsWith("HTTP/1.1")) {
-				throw new WebSocketException(3001,
+				throw new WebSocketException(3101,
 						"Invalid server response.(HTTP version) " + line);
 			}
 			responseStatus = Integer.valueOf(line.substring(9, 12));
 			if (responseStatus != 101) {
-				throw new WebSocketException(3001,
+				throw new WebSocketException(3102,
 						"Invalid server response.(Status Code) " + line);
 			}
 			transitionTo(State.HEADER);

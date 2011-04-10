@@ -36,4 +36,9 @@ public class WebSocketException extends Exception {
 		this.statusCode = statusCode;
 	}
 
+	@Override
+	public String getMessage() {
+		return "[" + statusCode + "] " + super.getMessage();
+	}
+
 }

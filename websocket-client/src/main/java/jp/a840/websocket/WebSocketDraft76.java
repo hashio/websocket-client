@@ -35,10 +35,8 @@ public class WebSocketDraft76 extends WebSocketBase {
 	private FrameBuilderDraft76 builder = new FrameBuilderDraft76();
 
 	public WebSocketDraft76(String url, WebSocketHandler handler,
-			String... protocols) throws URISyntaxException, IOException {
+			String... protocols) throws WebSocketException {
 		super(url, handler, protocols);
-
-		this.origin = System.getProperty("websocket.origin");
 	}
 
 	@Override
@@ -55,6 +53,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 			/**
 			 * Create a handshake requtest
 			 * 
+			 * <pre>
 			 * Sample (Draft76) client => server
 			 * GET /demo HTTP/1.1
 			 * Host: example.com
@@ -66,6 +65,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 			 * Origin: http://example.com
 			 * 
 			 * ^n:ds[4U
+			 * </pre>
 			 * 
 			 * @param socket
 			 */
@@ -102,6 +102,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 			/**
 			 * check handshake response
 			 * 
+			 * <pre>
 			 * server => client
 			 * HTTP/1.1 101 WebSocket Protocol Handshake
 			 * Upgrade: WebSocket
@@ -111,6 +112,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 			 * Sec-WebSocket-Protocol: sample
 			 * 
 			 * 8jKS'y:G*Co,Wxa-
+			 * </pre>
 			 * 
 			 * @param buffer
 			 */
@@ -121,14 +123,14 @@ public class WebSocketDraft76 extends WebSocketBase {
 					return false;
 				}
 				if(!"websocket".equalsIgnoreCase(this.getResponseHeaderMap().get("upgrade"))){
-					throw new WebSocketException(3101, "Upgrade response header is not match websocket. Upgrade: " + responseHeaderMap.get("upgrade"));
+					throw new WebSocketException(3500, "Upgrade response header is not match websocket. Upgrade: " + responseHeaderMap.get("upgrade"));
 				}
 				if(!"upgrade".equalsIgnoreCase(this.getResponseHeaderMap().get("connection"))){
-					throw new WebSocketException(3101, "Connection response header is not match Upgrade. Connection: " + responseHeaderMap.get("connection"));
+					throw new WebSocketException(3501, "Connection response header is not match Upgrade. Connection: " + responseHeaderMap.get("connection"));
 				}
 				String serverOrigin = this.getResponseHeaderMap().get("sec-websocket-origin");
 				if(origin != null && serverOrigin != null && !serverOrigin.equals(origin)){
-					throw new WebSocketException(3101, "Sec-WebSocket-Origin response header is not match request Origin header. Origin: " + origin + " Sec-WebSocket-Origin: " + serverOrigin);
+					throw new WebSocketException(3502, "Sec-WebSocket-Origin response header is not match request Origin header. Origin: " + origin + " Sec-WebSocket-Origin: " + serverOrigin);
 				}
 				String serverLocation = this.getResponseHeaderMap().get("sec-websocket-location");
 				try{
@@ -140,7 +142,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 								  	location.getFragment()
 								  	);
 					if(serverLocation != null && !serverLocation.equals(uri.toString())){
-						throw new WebSocketException(3101, "Sec-WebSocket-Location response header is not match request URL. request uri: " + uri.toString() + " Sec-WebSocket-Location: " + serverLocation);
+						throw new WebSocketException(3503, "Sec-WebSocket-Location response header is not match request URL. request uri: " + uri.toString() + " Sec-WebSocket-Location: " + serverLocation);
 					}
 				}catch(URISyntaxException e){
 					;
@@ -235,7 +237,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 			byte[] bodyData = baos.toByteArray();
 			return new BinaryFrame(bodyData);
 		} catch (Exception e) {
-			throw new WebSocketException(3801, e);
+			throw new WebSocketException(3550, e);
 		}
 	}
 

@@ -43,10 +43,8 @@ public class WebSocketDraft06 extends WebSocketBase {
 	                 
 	private FrameBuilderDraft06 builder = new FrameBuilderDraft06();
 	
-	public WebSocketDraft06(String url, WebSocketHandler handler, String... protocols) throws URISyntaxException, IOException {
+	public WebSocketDraft06(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		super(url, handler, protocols);
-		
-		this.origin = System.getProperty("websocket.origin");
 	}
 	
 	@Override
@@ -60,6 +58,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 			/**
 			 * Create a handshake requtest
 			 * 
+			 * <pre>
 			 * Sample (Draft06)
 			 * client => server
 			 *   GET /chat HTTP/1.1
@@ -70,7 +69,8 @@ public class WebSocketDraft06 extends WebSocketBase {
 			 *   Sec-WebSocket-Origin: http://example.com
 			 *   Sec-WebSocket-Protocol: chat, superchat
 			 *   Sec-WebSocket-Version:6
-			 *   
+			 * </pre>
+			 * 
 			 * @param socket
 			 */
 			@Override
@@ -100,12 +100,14 @@ public class WebSocketDraft06 extends WebSocketBase {
 			/**
 			 * check handshake response
 			 * 
+			 * <pre>
 			 * server => client
 			 * HTTP/1.1 101 Switching Protocols
 			 * Upgrade: websocket
 			 * Connection: Upgrade
 			 * Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
 			 * Sec-WebSocket-Protocol: chat
+			 * </pre>
 			 * 
 			 * @param buffer
 			 */
@@ -116,13 +118,13 @@ public class WebSocketDraft06 extends WebSocketBase {
 					return false;
 				}
 				if(!"websocket".equalsIgnoreCase(responseHeaderMap.get("upgrade"))){
-					throw new WebSocketException(3101, "Upgrade response header is not match websocket. Upgrade: " + responseHeaderMap.get("upgrade"));
+					throw new WebSocketException(3600, "Upgrade response header is not match websocket. Upgrade: " + responseHeaderMap.get("upgrade"));
 				}
 				if(!"upgrade".equalsIgnoreCase(responseHeaderMap.get("connection"))){
-					throw new WebSocketException(3101, "Connection response header is not match Upgrade. Connection: " + responseHeaderMap.get("connection"));
+					throw new WebSocketException(3601, "Connection response header is not match Upgrade. Connection: " + responseHeaderMap.get("connection"));
 				}
 				if(!responseHeaderMap.containsKey("sec-websocket-accept")){
-					throw new WebSocketException(3101, "Sec-WebSocket-Accept response header is not found");
+					throw new WebSocketException(3602, "Sec-WebSocket-Accept response header is not found");
 				}
 				String protocolStr = responseHeaderMap.get("sec-websocket-protocol");
 				if(protocolStr != null){
@@ -177,7 +179,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 			byte[] bodyData = baos.toByteArray();
 			return new BinaryFrame(bodyData);
 		} catch (Exception e) {
-			throw new WebSocketException(3801, e);
+			throw new WebSocketException(3650, e);
 		}
 	}
 

@@ -4,6 +4,7 @@ import static java.nio.channels.SelectionKey.OP_READ;
 import static java.nio.channels.SelectionKey.OP_WRITE;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.ProxySelector;
@@ -56,10 +57,9 @@ abstract public class WebSocketBase implements WebSocket {
 	/** connection timeout(second) */
 	private int connectionTimeout = 60 * 1000;
 
+	/** connection read timeout(second) */
 	private int connectionReadTimeout = 0;
 	
-	private int packatdumpMode;
-
 	/** blocking mode */
 	private boolean blockingMode = true;
 
@@ -75,7 +75,7 @@ abstract public class WebSocketBase implements WebSocket {
 
 	protected String origin;
 
-	protected BlockingQueue<ByteBuffer> upstreamQueue = new LinkedBlockingQueue<ByteBuffer>();
+	protected BlockingQueue<ByteBuffer> upstreamQueue;
 
 	/** websocket handler */
 	protected WebSocketHandler handler;
@@ -98,17 +98,18 @@ abstract public class WebSocketBase implements WebSocket {
 	volatile private State state = State.CLOSED;
 
 	public WebSocketBase(String url, WebSocketHandler handler,
-			String... protocols) throws URISyntaxException, IOException {
+			String... protocols) throws WebSocketException {
 		this.protocols = protocols;
 		this.handler = handler;
 
 		// init properties
 		this.origin = System.getProperty("websocket.origin");
 
-		int downstreamBufferSize = Integer.getInteger("websocket.buffersize",
-				8192);
+		int downstreamBufferSize = Integer.getInteger("websocket.bufferSize",0x7FFF);
+		int upstreamQueueSize = Integer.getInteger("websocket.upstreamQueueSize", 500);
+		this.upstreamQueue = new LinkedBlockingQueue<ByteBuffer>(upstreamQueueSize);
 		this.downstreamBuffer = ByteBuffer.allocate(downstreamBufferSize);
-		this.packatdumpMode = Integer.getInteger("websocket.packatdump", 0);
+		int packatdumpMode = Integer.getInteger("websocket.packatdump", 0);
 
 		// parse url
 		parseUrl(url);
@@ -121,19 +122,15 @@ abstract public class WebSocketBase implements WebSocket {
 		this.pipeline.addStreamHandler(new StreamHandlerAdapter() {
 			public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
 					Frame frame, StreamHandlerChain chain) throws WebSocketException {
-				try {
-					upstreamQueue.put(buffer);
-					selector.wakeup();
-				} catch (InterruptedException e) {
-					throw new WebSocketException(3011, e);
+				if(!upstreamQueue.offer(buffer)){
+					throw new WebSocketException(3030, "Couldn't add buffer to upstream queue");
 				}
+				selector.wakeup();
 			}
 			public void nextHandshakeUpstreamHandler(WebSocket ws, ByteBuffer buffer,
 					StreamHandlerChain chain) throws WebSocketException {
-				try{
-					upstreamQueue.put(buffer);
-				} catch (InterruptedException e) {
-					throw new WebSocketException(3012, e);
+				if(!upstreamQueue.offer(buffer)){
+					throw new WebSocketException(3031, "Couldn't add buffer to upstream queue");
 				}
 			}
 		});
@@ -156,10 +153,8 @@ abstract public class WebSocketBase implements WebSocket {
 			public void nextHandshakeDownstreamHandler(WebSocket ws, ByteBuffer buffer,
 					StreamHandlerChain chain) throws WebSocketException {
 				// set response status
-				responseHeaderMap = getHandshake()
-						.getResponseHeaderMap();
-				responseStatus = getHandshake()
-						.getResponseStatus();
+				responseHeaderMap = getHandshake().getResponseHeaderMap();
+				responseStatus = getHandshake().getResponseStatus();
 				transitionTo(State.WAIT);
 				// HANDSHAKE -> WAIT
 				WebSocketBase.this.handler.onOpen(WebSocketBase.this);
@@ -172,31 +167,35 @@ abstract public class WebSocketBase implements WebSocket {
 		this.pipeline.addStreamHandler(new WebSocketStreamHandler(getHandshake(), getFrameParser()));
 	}
 
-	private void parseUrl(String urlStr) throws URISyntaxException {
-		URI uri = new URI(urlStr);
-		if (!(uri.getScheme().equals("ws") || uri.getScheme().equals("wss"))) {
-			throw new IllegalArgumentException("Not supported protocol. "
-					+ uri.toString());
-		}
-		path = uri.getPath();
-		int port = uri.getPort();
-		if (port < 0) {
-			if (uri.getScheme().equals("ws")) {
-				port = 80;
-			} else if (uri.getScheme().equals("wss")) {
-				port = 443;
-			} else {
-				throw new IllegalArgumentException("Not supported protocol. "
+	private void parseUrl(String urlStr) throws WebSocketException {
+		try {
+			URI uri = new URI(urlStr);
+			if (!(uri.getScheme().equals("ws") || uri.getScheme().equals("wss"))) {
+				throw new WebSocketException(3007, "Not supported protocol. "
 						+ uri.toString());
 			}
+			path = uri.getPath();
+			int port = uri.getPort();
+			if (port < 0) {
+				if (uri.getScheme().equals("ws")) {
+					port = 80;
+				} else if (uri.getScheme().equals("wss")) {
+					port = 443;
+				} else {
+					throw new WebSocketException(3008,
+							"Not supported protocol. " + uri.toString());
+				}
+			}
+			endpoint = new InetSocketAddress(uri.getHost(), port);
+			location = uri;
+		} catch (URISyntaxException e) {
+			throw new WebSocketException(3009, e);
 		}
-		endpoint = new InetSocketAddress(uri.getHost(), port);
-		location = uri;
 	}
 
 	public void send(Frame frame) throws WebSocketException {
 		if(!isConnected()){
-			throw new WebSocketException(3800, "WebSocket is not connected");
+			throw new WebSocketException(3010, "WebSocket is not connected");
 		}
 		pipeline.sendUpstream(this, null, frame);
 	}
@@ -257,18 +256,18 @@ abstract public class WebSocketBase implements WebSocket {
 		try {
 			buffer.clear();
 			if (socket.read(buffer) < 0) {
-				throw new WebSocketException(3001, "Connection closed.");
+				throw new WebSocketException(3020, "Connection closed.");
 			}
 			buffer.flip();
 		} catch (IOException ioe) {
-			throw new WebSocketException(3002, "Caught IOException.", ioe);
+			throw new WebSocketException(3021, "Caught IOException.", ioe);
 		}
 	}
 
 	public void connect() throws WebSocketException {
 		try {
 			if (!state.canTransitionTo(State.CONNECTED)) {
-				throw new WebSocketException(3000,
+				throw new WebSocketException(3040,
 						"Can't transit state to CONNECTED. current state="
 								+ state);
 			}
@@ -284,11 +283,11 @@ abstract public class WebSocketBase implements WebSocket {
 
 			long start = System.currentTimeMillis();
 			if (socket.connect(endpoint)) {
-				throw new WebSocketException(3000, "Already connected");
+				throw new WebSocketException(3041, "Already connected");
 			}
 			while (!socket.finishConnect()) {
 				if ((System.currentTimeMillis() - start) > connectionTimeout) {
-					throw new WebSocketException(3004, "Connection Timeout");
+					throw new WebSocketException(3042, "Connection Timeout");
 				}
 			}
 
@@ -334,7 +333,7 @@ abstract public class WebSocketBase implements WebSocket {
 						handler.onError(WebSocketBase.this, we);
 					} catch (Exception e) {
 						handler.onError(WebSocketBase.this,
-								new WebSocketException(3000, e));
+								new WebSocketException(3043, e));
 					} finally {
 						try {
 							socket.close();
@@ -362,7 +361,7 @@ abstract public class WebSocketBase implements WebSocket {
 		} catch (WebSocketException we) {
 			handler.onError(this, we);
 		} catch (Exception e) {
-			handler.onError(this, new WebSocketException(3100, e));
+			handler.onError(this, new WebSocketException(3044, e));
 		}
 	}
 
@@ -497,5 +496,9 @@ abstract public class WebSocketBase implements WebSocket {
 
 	public void setConnectionReadTimeout(int connectionReadTimeout) {
 		this.connectionReadTimeout = connectionReadTimeout * 1000;
+	}
+
+	public void setOrigin(String origin) {
+		this.origin = origin;
 	}
 }

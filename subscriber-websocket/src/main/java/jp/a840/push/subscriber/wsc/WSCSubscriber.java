@@ -129,6 +129,7 @@ public class WSCSubscriber extends AbstractSubscriber {
 	}
 
 	protected void prepareConnect() throws Exception{
+		websocket.setConnectionTimeout((int)this.connectionTimeout);
 	}
 	
 	protected void disconnect() {
@@ -266,9 +267,8 @@ public class WSCSubscriber extends AbstractSubscriber {
 //               ));
 		WSCSubscriber sub = new WSCSubscriber();
 		sub.setLocation(args[0]);
-		sub.setConnectionTimeout(600000);
+		sub.setConnectionTimeout(60000);
 		sub.setHealthCheckInterval(0);
-		sub.start();
 		sub.addExceptionListener(new ExceptionListener() {
 			public void onException(ExceptionEvent e) {
 				e.getException().printStackTrace();
@@ -281,13 +281,16 @@ public class WSCSubscriber extends AbstractSubscriber {
 				System.out.println(dto.getCurrencyPair() + " - " + dto.getBid());
 			}
 		});
+		sub.start();
 //		sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:5"));
 //		Thread.sleep(1000);
 //		System.out.println("Sent");
 		while(true){
-		Thread.sleep(1000);
-//			sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:30000"));
-			System.out.println("Sent");
+			Thread.sleep(1000);
+			if(sub.websocket.isConnected()){
+				sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:1000"));
+				System.out.println("Sent");
+			}
 		}
 //		Thread.sleep(5000);
 //		sub.websocket.send(sub.websocket.createFrame("UPDATE INTERVAL:100"));

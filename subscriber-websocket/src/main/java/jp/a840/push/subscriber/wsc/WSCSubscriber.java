@@ -24,6 +24,7 @@ import jp.a840.websocket.WebSocket;
 import jp.a840.websocket.WebSocketDraft76;
 import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.WebSocketHandlerAdapter;
+import jp.a840.websocket.WebSockets;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.handler.PacketDumpStreamHandler;
 
@@ -73,7 +74,7 @@ public class WSCSubscriber extends AbstractSubscriber {
 	 */
 	public void init() throws InitializeException {
 		try{
-			websocket = new WebSocketDraft76(location,new WSCSubscriberClientHandler());
+			websocket = WebSockets.createDraft76(location,new WSCSubscriberClientHandler());
 			websocket.setBlockingMode(false);
 		}catch(Exception e){
 				throw new InitializeException(e);

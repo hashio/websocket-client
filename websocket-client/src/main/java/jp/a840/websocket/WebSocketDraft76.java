@@ -32,8 +32,6 @@ public class WebSocketDraft76 extends WebSocketBase {
 
 	private static final int VERSION = 76;
 
-	private FrameBuilderDraft76 builder = new FrameBuilderDraft76();
-
 	public WebSocketDraft76(String url, WebSocketHandler handler,
 			String... protocols) throws WebSocketException {
 		super(url, handler, protocols);
@@ -252,12 +250,12 @@ public class WebSocketDraft76 extends WebSocketBase {
 			
 			@Override
 			protected FrameHeader createFrameHeader(ByteBuffer chunkData) {
-				return builder.createFrameHeader(chunkData);
+				return FrameBuilderDraft76.createFrameHeader(chunkData);
 			}
 
 			@Override
 			protected Frame createFrame(FrameHeader h, byte[] bodyData) {
-				return builder.createFrame(h, bodyData);
+				return FrameBuilderDraft76.createFrame(h, bodyData);
 			}
 			
 		};

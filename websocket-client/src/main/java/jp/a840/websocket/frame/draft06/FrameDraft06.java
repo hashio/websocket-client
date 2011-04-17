@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
+import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
 
 /**
  *  WebSocket Frame class
@@ -37,14 +38,12 @@ import jp.a840.websocket.frame.FrameHeader;
  */
 abstract public class FrameDraft06 extends Frame {
 	
-	private FrameBuilderDraft06 builder = new FrameBuilderDraft06();
-	
 	protected FrameDraft06(){
 	}
 
 	protected FrameDraft06(byte[] bodyData){
 		super();
-		FrameHeader header = builder.createFrameHeader(ByteBuffer.wrap(bodyData));
+		FrameHeader header = FrameBuilderDraft06.createFrameHeader(bodyData, false, Opcode.BINARY_FRAME);
 		setHeader(header);
 		setBody(bodyData);
 	}
@@ -58,6 +57,19 @@ abstract public class FrameDraft06 extends Frame {
 		ByteBuffer buf = ByteBuffer.allocate(headerBuffer.limit() + body.length);
 		buf.put(headerBuffer);
 		buf.put(body);
+		buf.flip();
 		return buf;
+	}
+	
+	public static BinaryFrame createBinaryFrame(byte[] body){
+		return new BinaryFrame(body);
+	}
+	
+	public static TextFrame createTextFrame(String str){
+		return new TextFrame(str);
+	}
+	
+	public boolean isContinuationFrame(){
+		return ((FrameHeaderDraft06)header).getOpcode().equals(Opcode.CONTINUATION);
 	}
 }

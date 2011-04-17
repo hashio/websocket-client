@@ -2,6 +2,9 @@ package jp.a840.websocket.frame;
 
 import java.nio.ByteBuffer;
 
+import jp.a840.websocket.frame.draft06.BinaryFrame;
+import jp.a840.websocket.frame.draft06.TextFrame;
+
 abstract public class Frame {
 
 	protected FrameHeader header;
@@ -40,5 +43,13 @@ abstract public class Frame {
 
 	protected void setBody(byte[] body) {
 		this.body = body;
+	}
+	
+	public static BinaryFrame createBinaryFrame(byte[] body){
+		return new BinaryFrame(body);
+	}
+	
+	public static TextFrame createTextFrame(String str){
+		return new TextFrame(str);
 	}
 }

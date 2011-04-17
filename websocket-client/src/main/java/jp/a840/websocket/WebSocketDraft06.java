@@ -1,9 +1,7 @@
 package jp.a840.websocket;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -17,7 +15,8 @@ import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.FrameParser;
 import jp.a840.websocket.frame.draft06.BinaryFrame;
 import jp.a840.websocket.frame.draft06.FrameBuilderDraft06;
-import jp.a840.websocket.frame.draft76.TextFrame;
+import jp.a840.websocket.frame.draft06.FrameHeaderDraft06;
+import jp.a840.websocket.frame.draft06.TextFrame;
 import jp.a840.websocket.handler.WebSocketPipeline;
 import jp.a840.websocket.handshake.Handshake;
 import util.Base64;
@@ -41,8 +40,6 @@ public class WebSocketDraft06 extends WebSocketBase {
 	
 	protected String[] serverExtentions;
 	                 
-	private FrameBuilderDraft06 builder = new FrameBuilderDraft06();
-	
 	public WebSocketDraft06(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		super(url, handler, protocols);
 	}
@@ -117,20 +114,20 @@ public class WebSocketDraft06 extends WebSocketBase {
 				if(!super.parseHandshakeResponseHeader(buffer)){
 					return false;
 				}
-				if(!"websocket".equalsIgnoreCase(responseHeaderMap.get("upgrade"))){
+				if(!"websocket".equalsIgnoreCase(this.getResponseHeaderMap().get("upgrade"))){
 					throw new WebSocketException(3600, "Upgrade response header is not match websocket. Upgrade: " + responseHeaderMap.get("upgrade"));
 				}
-				if(!"upgrade".equalsIgnoreCase(responseHeaderMap.get("connection"))){
+				if(!"upgrade".equalsIgnoreCase(this.getResponseHeaderMap().get("connection"))){
 					throw new WebSocketException(3601, "Connection response header is not match Upgrade. Connection: " + responseHeaderMap.get("connection"));
 				}
-				if(!responseHeaderMap.containsKey("sec-websocket-accept")){
+				if(!this.getResponseHeaderMap().containsKey("sec-websocket-accept")){
 					throw new WebSocketException(3602, "Sec-WebSocket-Accept response header is not found");
 				}
-				String protocolStr = responseHeaderMap.get("sec-websocket-protocol");
+				String protocolStr = this.getResponseHeaderMap().get("sec-websocket-protocol");
 				if(protocolStr != null){
 					serverProtocols = protocolStr.split(",");
 				}
-				String extensionsStr = responseHeaderMap.get("sec-websocket-extensions");
+				String extensionsStr = this.getResponseHeaderMap().get("sec-websocket-extensions");
 				if(extensionsStr != null){
 					serverExtentions = extensionsStr.split(",");
 				}
@@ -154,15 +151,19 @@ public class WebSocketDraft06 extends WebSocketBase {
 	@Override
 	protected FrameParser newFrameParserInstance() {
 		return new FrameParser() {
-			
+			private FrameHeaderDraft06 previousCreatedFrameHeader;
 			@Override
 			protected FrameHeader createFrameHeader(ByteBuffer chunkData) {
-				return builder.createFrameHeader(chunkData);
+				FrameHeaderDraft06 header = FrameBuilderDraft06.createFrameHeader(chunkData, previousCreatedFrameHeader);
+				if(!header.isContinuation()){
+					previousCreatedFrameHeader = header;
+				}
+				return header;
 			}
 
 			@Override
 			protected Frame createFrame(FrameHeader h, byte[] bodyData) {
-				return builder.createFrame(h, bodyData);
+				return FrameBuilderDraft06.createFrame((FrameHeaderDraft06)h, bodyData);
 			}
 			
 		};

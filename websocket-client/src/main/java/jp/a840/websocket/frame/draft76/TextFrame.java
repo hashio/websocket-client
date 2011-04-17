@@ -7,6 +7,8 @@ import jp.a840.websocket.frame.FrameHeader;
 
 public class TextFrame extends FrameDraft76 {
 
+	private String convertedString;
+
 	public TextFrame(String str) {
 		super();
 		byte[] body = convertStringToByteArray(str);
@@ -16,7 +18,16 @@ public class TextFrame extends FrameDraft76 {
 	}
 	
 	public TextFrame(FrameHeader header, byte[] body){
-		super(header, body);
+		super(header, stripTerminateFlag(body));
+	}
+
+	private static byte[] stripTerminateFlag(byte[] body){
+		if(body[body.length - 1] == (byte)0xFF){
+			byte[] tmp = new byte[body.length - 1];
+			System.arraycopy(body, 0, tmp, 0, body.length - 2);
+			body = tmp;
+		}
+		return body;
 	}
 	
 	private static byte[] convertStringToByteArray(String str){
@@ -35,5 +46,16 @@ public class TextFrame extends FrameDraft76 {
 		buf.put((byte)0xFF);
 		buf.flip();
 		return buf;
+	}
+	
+	public String toString(){
+		if(convertedString == null){
+			try{
+				convertedString = new String(body, "UTF-8");
+			}catch(UnsupportedEncodingException e){
+				convertedString = "";
+			}
+		}
+		return convertedString;
 	}
 }

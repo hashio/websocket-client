@@ -84,7 +84,7 @@ public class PacketDumpStreamHandler implements StreamHandler {
 		
 		// 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
 		int count = 0;
-		String header = "                 4           8          12          16";
+		String header = "               4         8        12        16";
 		
 		StringBuilder dump = new StringBuilder();
 		dump.append(title);
@@ -94,12 +94,14 @@ public class PacketDumpStreamHandler implements StreamHandler {
 		while(buffer.hasRemaining()){
 			byte[] line = new byte[16];
 			StringBuilder dumpLine = new StringBuilder();
-			dumpLine.append(lpad(count++, 5, "0"));
+			dumpLine.append(lpad(Integer.toHexString(16 * count++), 5, "0"));
 			dumpLine.append(":");
 			int length = Math.min(buffer.remaining(), line.length);
 			buffer.get(line, 0, length);
 			for(int i = 0; i < length; i++){
-				dumpLine.append(" ");
+				if(i % 2 == 0){
+					dumpLine.append(" ");
+				}
 				dumpLine.append(lpad(hex(line[i]), 2, "0"));
 			}
 			dumpLine.append(" ");

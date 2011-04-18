@@ -39,8 +39,6 @@ import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
  */
 abstract public class FrameDraft06 extends Frame {
 
-	private static Random random = new Random();
- 
 	protected FrameDraft06(){
 	}
 
@@ -57,19 +55,9 @@ abstract public class FrameDraft06 extends Frame {
 	
 	public ByteBuffer toByteBuffer(){
 		ByteBuffer headerBuffer = header.toByteBuffer();
-		ByteBuffer buf = ByteBuffer.allocate(4 + headerBuffer.limit() + body.length); // mask-key + header + body
-		buf.putInt(random.nextInt());
+		ByteBuffer buf = ByteBuffer.allocate(headerBuffer.limit() + body.length); // mask-key + header + body
 		buf.put(headerBuffer);
 		buf.put(body);
-		buf.flip();
-		
-		byte[] maskkey = new byte[4];
-		buf.get(maskkey, 0, 4);
-		int m = 0;
-		while(buf.hasRemaining()){
-			int position = buf.position();
-			buf.put((byte)(buf.get(position) ^ maskkey[m++ % 4]));
-		}
 		buf.flip();
 		return buf;
 	}

@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -17,6 +18,9 @@ import jp.a840.websocket.frame.draft06.BinaryFrame;
 import jp.a840.websocket.frame.draft06.FrameBuilderDraft06;
 import jp.a840.websocket.frame.draft06.FrameHeaderDraft06;
 import jp.a840.websocket.frame.draft06.TextFrame;
+import jp.a840.websocket.handler.StreamHandler;
+import jp.a840.websocket.handler.StreamHandlerAdapter;
+import jp.a840.websocket.handler.StreamHandlerChain;
 import jp.a840.websocket.handler.WebSocketPipeline;
 import jp.a840.websocket.handshake.Handshake;
 import util.Base64;
@@ -39,6 +43,8 @@ public class WebSocketDraft06 extends WebSocketBase {
 	protected Set<String> extensions = new HashSet<String>();
 	
 	protected String[] serverExtentions;
+	
+	private static Random random = new Random();
 	                 
 	public WebSocketDraft06(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		super(url, handler, protocols);
@@ -46,6 +52,26 @@ public class WebSocketDraft06 extends WebSocketBase {
 	
 	@Override
 	protected void initializePipeline(WebSocketPipeline pipeline){
+		pipeline.addStreamHandler(new StreamHandlerAdapter() {
+			
+			public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
+					Frame frame, StreamHandlerChain chain) throws WebSocketException {
+				ByteBuffer buf = ByteBuffer.allocate(4 + buffer.remaining()); // mask-key + header + body
+				buf.putInt(random.nextInt());
+				buf.put(buffer);
+				buf.flip();
+				
+				byte[] maskkey = new byte[4];
+				buf.get(maskkey, 0, 4);
+				int m = 0;
+				while(buf.hasRemaining()){
+					int position = buf.position();
+					buf.put((byte)(buf.get(position) ^ maskkey[m++ % 4]));
+				}
+				buf.flip();
+				chain.nextUpstreamHandler(ws, buf, frame);
+			}
+		});
 		super.initializePipeline(pipeline);
 	}
 	

@@ -10,7 +10,7 @@ Purpose
 The purpose of a WebSocket Client is implement to portable,high-performance
 and easy use the push communication in the internet for Java client 
 
-Now tested server are there.
+These servers are tested.
 
 - Grizzly2.0 + WebSocket(Draft76)
 - Jetty7.4.0 + WebSocket(Draft76)

@@ -9,7 +9,7 @@ import jp.a840.websocket.handler.PacketDumpStreamHandler;
 
 import org.junit.Test;
 
-public class WebSocketChatServletTest {
+public class WebSocketChatServletSSLTest {
 	@Test(expected=Exception.class)
 	public void testChat() throws Exception {
 //		System.setProperty("websocket.packatdump", String.valueOf(
@@ -17,7 +17,7 @@ public class WebSocketChatServletTest {
 //		));
 //		System.setProperty("javax.net.debug", "all");
 		System.setProperty("java.util.logging.config.file", "logging.properties");
-		WebSocket socket = WebSockets.createDraft06("ws://localhost:8080/ws/", new WebSocketHandler() {
+		WebSocket socket = WebSockets.createDraft06("wss://localhost:8443/ws/", new WebSocketHandler() {
 			
 			public void onOpen(WebSocket socket) {
 				System.err.println("Open");

@@ -30,11 +30,13 @@ import java.util.logging.Logger;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameParser;
 import jp.a840.websocket.handler.PacketDumpStreamHandler;
+import jp.a840.websocket.handler.SSLStreamHandler;
 import jp.a840.websocket.handler.StreamHandlerAdapter;
 import jp.a840.websocket.handler.StreamHandlerChain;
 import jp.a840.websocket.handler.WebSocketPipeline;
 import jp.a840.websocket.handler.WebSocketStreamHandler;
 import jp.a840.websocket.handshake.Handshake;
+import jp.a840.websocket.handshake.SSLHandshake;
 
 /**
  * A websocket base client
@@ -51,6 +53,9 @@ abstract public class WebSocketBase implements WebSocket {
 	/** the URL to which to connect */
 	protected String path;
 
+	protected boolean useSsl = false;
+	protected SSLHandshake sslHandshake;
+	
 	/** endpoint */
 	protected InetSocketAddress endpoint;
 
@@ -70,6 +75,10 @@ abstract public class WebSocketBase implements WebSocket {
 	protected String[] protocols;
 
 	protected String[] serverProtocols;
+
+	protected int bufferSize;
+	
+	protected ByteBuffer upstreamBuffer;
 
 	protected ByteBuffer downstreamBuffer;
 
@@ -105,10 +114,11 @@ abstract public class WebSocketBase implements WebSocket {
 		// init properties
 		this.origin = System.getProperty("websocket.origin");
 
-		int downstreamBufferSize = Integer.getInteger("websocket.bufferSize",0x7FFF);
+		this.bufferSize = Integer.getInteger("websocket.bufferSize",0x7FFF);
 		int upstreamQueueSize = Integer.getInteger("websocket.upstreamQueueSize", 500);
 		this.upstreamQueue = new LinkedBlockingQueue<ByteBuffer>(upstreamQueueSize);
-		this.downstreamBuffer = ByteBuffer.allocate(downstreamBufferSize);
+		this.downstreamBuffer = ByteBuffer.allocate(this.bufferSize);
+		this.upstreamBuffer = ByteBuffer.allocate(this.bufferSize);
 		int packatdumpMode = Integer.getInteger("websocket.packatdump", 0);
 
 		// parse url
@@ -132,12 +142,22 @@ abstract public class WebSocketBase implements WebSocket {
 				if(!upstreamQueue.offer(buffer)){
 					throw new WebSocketException(3031, "Couldn't add buffer to upstream queue");
 				}
+				selector.wakeup();
 			}
 		});
 		
 		// for debug
 		if(packatdumpMode > 0){
 			this.pipeline.addStreamHandler(new PacketDumpStreamHandler(packatdumpMode));
+		}
+
+		if(this.useSsl){
+			this.sslHandshake = new SSLHandshake(this.endpoint);
+			this.pipeline.addStreamHandler(new SSLStreamHandler(this.sslHandshake, this.bufferSize));
+			// for debug
+			if(packatdumpMode > 0){
+				this.pipeline.addStreamHandler(new PacketDumpStreamHandler(packatdumpMode));
+			}
 		}
 		
 		// orverriding initilize method by subclass
@@ -174,6 +194,9 @@ abstract public class WebSocketBase implements WebSocket {
 				throw new WebSocketException(3007, "Not supported protocol. "
 						+ uri.toString());
 			}
+			if(uri.getScheme().equals("wss")){
+				useSsl = true;
+			}
 			path = uri.getPath();
 			int port = uri.getPort();
 			if (port < 0) {
@@ -181,6 +204,7 @@ abstract public class WebSocketBase implements WebSocket {
 					port = 80;
 				} else if (uri.getScheme().equals("wss")) {
 					port = 443;
+					useSsl = true;
 				} else {
 					throw new WebSocketException(3008,
 							"Not supported protocol. " + uri.toString());
@@ -191,6 +215,10 @@ abstract public class WebSocketBase implements WebSocket {
 		} catch (URISyntaxException e) {
 			throw new WebSocketException(3009, e);
 		}
+	}
+
+	public URI getLocation() {
+		return location;
 	}
 
 	public void send(Frame frame) throws WebSocketException {
@@ -292,9 +320,12 @@ abstract public class WebSocketBase implements WebSocket {
 			}
 
 			transitionTo(State.CONNECTED);
-			
+			if(useSsl){
+				sslHandshake.setSocketChannel(socket);
+				sslHandshake.doHandshake();
+			}
 			pipeline.sendHandshakeUpstream(this, null); // send handshake request
-			socket.write(upstreamQueue.take());
+//			socket.write(upstreamQueue.take());
 
 			transitionTo(State.HANDSHAKE);
 
@@ -500,5 +531,9 @@ abstract public class WebSocketBase implements WebSocket {
 
 	public void setOrigin(String origin) {
 		this.origin = origin;
+	}
+
+	public int getBufferSize() {
+		return bufferSize;
 	}
 }

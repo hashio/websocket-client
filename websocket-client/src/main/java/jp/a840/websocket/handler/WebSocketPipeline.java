@@ -14,22 +14,22 @@ public class WebSocketPipeline {
 	private List<StreamHandler> downstreamHandlerList = new CopyOnWriteArrayList<StreamHandler>();
 
 	public void sendHandshakeUpstream(WebSocket ws, ByteBuffer buffer) throws WebSocketException {
-		StreamHandlerChain chain = new StreamHandlerChain(upstreamHandlerList.iterator());
+		StreamHandlerChain chain = new StreamHandlerChain(upstreamHandlerList);
 		chain.nextHandshakeUpstreamHandler(ws, buffer);
 	}
 	
 	public void sendHandshakeDownstream(WebSocket ws, ByteBuffer buffer) throws WebSocketException {
-		StreamHandlerChain chain = new StreamHandlerChain(downstreamHandlerList.iterator());
+		StreamHandlerChain chain = new StreamHandlerChain(downstreamHandlerList);
 		chain.nextHandshakeDownstreamHandler(ws, buffer);
 	}
 	
 	public void sendUpstream(WebSocket ws, ByteBuffer buffer, Frame frame) throws WebSocketException {
-		StreamHandlerChain chain = new StreamHandlerChain(upstreamHandlerList.iterator());
+		StreamHandlerChain chain = new StreamHandlerChain(upstreamHandlerList);
 		chain.nextUpstreamHandler(ws, buffer, frame);
 	}
 	
 	public void sendDownstream(WebSocket ws, ByteBuffer buffer, Frame frame) throws WebSocketException {
-		StreamHandlerChain chain = new StreamHandlerChain(downstreamHandlerList.iterator());
+		StreamHandlerChain chain = new StreamHandlerChain(downstreamHandlerList);
 		chain.nextDownstreamHandler(ws, buffer,frame);
 	}
 	

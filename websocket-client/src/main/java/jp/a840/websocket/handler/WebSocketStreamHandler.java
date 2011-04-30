@@ -22,6 +22,7 @@ public class WebSocketStreamHandler implements StreamHandler {
 	
 	public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer, Frame frame,
 			StreamHandlerChain chain) throws WebSocketException {
+		// TODO split buffer for WebSocket buffer size
 		chain.nextUpstreamHandler(ws, frame.toByteBuffer(), null);
 	}
 

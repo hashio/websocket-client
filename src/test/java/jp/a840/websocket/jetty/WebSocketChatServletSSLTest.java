@@ -10,7 +10,7 @@ import jp.a840.websocket.handler.PacketDumpStreamHandler;
 import org.junit.Test;
 
 public class WebSocketChatServletSSLTest {
-	@Test(expected=Exception.class)
+//	@Test(expected=Exception.class)
 	public void testChat() throws Exception {
 //		System.setProperty("websocket.packatdump", String.valueOf(
 //				PacketDumpStreamHandler.ALL

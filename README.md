@@ -6,12 +6,31 @@ Support WebSocket Draft76, Draft06
 Usage
 =====
 
-<script src="https://gist.github.com/949562.js"> </script>
+```java
+WebSocket socket = WebSockets.createDraft06("ws://localhost:8080/ws/", new WebSocketHandler() {
+    public void onOpen(WebSocket socket) {
+         // TODO implement onOpen event
+    }
+    public void onMessage(WebSocket socket, Frame frame) {
+         System.out.println(frame);
+    }
+    public void onError(WebSocket socket, WebSocketException e) {
+         // TODO implement onError event
+    }
+    public void onClose(WebSocket socket) {
+         // TODO implement onClose event
+    }
+}, null);
+
+// connect
+socket.connect();
+...
+socket.close();
+```
+
 
         
 #### Example: Sample of Jetty7 websocket chat servlet
-
-<script src="https://gist.github.com/949572.js"> </script>
 
 
 System Property

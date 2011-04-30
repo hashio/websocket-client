@@ -34,7 +34,7 @@ public class SSLHandshake {
 
 	private ExecutorService delegatedTaskExecutor;
 
-	private static ByteBuffer dummy = ByteBuffer.allocate(65535);
+	private static ByteBuffer dummy = ByteBuffer.allocate(1024);
 	private Selector selector;
 	private SocketChannel socket;
 	
@@ -71,7 +71,7 @@ public class SSLHandshake {
 			this.socket.register(selector, OP_READ);
 
 			engine.beginHandshake();
-			ByteBuffer netBuffer = ByteBuffer.allocate(65535);
+			ByteBuffer netBuffer = ByteBuffer.allocate(0x8000);
 			while (true) {
 				// handling Handshake Status
 				/*
@@ -138,7 +138,10 @@ public class SSLHandshake {
 	public void wrap(ByteBuffer localBuffer, ByteBuffer netBuffer) throws WebSocketException {
 		try {
 			netBuffer.clear();
-			engine.wrap(localBuffer, netBuffer);
+			SSLEngineResult result = engine.wrap(localBuffer, netBuffer);
+			if(log.isLoggable(Level.FINEST)){
+				log.finest("SSLEngineResult\n" + result);
+			}
 			netBuffer.flip();
 		} catch (SSLException e) {
 			throw new WebSocketException(3817, e);
@@ -148,7 +151,10 @@ public class SSLHandshake {
 	public void unwrap(ByteBuffer netBuffer, ByteBuffer localBuffer) throws WebSocketException {
 		try {
 			localBuffer.clear();
-			engine.unwrap(netBuffer, localBuffer);
+			SSLEngineResult result = engine.unwrap(netBuffer, localBuffer);
+			if(log.isLoggable(Level.FINEST)){
+				log.finest("SSLEngineResult\n" + result);
+			}
 			localBuffer.flip();
 		} catch (SSLException se) {
 			throw new WebSocketException(3818, se);

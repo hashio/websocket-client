@@ -31,7 +31,39 @@ socket.close();
 
         
 #### Example: Sample of Jetty7 websocket chat servlet
-
+```java
+WebSocket socket = WebSockets.createDraft06("ws://localhost:8080/ws/", new WebSocketHandler() {
+    public void onOpen(WebSocket socket) {
+        System.err.println("Open");
+        try {
+            socket.send(socket.createFrame(System.getenv("USER") + ":has joined!"));
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+        
+    public void onMessage(WebSocket socket, Frame frame) {
+        if(!frame.toString().startsWith(System.getenv("USER"))){
+            try {
+                socket.send(socket.createFrame(System.getenv("USER") + ":(echo)" + frame.toString()));
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+        System.out.println(frame);
+    }
+        
+    public void onError(WebSocket socket, WebSocketException e) {
+        e.printStackTrace();
+    }
+        
+    public void onClose(WebSocket socket) {
+        System.err.println("Closed");
+    }
+}, "chat");
+socket.connect();
+socket.setBlockingMode(true);
+```
 
 System Property
 ===============

@@ -1,6 +1,7 @@
 WebSocket Client
 =================
 Copyright 2011 Takahiro Hashimoto
+
 MIT license
 
 Support WebSocket Specification Draft76, Draft06

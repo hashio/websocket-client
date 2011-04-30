@@ -1,7 +1,25 @@
 WebSocket Client
+=================
 Copyright 2011 Takahiro Hashimoto
+MIT license
 
-Support WebSocket Draft76, Draft06
+Support WebSocket Specification Draft76, Draft06
+
+Purpose
+-------
+The purpose of a WebSocket Client is implement to portable,high-performance
+and easy use the push communication in the internet for Java client 
+
+Now tested server are there.
+
+- Grizzly2.0 + WebSocket(Draft76)
+- Jetty7.4.0 + WebSocket(Draft76)
+- Jetty7.4.0 + WebSocket(Draft06)
+
+
+Requirement
+-----------
+- JDK5 or higher
 
 Usage
 =====
@@ -28,9 +46,16 @@ socket.connect();
 socket.close();
 ```
 
+TODO
+====
 
+- Implement Proxy
+ - NTLM Proxy
+ - use with proxy-vole http://code.google.com/p/proxy-vole/
+- Send large frame with split to fragment frames
         
 #### Example: Sample of Jetty7 websocket chat servlet
+
 ```java
 WebSocket socket = WebSockets.createDraft06("ws://localhost:8080/ws/", new WebSocketHandler() {
     public void onOpen(WebSocket socket) {

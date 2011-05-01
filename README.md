@@ -34,11 +34,13 @@ mvn clean install
 
 + add websocket-client dependency to the pom.xml of your application
 
-    <dependency>
-      <groupId>jp.a840.websocket</groupId>
-      <artifactId>websocket-client</artifactId>
-      <version>0.8.0-SNAPSHOT</version>
-    </dependency>
+```xml
+<dependency>
+  <groupId>jp.a840.websocket</groupId>
+  <artifactId>websocket-client</artifactId>
+  <version>0.8.0-SNAPSHOT</version>
+</dependency>
+```
 
 Usage
 =====

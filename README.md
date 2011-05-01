@@ -18,9 +18,27 @@ These servers are tested.
 - Jetty7.4.0 + WebSocket(Draft06)
 
 
-Requirement
+Requirements
 -----------
 - JDK5 or higher
+
+Build And Install
+=================
+
++ build with maven2
+
+```shell
+cd websocket-client
+mvn clean install
+```
+
++ add websocket-client dependency to the pom.xml of your application
+
+    <dependency>
+      <groupId>jp.a840.websocket</groupId>
+      <artifactId>websocket-client</artifactId>
+      <version>0.8.0-SNAPSHOT</version>
+    </dependency>
 
 Usage
 =====
@@ -50,9 +68,7 @@ socket.close();
 TODO
 ====
 
-- Implement Proxy
- - NTLM Proxy
- - use with proxy-vole http://code.google.com/p/proxy-vole/
+- Support Proxy
 - Send large frame with split to fragment frames
         
 #### Example: Sample of Jetty7 websocket chat servlet

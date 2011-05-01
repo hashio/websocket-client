@@ -105,8 +105,8 @@ WebSocket socket = WebSockets.createDraft06("ws://localhost:8080/ws/", new WebSo
         System.err.println("Closed");
     }
 }, "chat");
-socket.connect();
 socket.setBlockingMode(true);
+socket.connect();
 ```
 
 System Property

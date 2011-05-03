@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2011 Takahiro Hashimoto
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package jp.a840.websocket.frame.draft76;
 
 import java.nio.ByteBuffer;
@@ -5,12 +28,16 @@ import java.nio.ByteBuffer;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 
+/**
+ * The Class FrameBuilderDraft76.
+ */
 public class FrameBuilderDraft76 {
 	
 	/**
 	 * create frame header from parameter bytes
 	 * if a invalid frame data received which may throw IllegalArgumentException.
-	 * @param chunkData
+	 *
+	 * @param chunkData the chunk data
 	 * @return a sub class of FrameHeader or null if not enough buffer
 	 */
 	public static FrameHeader createFrameHeader(ByteBuffer chunkData) {
@@ -60,6 +87,13 @@ public class FrameBuilderDraft76 {
 		return new FrameHeaderDraft76((byte)type, payloadLength);
 	}
 	
+	/**
+	 * Creates the frame.
+	 *
+	 * @param h the h
+	 * @param bodyData the body data
+	 * @return the frame
+	 */
 	public static Frame createFrame(FrameHeader h, byte[] bodyData){
 		FrameHeaderDraft76 header = (FrameHeaderDraft76)h;
 		if((byte)0x00 <= header.getFrameType() && header.getFrameType() <= (byte)0x7F){

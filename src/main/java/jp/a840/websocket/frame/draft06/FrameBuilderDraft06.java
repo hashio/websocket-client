@@ -1,24 +1,83 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2011 Takahiro Hashimoto
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package jp.a840.websocket.frame.draft06;
 
 import java.nio.ByteBuffer;
 
 import jp.a840.websocket.frame.Frame;
 
+/**
+ * The Class FrameBuilderDraft06.
+ */
 public class FrameBuilderDraft06 {
+	
+	/**
+	 * The Enum Opcode.
+	 */
 	protected enum Opcode {
-		CONTINUATION(0), CONNECTION_CLOSE(1), PING(2), PONG(3), TEXT_FRAME(4), BINARY_FRAME(5);
+		
+		/** The CONTINUATION. */
+		CONTINUATION(0), 
+		/** The CONNECTION_CLOSE. */
+		CONNECTION_CLOSE(1), 
+		/** The PING. */
+		PING(2), 
+		/** The PONG. */
+		PONG(3), 
+		/** The TEXT_FRAME. */
+		TEXT_FRAME(4), 
+		/** The BINARY_FRAME. */
+		BINARY_FRAME(5);
 		// 0x6-F reserved
 
+		/** The opcode. */
 		private final int opcode;
 
+		/**
+		 * Instantiates a new opcode.
+		 *
+		 * @param opcode the opcode
+		 */
 		private Opcode(int opcode) {
 			this.opcode = opcode;
 		}
 
+		/**
+		 * Int value.
+		 *
+		 * @return the int
+		 */
 		public int intValue() {
 			return opcode;
 		}
 
+		/**
+		 * Value of.
+		 *
+		 * @param opc the opc
+		 * @return the opcode
+		 */
 		public static Opcode valueOf(int opc) {
 			switch (opc) {
 			case 0:
@@ -39,52 +98,120 @@ public class FrameBuilderDraft06 {
 		}
 	}
 	
+	/**
+	 * The Enum Fin.
+	 */
 	protected enum Fin {
-		MORE_FRAME(0), FINAL(1);
+		
+		/** The MORE_FRAME. */
+		MORE_FRAME(0), 
+		/** The FINAL. */
+		FINAL(1);
+		
+		/** The fin. */
 		private final int fin;
 
+		/**
+		 * Instantiates a new fin.
+		 *
+		 * @param fin the fin
+		 */
 		private Fin(int fin) {
 			this.fin = fin;
 		}
 
+		/**
+		 * Int value.
+		 *
+		 * @return the int
+		 */
 		public int intValue() {
 			return fin;
 		}
 	}
 
+	/**
+	 * The Enum Rsv.
+	 */
 	protected enum Rsv {
+		
+		/** The RESERVE. */
 		RESERVE(0);
+		
+		/** The rsv. */
 		private final int rsv;
 
+		/**
+		 * Instantiates a new rsv.
+		 *
+		 * @param rsv the rsv
+		 */
 		private Rsv(int rsv) {
 			this.rsv = rsv;
 		}
 
+		/**
+		 * Int value.
+		 *
+		 * @return the int
+		 */
 		public int intValue() {
 			return rsv;
 		}
 	}
 
+	/**
+	 * The Enum PayloadLengthType.
+	 */
 	protected enum PayloadLengthType {
+		
+		/** The LEN_SHORT. */
 		LEN_SHORT((byte)0x7D, 0), // 0x00 - 0x7D
+		/** The LEN_16. */
 		LEN_16((byte)0x7E, 2), // 0x0000 - 0xFFFF
+		/** The LEN_63. */
 		LEN_63((byte)0x7F, 8); // 0x0000000000000000 - 0x7FFFFFFFFFFFFFFF
+		/** The payload length type. */
 		private final byte payloadLengthType;
+		
+		/** The offset. */
 		private final int offset;
 
+		/**
+		 * Instantiates a new payload length type.
+		 *
+		 * @param payloadLengthType the payload length type
+		 * @param offset the offset
+		 */
 		private PayloadLengthType(byte payloadLengthType, int offset) {
 			this.payloadLengthType = payloadLengthType;
 			this.offset = offset;
 		}
 
+		/**
+		 * Byte value.
+		 *
+		 * @return the byte
+		 */
 		public byte byteValue() {
 			return payloadLengthType;
 		}
 		
+		/**
+		 * Offset.
+		 *
+		 * @return the int
+		 */
 		public int offset(){
 			return offset;
 		}
 
+		/**
+		 * Value of.
+		 *
+		 * @param plt the plt
+		 * @return the payload length type
+		 */
 		public static PayloadLengthType valueOf(byte plt) {
 			switch (plt) {
 			case 0x7E:
@@ -98,6 +225,12 @@ public class FrameBuilderDraft06 {
 			return null;
 		}
 		
+		/**
+		 * Value of.
+		 *
+		 * @param payloadLength the payload length
+		 * @return the payload length type
+		 */
 		public static PayloadLengthType valueOf(long payloadLength){
 			if(payloadLength <= PayloadLengthType.LEN_SHORT.byteValue()){
 				return PayloadLengthType.LEN_SHORT;
@@ -112,23 +245,40 @@ public class FrameBuilderDraft06 {
 
 	}
 
+	/** The Constant MAX_FRAME_LENGTH_16. */
 	protected static final int MAX_FRAME_LENGTH_16 = 0xFFFF;
+	
+	/** The Constant MAX_FRAME_LENGTH_63. */
 	protected static final long MAX_FRAME_LENGTH_63 = 0x7FFFFFFFFFFFFFFFL;
 
+	/** The Constant FIN_MASK. */
 	protected static final int FIN_MASK = 1 << 7;
+	
+	/** The Constant RSV1_MASK. */
 	protected static final byte RSV1_MASK = 1 << 6;
+	
+	/** The Constant RSV2_MASK. */
 	protected static final byte RSV2_MASK = 1 << 5;
+	
+	/** The Constant RSV3_MASK. */
 	protected static final byte RSV3_MASK = 1 << 4;
+	
+	/** The Constant OPCODE_MASK. */
 	protected static final byte OPCODE_MASK = 0xF;
 
+	/** The Constant RSV4_MASK. */
 	protected static final int RSV4_MASK = 1 << 7;
+	
+	/** The Constant PAYLOAD_LEN_MASK. */
 	protected static final int PAYLOAD_LEN_MASK = 0x7F;
 
 
 	/**
 	 * create frame header from parameter bytes
 	 * if a invalid frame data received which may throw IllegalArgumentException.
-	 * @param chunkData
+	 *
+	 * @param chunkData the chunk data
+	 * @param previousHeader the previous header
 	 * @return a sub class of Frame
 	 */
 	public static FrameHeaderDraft06 createFrameHeader(ByteBuffer chunkData, FrameHeaderDraft06 previousHeader) {
@@ -196,12 +346,27 @@ public class FrameBuilderDraft06 {
 		}
 	}
 	
+	/**
+	 * Creates the frame header.
+	 *
+	 * @param body the body
+	 * @param fragmented the fragmented
+	 * @param opcode the opcode
+	 * @return the frame header draft06
+	 */
 	public static FrameHeaderDraft06 createFrameHeader(byte[] body, boolean fragmented, Opcode opcode) {
 		int payloadLength = body.length;
 		PayloadLengthType payloadLengthType = PayloadLengthType.valueOf(payloadLength);
 		return new FrameHeaderDraft06(false, 2, payloadLengthType, (int)payloadLength, opcode);
 	}
 	
+	/**
+	 * Creates the frame.
+	 *
+	 * @param header the header
+	 * @param bodyData the body data
+	 * @return the frame
+	 */
 	public static Frame createFrame(FrameHeaderDraft06 header, byte[] bodyData){
 		Opcode opcode = header.getRealOpcode();
 		if(opcode == null){

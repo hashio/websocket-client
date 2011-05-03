@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2011 Takahiro Hashimoto
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package jp.a840.websocket;
 
 import java.io.ByteArrayOutputStream;
@@ -27,22 +50,30 @@ import jp.a840.websocket.handshake.Handshake;
  * 
  */
 public class WebSocketDraft76 extends WebSocketBase {
+	
+	/** The logger. */
 	private static Logger logger = Logger.getLogger(WebSocketDraft76.class
 			.getName());
 
+	/** The Constant VERSION. */
 	private static final int VERSION = 76;
 
+	/**
+	 * Instantiates a new web socket draft76.
+	 *
+	 * @param url the url
+	 * @param handler the handler
+	 * @param protocols the protocols
+	 * @throws WebSocketException the web socket exception
+	 */
 	public WebSocketDraft76(String url, WebSocketHandler handler,
 			String... protocols) throws WebSocketException {
 		super(url, handler, protocols);
 	}
-
-	@Override
-	protected void initializePipeline(WebSocketPipeline pipeline) {
-		super.initializePipeline(pipeline);
-	}
 	
-	
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#newHandshakeInstance()
+	 */
 	@Override
 	protected Handshake newHandshakeInstance() {
 		return new Handshake() {
@@ -173,16 +204,26 @@ public class WebSocketDraft76 extends WebSocketBase {
 	
 	
 
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#getWebSocketVersion()
+	 */
 	@Override
 	protected int getWebSocketVersion() {
 		return VERSION;
 	}
 
+	/**
+	 * The Class SecWebSocketKey.
+	 */
 	private static class SecWebSocketKey {
+		
+		/** The Constant random. */
 		private static final Random random = new Random();
 
+		/** The Constant LARGEST_INTEGER. */
 		private static final long LARGEST_INTEGER = 4294967295L;
 
+		/** The Constant CHARS. */
 		private static final char[] CHARS = new char[84];
 
 		static {
@@ -195,6 +236,11 @@ public class WebSocketDraft76 extends WebSocketBase {
 			}
 		}
 
+		/**
+		 * Generate key.
+		 *
+		 * @return the string
+		 */
 		public static String generateKey() {
 			int spaces = random.nextInt(12) + 1;
 			long max = LARGEST_INTEGER / spaces;
@@ -218,6 +264,11 @@ public class WebSocketDraft76 extends WebSocketBase {
 			return key.toString();
 		}
 
+		/**
+		 * Generate key3.
+		 *
+		 * @return the byte[]
+		 */
 		public static byte[] generateKey3() {
 			byte[] key3 = new byte[8];
 			random.nextBytes(key3);
@@ -225,6 +276,9 @@ public class WebSocketDraft76 extends WebSocketBase {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.Object)
+	 */
 	@Override
 	public Frame createFrame(Object obj) throws WebSocketException {
 		try {
@@ -239,11 +293,17 @@ public class WebSocketDraft76 extends WebSocketBase {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.String)
+	 */
 	@Override
 	public Frame createFrame(String str) throws WebSocketException {
 		return new TextFrame(str);
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#newFrameParserInstance()
+	 */
 	@Override
 	protected FrameParser newFrameParserInstance() {
 		return new FrameParser() {

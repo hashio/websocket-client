@@ -1,46 +1,69 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2011 Takahiro Hashimoto
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package jp.a840.websocket;
 
 /**
- * WebSocket factory class
- * 
- * @author t-hashimoto
+ * WebSocket factory class.
  *
+ * @author t-hashimoto
  */
 public class WebSockets {
+	
 	/**
-	 * Create a websocket of current spec
-	 * 
-	 * @param url
-	 * @param handler
-	 * @param protocols
+	 * Create a websocket of current spec.
+	 *
+	 * @param url the url
+	 * @param handler the handler
+	 * @param protocols the protocols
 	 * @return websocket
-	 * @throws WebSocketException
+	 * @throws WebSocketException the web socket exception
 	 */
 	public static WebSocket create(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		return new WebSocketDraft06(url, handler, protocols);
 	}
 
 	/**
-	 * Create a websocket of Draft76
-	 * 
-	 * @param url
-	 * @param handler
-	 * @param protocols
+	 * Create a websocket of Draft76.
+	 *
+	 * @param url the url
+	 * @param handler the handler
+	 * @param protocols the protocols
 	 * @return websocket
-	 * @throws WebSocketException
+	 * @throws WebSocketException the web socket exception
 	 */
 	public static WebSocket createDraft76(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		return new WebSocketDraft76(url, handler, protocols);
 	}
 
 	/**
-	 * Create a websocket of Draft06
-	 * 
-	 * @param url
-	 * @param handler
-	 * @param protocols
+	 * Create a websocket of Draft06.
+	 *
+	 * @param url the url
+	 * @param handler the handler
+	 * @param protocols the protocols
 	 * @return websocket
-	 * @throws WebSocketException
+	 * @throws WebSocketException the web socket exception
 	 */
 	public static WebSocket createDraft06(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		return new WebSocketDraft06(url, handler, protocols);

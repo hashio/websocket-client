@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2011 Takahiro Hashimoto
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package jp.a840.websocket.handshake;
 
 import java.io.IOException;
@@ -15,7 +38,7 @@ import jp.a840.websocket.BufferManager;
 import jp.a840.websocket.WebSocketException;
 
 /**
- * handshake
+ * Processing WebSocket Handshake
  * 
  * <pre>
  * Sample (Draft06)
@@ -36,18 +59,38 @@ import jp.a840.websocket.WebSocketException;
  * Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
  * Sec-WebSocket-Protocol: chat
  * </pre>
+ *
+ * @author Takahiro Hashimoto
  */
 public abstract class Handshake {
+	
+	/** The logger. */
 	private static Logger logger = Logger.getLogger(Handshake.class
 			.getName());
 
+	/** The response status. */
 	private int responseStatus;	
 
+	/** The response header map. */
 	private Map<String, String> responseHeaderMap;
 
+	/**
+	 * The Enum State.
+	 *
+	 * @author Takahiro Hashimoto
+	 */
 	enum State {
-		METHOD, HEADER, BODY, DONE;
 		
+		/** The METHOD. */
+		METHOD, 
+		/** The HEADER. */
+		HEADER, 
+		/** The BODY. */
+		BODY, 
+		/** The DONE. */
+		DONE;
+		
+		/** The state map. */
 		private static EnumMap<State, EnumSet<State>> stateMap = new EnumMap<State, EnumSet<State>>(State.class);
 		static {
 			stateMap.put(METHOD,   EnumSet.of(State.HEADER));
@@ -56,6 +99,12 @@ public abstract class Handshake {
 			stateMap.put(DONE,     EnumSet.of(State.METHOD));
 		}
 		
+		/**
+		 * Can transition to.
+		 *
+		 * @param state the state
+		 * @return true, if successful
+		 */
 		boolean canTransitionTo(State state){
 			EnumSet<State> set = stateMap.get(this);
 			if(set == null) return false;
@@ -63,6 +112,12 @@ public abstract class Handshake {
 		}
 	}
 	
+	/**
+	 * Transition to.
+	 *
+	 * @param to the to
+	 * @return the state
+	 */
 	protected State transitionTo(State to){
 		if(state.canTransitionTo(to)){
 			State old = state;
@@ -73,14 +128,27 @@ public abstract class Handshake {
 		}
 	}
 	
+	/** The state. */
 	volatile private State state = State.DONE;
 	
+	/**
+	 * State.
+	 *
+	 * @return the state
+	 */
 	protected State state(){
 		return state;
 	}
 
+	/** The buffer manager. */
 	protected BufferManager bufferManager = new BufferManager();
 	
+	/**
+	 * Handshake.
+	 *
+	 * @param socket the socket
+	 * @throws WebSocketException the web socket exception
+	 */
 	public void handshake(SocketChannel socket) throws WebSocketException {
 		try {
 			ByteBuffer request = createHandshakeRequest();
@@ -90,6 +158,13 @@ public abstract class Handshake {
 		}
 	}
 
+	/**
+	 * Handshake response.
+	 *
+	 * @param downloadBuffer the download buffer
+	 * @return true, if successful
+	 * @throws WebSocketException the web socket exception
+	 */
 	final public boolean handshakeResponse(ByteBuffer downloadBuffer) throws WebSocketException {
 		ByteBuffer buffer = null;
 		try{
@@ -130,19 +205,43 @@ public abstract class Handshake {
 		}
 	}
 
+	/**
+	 * Done.
+	 *
+	 * @return true, if successful
+	 */
 	protected boolean done(){
 		transitionTo(State.DONE);
 		return true;
 	}
 	
+	/**
+	 * Checks if is done.
+	 *
+	 * @return true, if is done
+	 */
 	public boolean isDone(){
 		return State.DONE.equals(state);
 	}
 		
+	/**
+	 * Parses the handshake response body.
+	 *
+	 * @param buffer the buffer
+	 * @return true, if successful
+	 * @throws WebSocketException the web socket exception
+	 */
 	protected boolean parseHandshakeResponseBody(ByteBuffer buffer) throws WebSocketException {
 		return true;
 	}
 	
+	/**
+	 * Parses the handshake response header.
+	 *
+	 * @param buffer the buffer
+	 * @return true, if successful
+	 * @throws WebSocketException the web socket exception
+	 */
 	protected boolean parseHandshakeResponseHeader(ByteBuffer buffer)
 			throws WebSocketException {
 
@@ -191,6 +290,12 @@ public abstract class Handshake {
 		return true;
 	}
 
+	/**
+	 * Read line.
+	 *
+	 * @param buf the buf
+	 * @return the string
+	 */
 	protected String readLine(ByteBuffer buf) {
 		boolean completed = false;
 		buf.mark();
@@ -224,13 +329,29 @@ public abstract class Handshake {
 		return null;
 	}
 
+	/**
+	 * Creates the handshake request.
+	 *
+	 * @return the byte buffer
+	 * @throws WebSocketException the web socket exception
+	 */
 	abstract public ByteBuffer createHandshakeRequest()
 			throws WebSocketException;
 
+	/**
+	 * Gets the response status.
+	 *
+	 * @return the response status
+	 */
 	public int getResponseStatus() {
 		return responseStatus;
 	}
 
+	/**
+	 * Gets the response header map.
+	 *
+	 * @return the response header map
+	 */
 	public Map<String, String> getResponseHeaderMap() {
 		return responseHeaderMap;
 	} 

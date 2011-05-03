@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2011 Takahiro Hashimoto
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package jp.a840.websocket;
 
 import java.io.ByteArrayOutputStream;
@@ -36,22 +59,39 @@ import util.Base64;
  *
  */
 public class WebSocketDraft06 extends WebSocketBase {
+	
+	/** The logger. */
 	private static Logger logger = Logger.getLogger(WebSocketDraft06.class.getName());
 	
+	/** The Constant VERSION. */
 	private static final int VERSION = 6;
 	
+	/** The extensions. */
 	protected Set<String> extensions = new HashSet<String>();
 	
+	/** The server extentions. */
 	protected String[] serverExtentions;
 	
+	/** The random. */
 	private static Random random = new Random();
 	                 
+	/**
+	 * Instantiates a new web socket draft06.
+	 *
+	 * @param url the url
+	 * @param handler the handler
+	 * @param protocols the protocols
+	 * @throws WebSocketException the web socket exception
+	 */
 	public WebSocketDraft06(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		super(url, handler, protocols);
 	}
 	
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#initializePipeline(jp.a840.websocket.handler.WebSocketPipeline)
+	 */
 	@Override
-	protected void initializePipeline(WebSocketPipeline pipeline){
+	protected void initializePipeline(WebSocketPipeline pipeline) throws WebSocketException {
 		pipeline.addStreamHandler(new StreamHandlerAdapter() {
 			
 			public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
@@ -75,6 +115,9 @@ public class WebSocketDraft06 extends WebSocketBase {
 		super.initializePipeline(pipeline);
 	}
 	
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#newHandshakeInstance()
+	 */
 	@Override
 	protected Handshake newHandshakeInstance(){
 		return new Handshake() {
@@ -164,6 +207,11 @@ public class WebSocketDraft06 extends WebSocketBase {
 		};
 	}
 	
+	/**
+	 * Generate web socket key.
+	 *
+	 * @return the string
+	 */
 	private String generateWebSocketKey(){
 		try{
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -174,6 +222,9 @@ public class WebSocketDraft06 extends WebSocketBase {
 	}
 	
 	
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#newFrameParserInstance()
+	 */
 	@Override
 	protected FrameParser newFrameParserInstance() {
 		return new FrameParser() {
@@ -196,6 +247,9 @@ public class WebSocketDraft06 extends WebSocketBase {
 	}
 
 	
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.Object)
+	 */
 	@Override
 	public Frame createFrame(Object obj) throws WebSocketException {
 		try {
@@ -210,20 +264,36 @@ public class WebSocketDraft06 extends WebSocketBase {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.String)
+	 */
 	@Override
 	public Frame createFrame(String str) throws WebSocketException {
 		return new TextFrame(str);
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#getWebSocketVersion()
+	 */
 	@Override
 	protected int getWebSocketVersion() {
 		return VERSION;
 	}
 	
+	/**
+	 * Adds the extension.
+	 *
+	 * @param extension the extension
+	 */
 	public void addExtension(String extension){
 		extensions.add(extension);
 	}
 	
+	/**
+	 * Removes the extension.
+	 *
+	 * @param extension the extension
+	 */
 	public void removeExtension(String extension){
 		extensions.remove(extension);
 	}

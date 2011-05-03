@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2011 Takahiro Hashimoto
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package jp.a840.websocket.handshake;
 
 import static java.nio.channels.SelectionKey.OP_READ;
@@ -25,19 +48,40 @@ import javax.net.ssl.TrustManagerFactory;
 
 import jp.a840.websocket.WebSocketException;
 
+/**
+ * The Class SSLHandshake.
+ *
+ * @author Takahiro Hashimoto
+ */
 public class SSLHandshake {
 	
+	/** The log. */
 	private static Logger log = Logger.getLogger(SSLHandshake.class.getName());
 
+	/** The ctx. */
 	private SSLContext ctx;
+	
+	/** The engine. */
 	private SSLEngine engine;
 
+	/** The delegated task executor. */
 	private ExecutorService delegatedTaskExecutor;
 
+	/** The dummy. */
 	private static ByteBuffer dummy = ByteBuffer.allocate(1024);
+	
+	/** The selector. */
 	private Selector selector;
+	
+	/** The socket. */
 	private SocketChannel socket;
 	
+	/**
+	 * Instantiates a new sSL handshake.
+	 *
+	 * @param endpoint the endpoint
+	 * @throws WebSocketException the web socket exception
+	 */
 	public SSLHandshake(InetSocketAddress endpoint) throws WebSocketException {
 		try {
 			ctx = SSLContext.getInstance("TLS");
@@ -60,11 +104,15 @@ public class SSLHandshake {
 		delegatedTaskExecutor = Executors.newCachedThreadPool();
 	}
 	
-	public void setSocketChannel(SocketChannel socket) throws IOException {
+	/**
+	 * Do handshake.
+	 *
+	 * @param socket the socket
+	 * @throws WebSocketException the web socket exception
+	 */
+	public void doHandshake(SocketChannel socket) throws WebSocketException {
 		this.socket = socket;
-	}
-	
-	public void doHandshake() throws WebSocketException {
+		
 		try {
 			// create selector for SSL handshake
 			selector = Selector.open();
@@ -135,6 +183,13 @@ public class SSLHandshake {
 		}
 	}
 	
+	/**
+	 * Wrap.
+	 *
+	 * @param localBuffer the local buffer
+	 * @param netBuffer the net buffer
+	 * @throws WebSocketException the web socket exception
+	 */
 	public void wrap(ByteBuffer localBuffer, ByteBuffer netBuffer) throws WebSocketException {
 		try {
 			netBuffer.clear();
@@ -148,6 +203,13 @@ public class SSLHandshake {
 		}
 	}
 	
+	/**
+	 * Unwrap.
+	 *
+	 * @param netBuffer the net buffer
+	 * @param localBuffer the local buffer
+	 * @throws WebSocketException the web socket exception
+	 */
 	public void unwrap(ByteBuffer netBuffer, ByteBuffer localBuffer) throws WebSocketException {
 		try {
 			localBuffer.clear();
@@ -161,6 +223,9 @@ public class SSLHandshake {
 		}
 	}
 	
+    /**
+     * Run delegated tasks.
+     */
     private void runDelegatedTasks() {
     	Runnable task = null;
         while ((task = engine.getDelegatedTask()) != null) {

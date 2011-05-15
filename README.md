@@ -4,7 +4,13 @@ Copyright 2011 Takahiro Hashimoto
 
 MIT license
 
-Support WebSocket Specification Draft76, Draft06
+Support
+-------
+
+- JDK5 or higher
+- WebSocket Specification Draft76, Draft06
+- ssl with wss://
+- proxy (not authentication only)
 
 Purpose
 -------
@@ -67,12 +73,6 @@ socket.connect();
 socket.close();
 ```
 
-TODO
-====
-
-- Support Proxy
-- Send large frame with split to fragment frames
-        
 #### Example: Sample of Jetty7 websocket chat servlet
 
 ```java
@@ -149,3 +149,9 @@ Packet dump print to a console
                                              | PacketDumpStreamHandler.HS_DOWN
                                              | PacketDumpStreamHandler.FR_UP
                                       ));
+TODO
+====
+
+- Support Proxy
+- Send large frame with split to fragment frames
+        

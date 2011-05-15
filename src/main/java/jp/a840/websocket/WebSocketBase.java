@@ -155,10 +155,10 @@ abstract public class WebSocketBase implements WebSocket {
 	private FrameParser frameParser;
 
 	/** The response header map. */
-	protected Map<String, String> responseHeaderMap;
+	protected HttpHeader responseHeader;
 	
 	/** The request header map. */
-	protected Map<String, String> requestHeaderMap = new HashMap<String, String>();
+	protected HttpHeader requestHeader;
 
 	/** The response status. */
 	protected int responseStatus;
@@ -257,7 +257,7 @@ abstract public class WebSocketBase implements WebSocket {
 			public void nextHandshakeDownstreamHandler(WebSocket ws, ByteBuffer buffer,
 					StreamHandlerChain chain) throws WebSocketException {
 				// set response status
-				responseHeaderMap = getHandshake().getResponseHeaderMap();
+				responseHeader = getHandshake().getResponseHeader();
 				responseStatus = getHandshake().getResponseStatus();
 				transitionTo(State.WAIT);
 				// HANDSHAKE -> WAIT
@@ -788,21 +788,21 @@ abstract public class WebSocketBase implements WebSocket {
 	}
 
 	/**
-	 * Gets the response header map.
+	 * Gets the response header.
 	 *
-	 * @return the response header map
+	 * @return the response header
 	 */
-	public Map<String, String> getResponseHeaderMap() {
-		return responseHeaderMap;
+	public HttpHeader getResponseHeader() {
+		return responseHeader;
 	}
 
 	/**
-	 * Gets the request header map.
+	 * Gets the request header.
 	 *
-	 * @return the request header map
+	 * @return the request header
 	 */
-	public Map<String, String> getRequestHeaderMap() {
-		return requestHeaderMap;
+	public HttpHeader getRequestHeader() {
+		return requestHeader;
 	}
 
 	/**

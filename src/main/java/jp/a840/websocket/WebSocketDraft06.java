@@ -183,20 +183,20 @@ public class WebSocketDraft06 extends WebSocketBase {
 				if(!super.parseHandshakeResponseHeader(buffer)){
 					return false;
 				}
-				if(!"websocket".equalsIgnoreCase(this.getResponseHeaderMap().get("upgrade"))){
-					throw new WebSocketException(3600, "Upgrade response header does not match websocket. Upgrade: " + responseHeaderMap.get("upgrade"));
+				if(!"websocket".equalsIgnoreCase(this.getResponseHeader().getHeaderValue("upgrade"))){
+					throw new WebSocketException(3600, "Upgrade response header does not match websocket. Upgrade: " + responseHeader.getHeaderValue("upgrade"));
 				}
-				if(!"upgrade".equalsIgnoreCase(this.getResponseHeaderMap().get("connection"))){
-					throw new WebSocketException(3601, "Connection response header does not match Upgrade. Connection: " + responseHeaderMap.get("connection"));
+				if(!"upgrade".equalsIgnoreCase(this.getResponseHeader().getHeaderValue("connection"))){
+					throw new WebSocketException(3601, "Connection response header does not match Upgrade. Connection: " + responseHeader.getHeaderValue("connection"));
 				}
-				if(!this.getResponseHeaderMap().containsKey("sec-websocket-accept")){
+				if(!this.getResponseHeader().containsHeader("sec-websocket-accept")){
 					throw new WebSocketException(3602, "Sec-WebSocket-Accept response header is not found");
 				}
-				String protocolStr = this.getResponseHeaderMap().get("sec-websocket-protocol");
+				String protocolStr = this.getResponseHeader().getHeaderValue("sec-websocket-protocol");
 				if(protocolStr != null){
 					serverProtocols = protocolStr.split(",");
 				}
-				String extensionsStr = this.getResponseHeaderMap().get("sec-websocket-extensions");
+				String extensionsStr = this.getResponseHeader().getHeaderValue("sec-websocket-extensions");
 				if(extensionsStr != null){
 					serverExtentions = extensionsStr.split(",");
 				}

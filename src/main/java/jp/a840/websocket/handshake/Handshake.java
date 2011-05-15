@@ -29,13 +29,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jp.a840.websocket.BufferManager;
+import jp.a840.websocket.HttpHeader;
 import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.util.StringUtil;
 
 /**
  * Processing WebSocket Handshake
@@ -72,15 +72,13 @@ public abstract class Handshake {
 	private int responseStatus;	
 
 	/** The response header map. */
-	private Map<String, String> responseHeaderMap;
+	private HttpResponseHeaderParser httpResponseHeaderParser;
 
 	/**
 	 * The Enum State.
-	 *
-	 * @author Takahiro Hashimoto
 	 */
 	enum State {
-		
+		INIT,
 		/** The METHOD. */
 		METHOD, 
 		/** The HEADER. */
@@ -93,6 +91,7 @@ public abstract class Handshake {
 		/** The state map. */
 		private static EnumMap<State, EnumSet<State>> stateMap = new EnumMap<State, EnumSet<State>>(State.class);
 		static {
+			stateMap.put(INIT,   EnumSet.of(State.METHOD));
 			stateMap.put(METHOD,   EnumSet.of(State.HEADER));
 			stateMap.put(HEADER,    EnumSet.of(State.BODY, State.DONE));
 			stateMap.put(BODY,    EnumSet.of(State.DONE));
@@ -129,7 +128,7 @@ public abstract class Handshake {
 	}
 	
 	/** The state. */
-	volatile private State state = State.DONE;
+	volatile private State state = State.INIT;
 	
 	/**
 	 * State.
@@ -168,17 +167,17 @@ public abstract class Handshake {
 	final public boolean handshakeResponse(ByteBuffer downloadBuffer) throws WebSocketException {
 		ByteBuffer buffer = null;
 		try{
-			if (State.DONE.equals(state)) {
+			if (state == State.INIT || state == State.DONE) {
 				transitionTo(State.METHOD);
 				responseStatus = -1;
-				responseHeaderMap = new HashMap<String, String>();
+				httpResponseHeaderParser = new HttpResponseHeaderParser();
 				bufferManager.init();
 				buffer = downloadBuffer;
 			} else {
 				buffer = bufferManager.getBuffer(downloadBuffer);
 			}
 
-			if (State.METHOD.equals(state) || State.HEADER.equals(state)) {
+			if (state == State.METHOD || state == State.HEADER) {
 				int position = buffer.position();
 				if (!parseHandshakeResponseHeader(buffer)) {
 					buffer.position(position);
@@ -188,7 +187,7 @@ public abstract class Handshake {
 				transitionTo(State.BODY);
 			}
 
-			if (State.BODY.equals(state)) {
+			if (state == State.BODY) {
 				int position = buffer.position();
 				if (!parseHandshakeResponseBody(buffer)) {
 					buffer.position(position);
@@ -221,7 +220,7 @@ public abstract class Handshake {
 	 * @return true, if is done
 	 */
 	public boolean isDone(){
-		return State.DONE.equals(state);
+		return state == State.DONE;
 	}
 		
 	/**
@@ -245,10 +244,10 @@ public abstract class Handshake {
 	protected boolean parseHandshakeResponseHeader(ByteBuffer buffer)
 			throws WebSocketException {
 
-		if (State.METHOD.equals(state)) {
+		if (state == State.METHOD) {
 			// METHOD
 			// HTTP/1.1 101 Switching Protocols
-			String line = readLine(buffer);
+			String line = StringUtil.readLine(buffer);
 			if(line == null){
 				return false;
 			}
@@ -264,69 +263,12 @@ public abstract class Handshake {
 			transitionTo(State.HEADER);
 		}
 
-		if (State.HEADER.equals(state)) {
-			// header lines
-			do {
-				String line = readLine(buffer);
-				if(line == null){
-					return false;
-				}
-				if (line.indexOf(':') > 0) {
-					String[] keyValue = line.split(":", 2);
-					if (keyValue.length > 1) {
-						responseHeaderMap.put(keyValue[0].trim().toLowerCase(),
-								keyValue[1].trim().toLowerCase());
-					}
-				}
-				if ("\r\n".compareTo(line) == 0) {
-					return true;
-				}
-				if (!buffer.hasRemaining()) {
-					return false;
-				}
-			} while (true);
+		if (state == State.HEADER) {
+			httpResponseHeaderParser.parse(buffer);
+			return httpResponseHeaderParser.isCompleted();
 		}
 
 		return true;
-	}
-
-	/**
-	 * Read line.
-	 *
-	 * @param buf the buf
-	 * @return the string
-	 */
-	protected String readLine(ByteBuffer buf) {
-		boolean completed = false;
-		buf.mark();
-		while (buf.hasRemaining() && !completed) {
-			byte b = buf.get();
-			if (b == '\r') {
-				if(buf.hasRemaining() && buf.get() == '\n'){
-					completed = true;
-				}
-			}
-		}
-
-		if(!completed){
-			return null;
-		}
-
-		int limit = buf.position();
-		buf.reset();
-		int length = limit - buf.position();
-		byte[] tmp = new byte[length];
-		buf.get(tmp, 0, length);
-		try {
-			String line = new String(tmp, "US-ASCII");
-			if (logger.isLoggable(Level.FINE)) {
-				logger.fine(line.trim());
-			}
-			return line;
-		} catch (UnsupportedEncodingException e) {
-			;
-		}
-		return null;
 	}
 
 	/**
@@ -344,7 +286,11 @@ public abstract class Handshake {
 	 * @return the response status
 	 */
 	public int getResponseStatus() {
-		return responseStatus;
+		if(isDone()){
+			return responseStatus;
+		}else{
+			throw new IllegalStateException("Handshake does not complete yet");
+		}
 	}
 
 	/**
@@ -352,7 +298,11 @@ public abstract class Handshake {
 	 *
 	 * @return the response header map
 	 */
-	public Map<String, String> getResponseHeaderMap() {
-		return responseHeaderMap;
+	public HttpHeader getResponseHeader() {
+		if(isDone()){
+			return httpResponseHeaderParser.getResponseHeader();
+		}else{
+			throw new IllegalStateException("Handshake does not complete yet");
+		}
 	} 
 }

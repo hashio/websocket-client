@@ -151,17 +151,17 @@ public class WebSocketDraft76 extends WebSocketBase {
 				if(!super.parseHandshakeResponseHeader(buffer)){
 					return false;
 				}
-				if(!"websocket".equalsIgnoreCase(this.getResponseHeaderMap().get("upgrade"))){
-					throw new WebSocketException(3500, "Upgrade response header does not match websocket. Upgrade: " + responseHeaderMap.get("upgrade"));
+				if(!"websocket".equalsIgnoreCase(this.getResponseHeader().getHeaderValue("upgrade"))){
+					throw new WebSocketException(3500, "Upgrade response header does not match websocket. Upgrade: " + responseHeader.getHeaderValue("upgrade"));
 				}
-				if(!"upgrade".equalsIgnoreCase(this.getResponseHeaderMap().get("connection"))){
-					throw new WebSocketException(3501, "Connection response header does not match Upgrade. Connection: " + responseHeaderMap.get("connection"));
+				if(!"upgrade".equalsIgnoreCase(this.getResponseHeader().getHeaderValue("connection"))){
+					throw new WebSocketException(3501, "Connection response header does not match Upgrade. Connection: " + responseHeader.getHeaderValue("connection"));
 				}
-				String serverOrigin = this.getResponseHeaderMap().get("sec-websocket-origin");
+				String serverOrigin = this.getResponseHeader().getHeaderValue("sec-websocket-origin");
 				if(origin != null && serverOrigin != null && !serverOrigin.equals(origin)){
 					throw new WebSocketException(3502, "Sec-WebSocket-Origin response header does not match request Origin header. Origin: " + origin + " Sec-WebSocket-Origin: " + serverOrigin);
 				}
-				String serverLocation = this.getResponseHeaderMap().get("sec-websocket-location");
+				String serverLocation = this.getResponseHeader().getHeaderValue("sec-websocket-location");
 				try{
 					// reformat location URI.
 					// drop custom port
@@ -176,7 +176,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 				}catch(URISyntaxException e){
 					;
 				}
-				String protocolStr = this.getResponseHeaderMap().get("sec-websocket-protocol");
+				String protocolStr = this.getResponseHeader().getHeaderValue("sec-websocket-protocol");
 				if(protocolStr != null){
 					serverProtocols = protocolStr.split(",");
 				}

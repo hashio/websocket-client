@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import jp.a840.websocket.BufferManager;
+import jp.a840.websocket.HttpHeader;
 import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.proxy.ProxyCredentials;
 import jp.a840.websocket.util.StringUtil;
@@ -69,6 +70,8 @@ public class ProxyHandshake {
 	
 	/** The selector. */
 	private Selector selector;
+	
+	private HttpResponseHeaderParser httpResponseHeaderParser;
 
 	/**
 	 * Instantiates a new proxy handshake.
@@ -99,6 +102,7 @@ public class ProxyHandshake {
 	public void doHandshake(SocketChannel socket) throws WebSocketException {
 		try {
 			BufferManager bufferManager = new BufferManager();
+			httpResponseHeaderParser = new HttpResponseHeaderParser();
 
 			// create selector for Proxy handshake
 			selector = Selector.open();
@@ -120,6 +124,8 @@ public class ProxyHandshake {
 					bufferManager.storeFragmentBuffer(responseBuffer);
 				}
 			} while(!completed);
+			
+			HttpHeader responseHeader = httpResponseHeaderParser.getResponseHeader();
 		} catch (IOException ioe) {
 			throw new WebSocketException(3100, ioe);
 		} finally {
@@ -183,27 +189,8 @@ public class ProxyHandshake {
 			}
 		}
 
-		Map<String,String> headerMap = new HashMap<String,String>();
-		// header lines
-		do {
-			line = StringUtil.readLine(buffer);
-			if(line == null){
-				return false;
-			}
-			if (line.indexOf(':') > 0) {
-				String[] keyValue = line.split(":", 2);
-				if (keyValue.length > 1) {
-					headerMap.put(keyValue[0].trim().toLowerCase(),
-							keyValue[1].trim().toLowerCase());
-				}
-			}
-			if ("\r\n".compareTo(line) == 0) {
-				return true;
-			}
-			if (!buffer.hasRemaining()) {
-				return false;
-			}
-		} while (true);
+		httpResponseHeaderParser.parse(buffer);
+		return httpResponseHeaderParser.isCompleted();
 	}
 
 }

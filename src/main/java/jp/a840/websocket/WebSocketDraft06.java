@@ -184,10 +184,10 @@ public class WebSocketDraft06 extends WebSocketBase {
 					return false;
 				}
 				if(!"websocket".equalsIgnoreCase(this.getResponseHeaderMap().get("upgrade"))){
-					throw new WebSocketException(3600, "Upgrade response header is not match websocket. Upgrade: " + responseHeaderMap.get("upgrade"));
+					throw new WebSocketException(3600, "Upgrade response header does not match websocket. Upgrade: " + responseHeaderMap.get("upgrade"));
 				}
 				if(!"upgrade".equalsIgnoreCase(this.getResponseHeaderMap().get("connection"))){
-					throw new WebSocketException(3601, "Connection response header is not match Upgrade. Connection: " + responseHeaderMap.get("connection"));
+					throw new WebSocketException(3601, "Connection response header does not match Upgrade. Connection: " + responseHeaderMap.get("connection"));
 				}
 				if(!this.getResponseHeaderMap().containsKey("sec-websocket-accept")){
 					throw new WebSocketException(3602, "Sec-WebSocket-Accept response header is not found");

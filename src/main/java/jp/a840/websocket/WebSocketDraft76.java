@@ -152,14 +152,14 @@ public class WebSocketDraft76 extends WebSocketBase {
 					return false;
 				}
 				if(!"websocket".equalsIgnoreCase(this.getResponseHeaderMap().get("upgrade"))){
-					throw new WebSocketException(3500, "Upgrade response header is not match websocket. Upgrade: " + responseHeaderMap.get("upgrade"));
+					throw new WebSocketException(3500, "Upgrade response header does not match websocket. Upgrade: " + responseHeaderMap.get("upgrade"));
 				}
 				if(!"upgrade".equalsIgnoreCase(this.getResponseHeaderMap().get("connection"))){
-					throw new WebSocketException(3501, "Connection response header is not match Upgrade. Connection: " + responseHeaderMap.get("connection"));
+					throw new WebSocketException(3501, "Connection response header does not match Upgrade. Connection: " + responseHeaderMap.get("connection"));
 				}
 				String serverOrigin = this.getResponseHeaderMap().get("sec-websocket-origin");
 				if(origin != null && serverOrigin != null && !serverOrigin.equals(origin)){
-					throw new WebSocketException(3502, "Sec-WebSocket-Origin response header is not match request Origin header. Origin: " + origin + " Sec-WebSocket-Origin: " + serverOrigin);
+					throw new WebSocketException(3502, "Sec-WebSocket-Origin response header does not match request Origin header. Origin: " + origin + " Sec-WebSocket-Origin: " + serverOrigin);
 				}
 				String serverLocation = this.getResponseHeaderMap().get("sec-websocket-location");
 				try{
@@ -171,7 +171,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 								  	location.getFragment()
 								  	);
 					if(serverLocation != null && !serverLocation.equals(uri.toString())){
-						throw new WebSocketException(3503, "Sec-WebSocket-Location response header is not match request URL. request uri: " + uri.toString() + " Sec-WebSocket-Location: " + serverLocation);
+						throw new WebSocketException(3503, "Sec-WebSocket-Location response header does not match request URL. request uri: " + uri.toString() + " Sec-WebSocket-Location: " + serverLocation);
 					}
 				}catch(URISyntaxException e){
 					;

@@ -92,4 +92,7 @@ public class WebSocketException extends Exception {
 		return "[" + statusCode + "] " + super.getMessage();
 	}
 
+	public int getStatusCode() {
+		return statusCode;
+	}
 }

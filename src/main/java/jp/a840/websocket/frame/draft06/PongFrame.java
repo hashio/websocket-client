@@ -27,6 +27,8 @@ import jp.a840.websocket.frame.FrameHeader;
 
 /**
  * The Class PongFrame.
+ *
+ * @author Takahiro Hashimoto
  */
 public class PongFrame extends FrameDraft06 {
 

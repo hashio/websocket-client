@@ -49,6 +49,7 @@ import javax.net.ssl.TrustManagerFactory;
 import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.util.PacketDumpUtil;
 
+
 /**
  * The Class SSLHandshake.
  *

@@ -30,6 +30,8 @@ import jp.a840.websocket.frame.FrameHeader;
 
 /**
  * The Class FrameBuilderDraft76.
+ *
+ * @author Takahiro Hashimoto
  */
 public class FrameBuilderDraft76 {
 	

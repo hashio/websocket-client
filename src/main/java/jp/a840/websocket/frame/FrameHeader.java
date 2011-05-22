@@ -27,6 +27,8 @@ import java.nio.ByteBuffer;
 
 /**
  * The Interface FrameHeader.
+ *
+ * @author Takahiro Hashimoto
  */
 public interface FrameHeader {
 	

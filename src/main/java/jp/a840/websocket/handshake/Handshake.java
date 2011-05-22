@@ -37,6 +37,7 @@ import jp.a840.websocket.HttpHeader;
 import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.util.StringUtil;
 
+
 /**
  * Processing WebSocket Handshake
  * 
@@ -76,8 +77,12 @@ public abstract class Handshake {
 
 	/**
 	 * The Enum State.
+	 *
+	 * @author Takahiro Hashimoto
 	 */
 	enum State {
+		
+		/** The INIT. */
 		INIT,
 		/** The METHOD. */
 		METHOD, 

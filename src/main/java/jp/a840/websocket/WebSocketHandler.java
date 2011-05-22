@@ -27,6 +27,8 @@ import jp.a840.websocket.frame.Frame;
 
 /**
  * The Interface WebSocketHandler.
+ *
+ * @author Takahiro Hashimoto
  */
 public interface WebSocketHandler {
 	

@@ -50,6 +50,7 @@ import jp.a840.websocket.proxy.Proxy;
 import util.Base64;
 
 
+
 /**
  * A simple websocket client
  * 
@@ -88,6 +89,15 @@ public class WebSocketDraft06 extends WebSocketBase {
 		super(url, handler, protocols);
 	}
 	
+	/**
+	 * Instantiates a new web socket draft06.
+	 *
+	 * @param url the url
+	 * @param proxy the proxy
+	 * @param handler the handler
+	 * @param protocols the protocols
+	 * @throws WebSocketException the web socket exception
+	 */
 	public WebSocketDraft06(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		super(url, proxy, handler, protocols);
 	}

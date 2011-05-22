@@ -32,11 +32,15 @@ import jp.a840.websocket.WebSocketException;
 
 /**
  * The Class FrameParser.
+ *
+ * @author Takahiro Hashimoto
  */
 public abstract class FrameParser {
 
 	/**
 	 * The Enum State.
+	 *
+	 * @author Takahiro Hashimoto
 	 */
 	enum State {
 		

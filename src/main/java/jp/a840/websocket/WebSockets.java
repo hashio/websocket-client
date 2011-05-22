@@ -25,6 +25,7 @@ package jp.a840.websocket;
 
 import jp.a840.websocket.proxy.Proxy;
 
+
 /**
  * WebSocket factory class.
  *
@@ -45,6 +46,16 @@ public class WebSockets {
 		return new WebSocketDraft06(url, handler, protocols);
 	}
 
+	/**
+	 * Creates the.
+	 *
+	 * @param url the url
+	 * @param proxy the proxy
+	 * @param handler the handler
+	 * @param protocols the protocols
+	 * @return the web socket
+	 * @throws WebSocketException the web socket exception
+	 */
 	public static WebSocket create(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		return new WebSocketDraft06(url, proxy, handler, protocols);
 	}
@@ -62,6 +73,16 @@ public class WebSockets {
 		return new WebSocketDraft76(url, handler, protocols);
 	}
 
+	/**
+	 * Creates the draft76.
+	 *
+	 * @param url the url
+	 * @param proxy the proxy
+	 * @param handler the handler
+	 * @param protocols the protocols
+	 * @return the web socket
+	 * @throws WebSocketException the web socket exception
+	 */
 	public static WebSocket createDraft76(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		return new WebSocketDraft76(url, proxy, handler, protocols);
 	}
@@ -79,6 +100,16 @@ public class WebSockets {
 		return new WebSocketDraft06(url, handler, protocols);
 	}
 
+	/**
+	 * Creates the draft06.
+	 *
+	 * @param url the url
+	 * @param proxy the proxy
+	 * @param handler the handler
+	 * @param protocols the protocols
+	 * @return the web socket
+	 * @throws WebSocketException the web socket exception
+	 */
 	public static WebSocket createDraft06(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		return new WebSocketDraft06(url, proxy, handler, protocols);
 	}

@@ -42,6 +42,7 @@ import jp.a840.websocket.handler.WebSocketPipeline;
 import jp.a840.websocket.handshake.Handshake;
 import jp.a840.websocket.proxy.Proxy;
 
+
 /**
  * A simple websocket client
  * this class is implement the WebSocket Draft76 specification.
@@ -72,6 +73,15 @@ public class WebSocketDraft76 extends WebSocketBase {
 		super(url, handler, protocols);
 	}
 	
+	/**
+	 * Instantiates a new web socket draft76.
+	 *
+	 * @param url the url
+	 * @param proxy the proxy
+	 * @param handler the handler
+	 * @param protocols the protocols
+	 * @throws WebSocketException the web socket exception
+	 */
 	public WebSocketDraft76(String url, Proxy proxy, WebSocketHandler handler,
 			String... protocols) throws WebSocketException {
 		super(url, proxy, handler, protocols);
@@ -220,6 +230,8 @@ public class WebSocketDraft76 extends WebSocketBase {
 
 	/**
 	 * The Class SecWebSocketKey.
+	 *
+	 * @author Takahiro Hashimoto
 	 */
 	private static class SecWebSocketKey {
 		

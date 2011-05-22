@@ -30,7 +30,6 @@ import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
 
-// TODO: Auto-generated Javadoc
 /**
  *  WebSocket Frame class
  *

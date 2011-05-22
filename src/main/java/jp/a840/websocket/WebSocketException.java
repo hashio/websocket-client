@@ -23,6 +23,7 @@
  */
 package jp.a840.websocket;
 
+
 /**
  * WebSocket Exception class
  * 
@@ -92,6 +93,11 @@ public class WebSocketException extends Exception {
 		return "[" + statusCode + "] " + super.getMessage();
 	}
 
+	/**
+	 * Gets the status code.
+	 *
+	 * @return the status code
+	 */
 	public int getStatusCode() {
 		return statusCode;
 	}

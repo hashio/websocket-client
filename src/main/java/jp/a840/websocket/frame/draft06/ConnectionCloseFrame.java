@@ -26,6 +26,8 @@ package jp.a840.websocket.frame.draft06;
 
 /**
  * The Class ConnectionCloseFrame.
+ *
+ * @author Takahiro Hashimoto
  */
 public class ConnectionCloseFrame extends FrameDraft06 {
 

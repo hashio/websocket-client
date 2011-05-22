@@ -30,6 +30,8 @@ import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
 
 /**
  * The Class TextFrame.
+ *
+ * @author Takahiro Hashimoto
  */
 public class TextFrame extends FrameDraft06 {
 

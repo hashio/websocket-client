@@ -26,6 +26,8 @@ package jp.a840.websocket.frame.draft06;
 
 /**
  * The Class PingFrame.
+ *
+ * @author Takahiro Hashimoto
  */
 public class PingFrame extends FrameDraft06 {
 

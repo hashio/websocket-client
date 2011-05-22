@@ -29,13 +29,18 @@ import jp.a840.websocket.HttpHeader;
 import jp.a840.websocket.WebSocketException;
 import util.Base64;
 
+
 /**
  * The Class ProxyBasicCredentials.
+ *
+ * @author Takahiro Hashimoto
  */
 public class ProxyBasicCredentials implements ProxyCredentials {
 
+	/** The PROX y_ authenticate. */
 	private static String PROXY_AUTHENTICATE = "Proxy-Authenticate";
 	
+	/** The AUT h_ scheme. */
 	private static String AUTH_SCHEME = "Basic";
 	
 	/** The realm. */

@@ -30,8 +30,11 @@ import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
 import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.PayloadLengthType;
 
 
+
 /**
  * The Class FrameHeaderDraft06.
+ *
+ * @author Takahiro Hashimoto
  */
 public class FrameHeaderDraft06 implements FrameHeader {
 	

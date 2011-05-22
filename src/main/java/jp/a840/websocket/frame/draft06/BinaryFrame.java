@@ -27,6 +27,8 @@ import jp.a840.websocket.frame.FrameHeader;
 
 /**
  * The Class BinaryFrame.
+ *
+ * @author Takahiro Hashimoto
  */
 public class BinaryFrame extends FrameDraft06 {
 

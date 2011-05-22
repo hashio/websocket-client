@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2011 Takahiro Hashimoto
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package jp.a840.websocket;
 
 import java.io.InputStream;
@@ -10,13 +33,27 @@ import java.util.concurrent.Exchanger;
 
 import javax.net.ServerSocketFactory;
 
+/**
+ * The Class MockServer.
+ *
+ * @author Takahiro Hashimoto
+ */
 public class MockServer extends Thread {
+	
+	/** The scenario list. */
 	private List<Scenario> scenarioList = new ArrayList<MockServer.Scenario>();
 
+	/** The port. */
 	private int port;
 
+	/** The exchanger. */
 	private Exchanger<Throwable> exchanger = new Exchanger<Throwable>();
 
+	/**
+	 * Instantiates a new mock server.
+	 *
+	 * @param port the port
+	 */
 	public MockServer(int port) {
 		this.port = port;
 		
@@ -31,6 +68,11 @@ public class MockServer extends Thread {
 		});
 	}
 	
+	/**
+	 * Gets the throwable.
+	 *
+	 * @return the throwable
+	 */
 	public Throwable getThrowable(){
 		try{
 			return exchanger.exchange(null);
@@ -40,6 +82,9 @@ public class MockServer extends Thread {
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Thread#run()
+	 */
 	public void run() {
 		try {
 			ServerSocket serverSocket = ServerSocketFactory.getDefault()
@@ -65,47 +110,112 @@ public class MockServer extends Thread {
 		}
 	}
 
+	/**
+	 * The Enum ScenarioType.
+	 *
+	 * @author Takahiro Hashimoto
+	 */
 	enum ScenarioType {
-		READ, WRITE;
+		
+		/** The READ. */
+		READ, 
+ /** The WRITE. */
+ WRITE;
 	}
 
+	/**
+	 * Adds the response.
+	 *
+	 * @param response the response
+	 */
 	public void addResponse(byte[] response) {
 		Scenario scenario = new Scenario();
 		scenario.setResponse(response);
 		scenarioList.add(scenario);
 	}
 
+	/**
+	 * Adds the request.
+	 *
+	 * @param verifyRequest the verify request
+	 */
 	public void addRequest(VerifyRequest verifyRequest) {
 		Scenario scenario = new Scenario();
 		scenario.setVerifyRequest(verifyRequest);
 		scenarioList.add(scenario);
 	}
 
+	/**
+	 * The Interface VerifyRequest.
+	 *
+	 * @author Takahiro Hashimoto
+	 */
 	public interface VerifyRequest {
+		
+		/**
+		 * Verify.
+		 *
+		 * @param request the request
+		 * @return true, if successful
+		 */
 		public boolean verify(byte[] request);
 	}
 	
+	/**
+	 * The Class Scenario.
+	 *
+	 * @author Takahiro Hashimoto
+	 */
 	public class Scenario {
 
+		/** The response. */
 		private byte[] response;
+		
+		/** The verify request. */
 		private VerifyRequest verifyRequest;
 
+		/**
+		 * Gets the response.
+		 *
+		 * @return the response
+		 */
 		public byte[] getResponse() {
 			return response;
 		}
 
+		/**
+		 * Sets the response.
+		 *
+		 * @param response the new response
+		 */
 		public void setResponse(byte[] response) {
 			this.response = response;
 		}
 
+		/**
+		 * Sets the verify request.
+		 *
+		 * @param verifyRequest the new verify request
+		 */
 		public void setVerifyRequest(VerifyRequest verifyRequest) {
 			this.verifyRequest = verifyRequest;
 		}
 
+		/**
+		 * Verify request.
+		 *
+		 * @param request the request
+		 * @return true, if successful
+		 */
 		public boolean verifyRequest(byte[] request) {
 			return verifyRequest.verify(request);
 		}
 
+		/**
+		 * Gets the scenario type.
+		 *
+		 * @return the scenario type
+		 */
 		public ScenarioType getScenarioType() {
 			if (response == null) {
 				return ScenarioType.WRITE;

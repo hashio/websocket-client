@@ -28,8 +28,11 @@ import java.nio.ByteBuffer;
 import jp.a840.websocket.frame.draft06.BinaryFrame;
 import jp.a840.websocket.frame.draft06.TextFrame;
 
+
 /**
  * The Class Frame.
+ *
+ * @author Takahiro Hashimoto
  */
 abstract public class Frame {
 

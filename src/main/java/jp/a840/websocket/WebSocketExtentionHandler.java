@@ -27,6 +27,8 @@ import jp.a840.websocket.handler.StreamHandler;
 
 /**
  * The Interface WebSocketExtentionHandler.
+ *
+ * @author Takahiro Hashimoto
  */
 public interface WebSocketExtentionHandler extends StreamHandler {
 

@@ -41,6 +41,7 @@ import jp.a840.websocket.proxy.ProxyCredentials;
 import jp.a840.websocket.util.PacketDumpUtil;
 import jp.a840.websocket.util.StringUtil;
 
+
 /**
  * HTTP Proxy Handshake class
  * 
@@ -71,6 +72,7 @@ public class ProxyHandshake {
 	/** connection read timeout(second). */
 	private int connectionReadTimeout = 0;
 	
+	/** The need authorize. */
 	private boolean needAuthorize;
 	
 	/** The credentials. */
@@ -79,12 +81,17 @@ public class ProxyHandshake {
 	/** The selector. */
 	private Selector selector;
 	
+	/** The http response header parser. */
 	private HttpResponseHeaderParser httpResponseHeaderParser;
 
 	/**
 	 * The Enum State.
+	 *
+	 * @author Takahiro Hashimoto
 	 */
 	enum State {
+		
+		/** The INIT. */
 		INIT,
 		/** The METHOD. */
 		METHOD, 
@@ -149,6 +156,7 @@ public class ProxyHandshake {
 	/**
 	 * Instantiates a new proxy handshake.
 	 *
+	 * @param proxy the proxy
 	 * @param origin the origin
 	 */
 	public ProxyHandshake(InetSocketAddress proxy, InetSocketAddress origin){
@@ -156,6 +164,13 @@ public class ProxyHandshake {
 		this.originAddress = origin;
 	}
 
+	/**
+	 * Instantiates a new proxy handshake.
+	 *
+	 * @param proxy the proxy
+	 * @param origin the origin
+	 * @param credentials the credentials
+	 */
 	public ProxyHandshake(InetSocketAddress proxy, InetSocketAddress origin, ProxyCredentials credentials){
 		this.proxyAddress = proxy;
 		this.originAddress = origin;
@@ -265,6 +280,12 @@ public class ProxyHandshake {
 		}
 	}
 
+	/**
+	 * Creates the authorize request.
+	 *
+	 * @param creadectialsStr the creadectials str
+	 * @return the byte buffer
+	 */
 	public ByteBuffer createAuthorizeRequest(String creadectialsStr){
 		// Send GET request to server
 		StringBuilder sb = new StringBuilder();
@@ -320,26 +341,56 @@ public class ProxyHandshake {
 		return true;
 	}
 
+	/**
+	 * Gets the credentials.
+	 *
+	 * @return the credentials
+	 */
 	public ProxyCredentials getCredentials() {
 		return credentials;
 	}
 
+	/**
+	 * Sets the credentials.
+	 *
+	 * @param credentials the new credentials
+	 */
 	public void setCredentials(ProxyCredentials credentials) {
 		this.credentials = credentials;
 	}
 
+	/**
+	 * Gets the connection read timeout.
+	 *
+	 * @return the connection read timeout
+	 */
 	public int getConnectionReadTimeout() {
 		return connectionReadTimeout;
 	}
 
+	/**
+	 * Sets the connection read timeout.
+	 *
+	 * @param connectionReadTimeout the new connection read timeout
+	 */
 	public void setConnectionReadTimeout(int connectionReadTimeout) {
 		this.connectionReadTimeout = connectionReadTimeout;
 	}
 
+	/**
+	 * Gets the proxy address.
+	 *
+	 * @return the proxy address
+	 */
 	public InetSocketAddress getProxyAddress() {
 		return proxyAddress;
 	}
 
+	/**
+	 * Gets the origin address.
+	 *
+	 * @return the origin address
+	 */
 	public InetSocketAddress getOriginAddress() {
 		return originAddress;
 	}

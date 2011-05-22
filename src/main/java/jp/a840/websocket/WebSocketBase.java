@@ -59,6 +59,7 @@ import jp.a840.websocket.proxy.Proxy;
 import jp.a840.websocket.proxy.ProxyCredentials;
 import jp.a840.websocket.util.StringUtil;
 
+
 /**
  * The WebSocket base client.
  *
@@ -174,6 +175,7 @@ abstract public class WebSocketBase implements WebSocket {
 	 * Instantiates a new web socket base.
 	 *
 	 * @param url the url
+	 * @param proxy the proxy
 	 * @param handler the handler
 	 * @param protocols the protocols
 	 * @throws WebSocketException the web socket exception
@@ -186,6 +188,12 @@ abstract public class WebSocketBase implements WebSocket {
 		init(url);
 	}
 	
+	/**
+	 * Inits the.
+	 *
+	 * @param url the url
+	 * @throws WebSocketException the web socket exception
+	 */
 	protected void init(String url) throws WebSocketException {
 		// init properties
 		initializeProperties();
@@ -442,6 +450,12 @@ abstract public class WebSocketBase implements WebSocket {
 		}
 	}
 
+	/**
+	 * Creates the socket.
+	 *
+	 * @return the socket channel
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	protected SocketChannel createSocket() throws IOException {
 		SocketChannel socket = SocketChannel.open();
 		socket.configureBlocking(false);
@@ -844,10 +858,20 @@ abstract public class WebSocketBase implements WebSocket {
 		return bufferSize;
 	}
 
+	/**
+	 * Gets the packet dump mode.
+	 *
+	 * @return the packet dump mode
+	 */
 	public static int getPacketDumpMode() {
 		return packetDumpMode;
 	}
 
+	/**
+	 * Sets the packet dump mode.
+	 *
+	 * @param packetDumpMode the new packet dump mode
+	 */
 	public static void setPacketDumpMode(int packetDumpMode) {
 		WebSocketBase.packetDumpMode = packetDumpMode;
 	}

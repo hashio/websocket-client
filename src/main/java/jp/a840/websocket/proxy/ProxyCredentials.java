@@ -36,7 +36,9 @@ public interface ProxyCredentials {
 	/**
 	 * Gets the credentials.
 	 *
+	 * @param header the header
 	 * @return the credentials
+	 * @throws WebSocketException the web socket exception
 	 */
 	public String getCredentials(HttpHeader header) throws WebSocketException;
 }

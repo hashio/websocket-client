@@ -27,13 +27,18 @@ import java.nio.ByteBuffer;
 
 import jp.a840.websocket.frame.Frame;
 
+
 /**
  * The Class FrameBuilderDraft06.
+ *
+ * @author Takahiro Hashimoto
  */
 public class FrameBuilderDraft06 {
 	
 	/**
 	 * The Enum Opcode.
+	 *
+	 * @author Takahiro Hashimoto
 	 */
 	protected enum Opcode {
 		
@@ -100,6 +105,8 @@ public class FrameBuilderDraft06 {
 	
 	/**
 	 * The Enum Fin.
+	 *
+	 * @author Takahiro Hashimoto
 	 */
 	protected enum Fin {
 		
@@ -132,6 +139,8 @@ public class FrameBuilderDraft06 {
 
 	/**
 	 * The Enum Rsv.
+	 *
+	 * @author Takahiro Hashimoto
 	 */
 	protected enum Rsv {
 		
@@ -162,6 +171,8 @@ public class FrameBuilderDraft06 {
 
 	/**
 	 * The Enum PayloadLengthType.
+	 *
+	 * @author Takahiro Hashimoto
 	 */
 	protected enum PayloadLengthType {
 		

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+
 /**
  * The Class HttpHeader.
  *
@@ -73,6 +74,12 @@ public class HttpHeader {
 		return Collections.unmodifiableList(list);
 	}
 
+	/**
+	 * Contains header.
+	 *
+	 * @param headerName the header name
+	 * @return true, if successful
+	 */
 	public boolean containsHeader(String headerName){
 		return headerMap.containsKey(headerName);
 	}
@@ -92,10 +99,20 @@ public class HttpHeader {
 		list.add(value);
 	}
 	
+	/**
+	 * Removes the header.
+	 *
+	 * @param name the name
+	 */
 	public void removeHeader(String name){
 		headerMap.remove(name);
 	}
 	
+	/**
+	 * Gets the header names.
+	 *
+	 * @return the header names
+	 */
 	public List<String> getHeaderNames(){
 		return new ArrayList<String>(headerMap.keySet());
 	}

@@ -23,6 +23,9 @@
  */
 package jp.a840.websocket.proxy;
 
+import jp.a840.websocket.HttpHeader;
+import jp.a840.websocket.WebSocketException;
+
 /**
  * The Interface ProxyCredentials.
  *
@@ -35,5 +38,5 @@ public interface ProxyCredentials {
 	 *
 	 * @return the credentials
 	 */
-	public String getCredentials();
+	public String getCredentials(HttpHeader header) throws WebSocketException;
 }

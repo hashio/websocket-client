@@ -31,14 +31,14 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.logging.Logger;
 
 import jp.a840.websocket.BufferManager;
-import jp.a840.websocket.HttpHeader;
 import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.proxy.ProxyCredentials;
+import jp.a840.websocket.util.PacketDumpUtil;
 import jp.a840.websocket.util.StringUtil;
 
 /**
@@ -62,8 +62,16 @@ public class ProxyHandshake {
 	private static Logger log = Logger.getLogger(ProxyHandshake.class
 			.getName());
 
+	/** The proxy. */
+	private final InetSocketAddress proxyAddress;
+	
 	/** The origin. */
-	private final InetSocketAddress origin;
+	private final InetSocketAddress originAddress;
+	
+	/** connection read timeout(second). */
+	private int connectionReadTimeout = 0;
+	
+	private boolean needAuthorize;
 	
 	/** The credentials. */
 	private ProxyCredentials credentials;
@@ -74,22 +82,83 @@ public class ProxyHandshake {
 	private HttpResponseHeaderParser httpResponseHeaderParser;
 
 	/**
-	 * Instantiates a new proxy handshake.
-	 *
-	 * @param origin the origin
+	 * The Enum State.
 	 */
-	public ProxyHandshake(InetSocketAddress origin){
-		this(origin, null);
+	enum State {
+		INIT,
+		/** The METHOD. */
+		METHOD, 
+		/** The HEADER. */
+		HEADER, 
+		/** The BODY. */
+		AUTH,
+		/** The DONE. */
+		DONE;
+		
+		/** The state map. */
+		private static EnumMap<State, EnumSet<State>> stateMap = new EnumMap<State, EnumSet<State>>(State.class);
+		static {
+			stateMap.put(INIT,   EnumSet.of(State.METHOD));
+			stateMap.put(METHOD,   EnumSet.of(State.HEADER));
+			stateMap.put(HEADER,    EnumSet.of(State.AUTH, State.DONE));
+			stateMap.put(AUTH,    EnumSet.of(State.METHOD));
+			stateMap.put(DONE,     EnumSet.of(State.METHOD));
+		}
+		
+		/**
+		 * Can transition to.
+		 *
+		 * @param state the state
+		 * @return true, if successful
+		 */
+		boolean canTransitionTo(State state){
+			EnumSet<State> set = stateMap.get(this);
+			if(set == null) return false;
+			return set.contains(state);
+		}
 	}
-
+	
+	/**
+	 * Transition to.
+	 *
+	 * @param to the to
+	 * @return the state
+	 */
+	protected State transitionTo(State to){
+		if(state.canTransitionTo(to)){
+			State old = state;
+			state = to;
+			return old;
+		}else{
+			throw new IllegalStateException("Couldn't transtion from " + state + " to " + to);
+		}
+	}
+	
+	/** The state. */
+	volatile private State state = State.INIT;
+	
+	/**
+	 * State.
+	 *
+	 * @return the state
+	 */
+	protected State state(){
+		return state;
+	}
+	
 	/**
 	 * Instantiates a new proxy handshake.
 	 *
 	 * @param origin the origin
-	 * @param credentials the credentials
 	 */
-	public ProxyHandshake(InetSocketAddress origin, ProxyCredentials credentials){
-		this.origin = origin;
+	public ProxyHandshake(InetSocketAddress proxy, InetSocketAddress origin){
+		this.proxyAddress = proxy;
+		this.originAddress = origin;
+	}
+
+	public ProxyHandshake(InetSocketAddress proxy, InetSocketAddress origin, ProxyCredentials credentials){
+		this.proxyAddress = proxy;
+		this.originAddress = origin;
 		this.credentials = credentials;
 	}
 
@@ -109,23 +178,60 @@ public class ProxyHandshake {
 			socket.register(selector, OP_READ);
 
 			ByteBuffer request = createHandshakeRequest();
+			if(PacketDumpUtil.isDump(PacketDumpUtil.HS_UP)){
+				PacketDumpUtil.printPacketDump("PROXY_HS_UP", request);
+			}
 			socket.write(request);
+			transitionTo(State.METHOD);
 			
 			ByteBuffer responseBuffer = ByteBuffer.allocate(8192);
-			selector.select();
+			String creadectialsStr = null;
 			boolean completed = false;
 			do {
+				selector.select(connectionReadTimeout);
+
 				responseBuffer.clear();
 				socket.read(responseBuffer);
 				responseBuffer.flip();
+				if(PacketDumpUtil.isDump(PacketDumpUtil.HS_DOWN)){
+					PacketDumpUtil.printPacketDump("PROXY_HS_DOWN", responseBuffer);
+				}
+				
 				responseBuffer = bufferManager.getBuffer(responseBuffer);
-				completed = parseHandshakeResponseHeader(responseBuffer);
-				if(!completed){
-					bufferManager.storeFragmentBuffer(responseBuffer);
+				
+				switch(state){
+				case METHOD:
+				case HEADER:
+					needAuthorize = false;
+					completed = parseHandshakeResponseHeader(responseBuffer);
+					if(!completed){
+						bufferManager.storeFragmentBuffer(responseBuffer);
+					}else{
+						if(needAuthorize){
+							if(credentials == null){
+								throw new WebSocketException(3999, "Need proxy authenticate. But not set a ProxyCredentials");
+							}
+							creadectialsStr = credentials.getCredentials(httpResponseHeaderParser.getResponseHeader());
+							if(creadectialsStr != null){
+								transitionTo(State.AUTH);				
+							}else{
+								throw new WebSocketException(3999, "Have not support proxy authenticate schemes.");
+							}
+						} else {
+							transitionTo(State.DONE);
+						}
+					}
+					break;
+				case AUTH:
+					ByteBuffer buffer = createAuthorizeRequest(creadectialsStr);
+					if(PacketDumpUtil.isDump(PacketDumpUtil.HS_UP)){
+						PacketDumpUtil.printPacketDump("PROXY_HS_UP", buffer);
+					}
+					socket.write(buffer);
+					transitionTo(State.METHOD);
+					break;
 				}
 			} while(!completed);
-			
-			HttpHeader responseHeader = httpResponseHeaderParser.getResponseHeader();
 		} catch (IOException ioe) {
 			throw new WebSocketException(3100, ioe);
 		} finally {
@@ -147,7 +253,7 @@ public class ProxyHandshake {
 	public ByteBuffer createHandshakeRequest() {		
 		// Send GET request to server
 		StringBuilder sb = new StringBuilder();
-		String host = origin.getHostName() + ":" + origin.getPort();
+		String host = originAddress.getHostName() + ":" + originAddress.getPort();
 		sb.append("CONNECT " + host + " HTTP/1.1\r\n");
 		StringUtil.addHeader(sb, "Host", host);
 		sb.append("\r\n");
@@ -159,6 +265,23 @@ public class ProxyHandshake {
 		}
 	}
 
+	public ByteBuffer createAuthorizeRequest(String creadectialsStr){
+		// Send GET request to server
+		StringBuilder sb = new StringBuilder();
+		String host = originAddress.getHostName() + ":" + originAddress.getPort();
+		sb.append("CONNECT " + host + " HTTP/1.1\r\n");
+		StringUtil.addHeader(sb, "Host", host);
+		StringUtil.addHeader(sb, "Proxy-Authorization", creadectialsStr);
+		sb.append("\r\n");
+
+		try{
+			return ByteBuffer.wrap(sb.toString().getBytes("US-ASCII"));
+		}catch(UnsupportedEncodingException e){
+			return null;
+		}
+		
+	}
+	
 	/**
 	 * Parses the handshake response header.
 	 *
@@ -168,29 +291,57 @@ public class ProxyHandshake {
 	 */
 	protected boolean parseHandshakeResponseHeader(ByteBuffer buffer)
 			throws WebSocketException {
-		// METHOD
-		// HTTP/1.1 101 Switching Protocols
-		String line = StringUtil.readLine(buffer);
-		if(line == null){
-			return false;
-		}
-		if (!(line.startsWith("HTTP/1.0") || line.startsWith("HTTP/1.1"))) {
-			throw new WebSocketException(3101,
-					"Invalid server response.(HTTP version) " + line);
-		}
-		int responseStatus = Integer.valueOf(line.substring(9, 12));
-		if (responseStatus != 200) {
-			if(responseStatus == 407){
-				throw new WebSocketException(3102,
-						"Proxy Authentication is not supported yet. (Status Code) " + line);
-			}else{
-				throw new WebSocketException(3102,
-					"Invalid server response.(Status Code) " + line);
+		if (state == State.METHOD) {
+			// METHOD
+			// HTTP/1.1 101 Switching Protocols
+			String line = StringUtil.readLine(buffer);
+			if (line == null) {
+				return false;
 			}
+			if (!(line.startsWith("HTTP/1.0") || line.startsWith("HTTP/1.1"))) {
+				throw new WebSocketException(3101,
+						"Invalid server response.(HTTP version) " + line);
+			}
+			int responseStatus = Integer.valueOf(line.substring(9, 12));
+			if (responseStatus != 200) {
+				if (responseStatus == 407) {
+					needAuthorize = true;
+				}else{
+					throw new WebSocketException(3102,
+							"Invalid server response.(Status Code) " + line);
+				}
+			}
+			transitionTo(State.HEADER);
 		}
+		if (state == State.HEADER) {
+			httpResponseHeaderParser.parse(buffer);
+			return httpResponseHeaderParser.isCompleted();
+		}
+		return true;
+	}
 
-		httpResponseHeaderParser.parse(buffer);
-		return httpResponseHeaderParser.isCompleted();
+	public ProxyCredentials getCredentials() {
+		return credentials;
+	}
+
+	public void setCredentials(ProxyCredentials credentials) {
+		this.credentials = credentials;
+	}
+
+	public int getConnectionReadTimeout() {
+		return connectionReadTimeout;
+	}
+
+	public void setConnectionReadTimeout(int connectionReadTimeout) {
+		this.connectionReadTimeout = connectionReadTimeout;
+	}
+
+	public InetSocketAddress getProxyAddress() {
+		return proxyAddress;
+	}
+
+	public InetSocketAddress getOriginAddress() {
+		return originAddress;
 	}
 
 }

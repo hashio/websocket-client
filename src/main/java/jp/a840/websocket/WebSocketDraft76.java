@@ -40,6 +40,7 @@ import jp.a840.websocket.frame.draft76.FrameBuilderDraft76;
 import jp.a840.websocket.frame.draft76.TextFrame;
 import jp.a840.websocket.handler.WebSocketPipeline;
 import jp.a840.websocket.handshake.Handshake;
+import jp.a840.websocket.proxy.Proxy;
 
 /**
  * A simple websocket client
@@ -69,6 +70,11 @@ public class WebSocketDraft76 extends WebSocketBase {
 	public WebSocketDraft76(String url, WebSocketHandler handler,
 			String... protocols) throws WebSocketException {
 		super(url, handler, protocols);
+	}
+	
+	public WebSocketDraft76(String url, Proxy proxy, WebSocketHandler handler,
+			String... protocols) throws WebSocketException {
+		super(url, proxy, handler, protocols);
 	}
 	
 	/* (non-Javadoc)
@@ -105,7 +111,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 				// Send GET request to server
 				StringBuilder sb = new StringBuilder();
 				sb.append("GET " + path + " HTTP/1.1\r\n");
-				addHeader(sb, "Host", endpoint.getHostName());
+				addHeader(sb, "Host", endpointAddress.getHostName());
 				addHeader(sb, "Upgrade", "websocket");
 				addHeader(sb, "Connection", "Upgrade");
 				addHeader(sb, "Sec-WebSocket-Key1", SecWebSocketKey.generateKey());

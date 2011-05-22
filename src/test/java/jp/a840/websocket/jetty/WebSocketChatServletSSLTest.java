@@ -6,15 +6,15 @@ import jp.a840.websocket.WebSocketHandler;
 import jp.a840.websocket.WebSockets;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.handler.PacketDumpStreamHandler;
+import jp.a840.websocket.util.PacketDumpUtil;
 
 import org.junit.Test;
 
 public class WebSocketChatServletSSLTest {
-//	@Test(expected=Exception.class)
-	public void testChat() throws Exception {
-//		System.setProperty("websocket.packatdump", String.valueOf(
-//				PacketDumpStreamHandler.ALL
-//		));
+	public static void main(String[] argv) throws Exception {
+		System.setProperty("websocket.packatdump", String.valueOf(
+				PacketDumpUtil.ALL
+		));
 //		System.setProperty("javax.net.debug", "all");
 		System.setProperty("java.util.logging.config.file", "logging.properties");
 		WebSocket socket = WebSockets.createDraft06("wss://localhost:8443/ws/", new WebSocketHandler() {

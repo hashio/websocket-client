@@ -47,6 +47,7 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
 
 import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.util.PacketDumpUtil;
 
 /**
  * The Class SSLHandshake.
@@ -143,6 +144,9 @@ public class SSLHandshake {
 				case NEED_WRAP:
 					wrap(dummy, netBuffer);
 					if(netBuffer.hasRemaining()){
+						if(PacketDumpUtil.isDump(PacketDumpUtil.HS_UP)){
+							PacketDumpUtil.printPacketDump("SSL_HS_UP", netBuffer);
+						}
 						socket.write(netBuffer);
 					}
 					break;
@@ -151,6 +155,9 @@ public class SSLHandshake {
 					netBuffer.clear();
 					socket.read(netBuffer);
 					netBuffer.flip();
+					if(PacketDumpUtil.isDump(PacketDumpUtil.HS_DOWN)){
+						PacketDumpUtil.printPacketDump("SSL_HS_DOWN", netBuffer);
+					}
 					SSLEngineResult res;
 					do {
 						res = engine.unwrap(netBuffer, dummy);

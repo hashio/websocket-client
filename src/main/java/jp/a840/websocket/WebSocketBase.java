@@ -27,14 +27,9 @@ import static java.nio.channels.SelectionKey.OP_READ;
 import static java.nio.channels.SelectionKey.OP_WRITE;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.ProxySelector;
-import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -42,9 +37,6 @@ import java.nio.channels.SocketChannel;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -63,6 +55,8 @@ import jp.a840.websocket.handler.WebSocketStreamHandler;
 import jp.a840.websocket.handshake.Handshake;
 import jp.a840.websocket.handshake.ProxyHandshake;
 import jp.a840.websocket.handshake.SSLHandshake;
+import jp.a840.websocket.proxy.Proxy;
+import jp.a840.websocket.proxy.ProxyCredentials;
 import jp.a840.websocket.util.StringUtil;
 
 /**
@@ -88,17 +82,11 @@ abstract public class WebSocketBase implements WebSocket {
 	/** The ssl handshake. */
 	protected SSLHandshake sslHandshake;
 	
-	/** The use proxy. */
-	protected boolean useProxy = false;
-
-	/** The proxy handshake. */
-	protected ProxyHandshake proxyHandshake;
-	
 	/** endpoint. */
-	protected InetSocketAddress endpoint;
+	protected InetSocketAddress endpointAddress;
 
 	/** proxy. */
-	protected InetSocketAddress proxy;
+	protected Proxy proxy;
 	
 	/** connection timeout(second). */
 	private int connectionTimeout = 60 * 1000;
@@ -110,7 +98,7 @@ abstract public class WebSocketBase implements WebSocket {
 	private boolean blockingMode = true;
 
 	/** The packet dump mode. */
-	private int packetDumpMode;
+	private static int packetDumpMode;
 	
 	/** quit flag. */
 	private volatile boolean quit;
@@ -179,12 +167,31 @@ abstract public class WebSocketBase implements WebSocket {
 		this.protocols = protocols;
 		this.handler = handler;
 
+		init(url);
+	}
+	
+	/**
+	 * Instantiates a new web socket base.
+	 *
+	 * @param url the url
+	 * @param handler the handler
+	 * @param protocols the protocols
+	 * @throws WebSocketException the web socket exception
+	 */
+	public WebSocketBase(String url, Proxy proxy, WebSocketHandler handler,
+			String... protocols) throws WebSocketException {
+		this.protocols = protocols;
+		this.handler = handler;
+		this.proxy = proxy;
+		init(url);
+	}
+	
+	protected void init(String url) throws WebSocketException {
 		// init properties
 		initializeProperties();
-		// parse url
 		parseUrl(url);
+		// parse url
 		initializePipeline();
-		initializeProxy();
 	}
 	
 	/**
@@ -231,17 +238,12 @@ abstract public class WebSocketBase implements WebSocket {
 		});
 		
 		// for debug
-		if(packetDumpMode > 0){
-			this.pipeline.addStreamHandler(new PacketDumpStreamHandler(packetDumpMode));
-		}
+		this.pipeline.addStreamHandler(new PacketDumpStreamHandler());
 
 		if(this.useSsl){
-			this.sslHandshake = new SSLHandshake(this.endpoint);
+			this.sslHandshake = new SSLHandshake(this.endpointAddress);
 			this.pipeline.addStreamHandler(new SSLStreamHandler(this.sslHandshake, this.bufferSize));
-			// for debug
-			if(packetDumpMode > 0){
-				this.pipeline.addStreamHandler(new PacketDumpStreamHandler(packetDumpMode));
-			}
+			this.pipeline.addStreamHandler(new PacketDumpStreamHandler());
 		}
 		
 		// orverriding initilize method by subclass
@@ -275,41 +277,6 @@ abstract public class WebSocketBase implements WebSocket {
 	protected void initializePipeline(WebSocketPipeline pipeline) throws WebSocketException {
 		this.pipeline.addStreamHandler(new WebSocketStreamHandler(getHandshake(), getFrameParser()));
 	}
-
-	/**
-	 * Initialize proxy.
-	 *
-	 * @throws WebSocketException the web socket exception
-	 */
-	protected void initializeProxy() throws WebSocketException {
-		try{
-			System.setProperty("java.net.useSystemProxies","true");
-			URI proxyUri = new URI("http", null, endpoint.getHostName(), endpoint.getPort(), null,null,null);
-			List<Proxy> proxyList = ProxySelector.getDefault().select(proxyUri);
-			if(proxyList != null && proxyList.size() > 0 && !proxyList.get(0).type().equals(Proxy.Type.DIRECT)){
-				if (log.isLoggable(Level.FINER)) {
-					int i = 1;
-					for (Proxy p : proxyList) {
-						log.finer("Proxy[" + i++ + "]" + p.toString());
-					}
-				}
-				this.useProxy = true;
-				this.proxy = (InetSocketAddress)proxyList.get(0).address();
-				try{
-					// FIXME A proxy(ip address only) of the ProxySelector has the Unresolved address.
-					// so this code do resolve an ip address proxy
-					this.proxy = new InetSocketAddress(InetAddress.getByName(this.proxy.getHostName()), this.proxy.getPort());
-				}catch(UnknownHostException e){
-					e.printStackTrace();
-				}
-				// TODO support proxy authentications
-				this.proxyHandshake = new ProxyHandshake(endpoint);
-				log.info("Using proxy " + this.proxy.toString());
-			}
-		}catch(URISyntaxException e){
-			throw new WebSocketException(3032, e);
-		}
-	}
 	
 	/**
 	 * Parses the url.
@@ -340,7 +307,7 @@ abstract public class WebSocketBase implements WebSocket {
 							"Not supported protocol. " + uri.toString());
 				}
 			}
-			endpoint = new InetSocketAddress(uri.getHost(), port);
+			endpointAddress = new InetSocketAddress(uri.getHost(), port);
 			location = uri;
 		} catch (URISyntaxException e) {
 			throw new WebSocketException(3009, e);
@@ -475,6 +442,12 @@ abstract public class WebSocketBase implements WebSocket {
 		}
 	}
 
+	protected SocketChannel createSocket() throws IOException {
+		SocketChannel socket = SocketChannel.open();
+		socket.configureBlocking(false);
+		return socket;
+	}
+	
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.WebSocket#connect()
 	 */
@@ -486,17 +459,22 @@ abstract public class WebSocketBase implements WebSocket {
 								+ state);
 			}
 			
+			ProxyHandshake proxyHandshake = null;
+			if(proxy != null){
+				proxyHandshake = this.proxy.getProxyHandshake(this.endpointAddress);
+			}
+			
 			socket = SocketChannel.open();
 			socket.configureBlocking(false);
 			selector = Selector.open();
-			socket.register(selector, OP_READ | OP_WRITE);
+			socket.register(selector, OP_READ);
 
 			long start = System.currentTimeMillis();
-			InetSocketAddress remote = this.endpoint;
-			if(useProxy){
-				remote = this.proxy;
+			InetSocketAddress remoteAddress = this.endpointAddress;
+			if(proxyHandshake != null){
+				remoteAddress = proxyHandshake.getProxyAddress();
 			}
-			if (socket.connect(remote)) {
+			if (socket.connect(remoteAddress)) {
 				throw new WebSocketException(3041, "Already connected");
 			}
 			while (!socket.finishConnect()) {
@@ -506,7 +484,7 @@ abstract public class WebSocketBase implements WebSocket {
 			}
 
 			transitionTo(State.CONNECTED);
-			if(useProxy){
+			if(proxyHandshake != null){
 				proxyHandshake.doHandshake(socket);
 			}
 			
@@ -528,6 +506,7 @@ abstract public class WebSocketBase implements WebSocket {
 									SocketChannel channel = (SocketChannel) key
 											.channel();
 									channel.write(upstreamQueue.poll());
+									socket.register(selector, OP_READ);
 								} else if (key.isValid() && key.isReadable()) {
 									read(socket, downstreamBuffer); // read
 									// response
@@ -547,6 +526,9 @@ abstract public class WebSocketBase implements WebSocket {
 										break;
 									}
 								}
+							}
+							if(!upstreamQueue.isEmpty()){
+								socket.register(selector, OP_READ | OP_WRITE);
 							}
 						}
 					} catch (WebSocketException we) {
@@ -766,7 +748,7 @@ abstract public class WebSocketBase implements WebSocket {
 	 * @see jp.a840.websocket.WebSocket#getEndpoint()
 	 */
 	public InetSocketAddress getEndpoint() {
-		return endpoint;
+		return endpointAddress;
 	}
 
 	/**
@@ -861,4 +843,13 @@ abstract public class WebSocketBase implements WebSocket {
 	public int getBufferSize() {
 		return bufferSize;
 	}
+
+	public static int getPacketDumpMode() {
+		return packetDumpMode;
+	}
+
+	public static void setPacketDumpMode(int packetDumpMode) {
+		WebSocketBase.packetDumpMode = packetDumpMode;
+	}
+
 }

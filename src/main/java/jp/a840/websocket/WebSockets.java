@@ -23,6 +23,8 @@
  */
 package jp.a840.websocket;
 
+import jp.a840.websocket.proxy.Proxy;
+
 /**
  * WebSocket factory class.
  *
@@ -43,6 +45,10 @@ public class WebSockets {
 		return new WebSocketDraft06(url, handler, protocols);
 	}
 
+	public static WebSocket create(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
+		return new WebSocketDraft06(url, proxy, handler, protocols);
+	}
+
 	/**
 	 * Create a websocket of Draft76.
 	 *
@@ -56,6 +62,10 @@ public class WebSockets {
 		return new WebSocketDraft76(url, handler, protocols);
 	}
 
+	public static WebSocket createDraft76(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
+		return new WebSocketDraft76(url, proxy, handler, protocols);
+	}
+
 	/**
 	 * Create a websocket of Draft06.
 	 *
@@ -67,5 +77,9 @@ public class WebSockets {
 	 */
 	public static WebSocket createDraft06(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		return new WebSocketDraft06(url, handler, protocols);
+	}
+
+	public static WebSocket createDraft06(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
+		return new WebSocketDraft06(url, proxy, handler, protocols);
 	}
 }

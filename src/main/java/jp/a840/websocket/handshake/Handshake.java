@@ -286,11 +286,7 @@ public abstract class Handshake {
 	 * @return the response status
 	 */
 	public int getResponseStatus() {
-		if(isDone()){
-			return responseStatus;
-		}else{
-			throw new IllegalStateException("Handshake does not complete yet");
-		}
+		return responseStatus;
 	}
 
 	/**
@@ -299,10 +295,6 @@ public abstract class Handshake {
 	 * @return the response header map
 	 */
 	public HttpHeader getResponseHeader() {
-		if(isDone()){
-			return httpResponseHeaderParser.getResponseHeader();
-		}else{
-			throw new IllegalStateException("Handshake does not complete yet");
-		}
+		return httpResponseHeaderParser.getResponseHeader();
 	} 
 }

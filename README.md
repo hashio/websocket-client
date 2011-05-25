@@ -9,8 +9,8 @@ Support
 
 - JDK5 or higher
 - WebSocket Specification Draft76, Draft06
-- ssl with wss://
-- proxy (not authentication only)
+- SSL/TLS with wss://
+- proxy (Unsupport authentication yet )
 
 Purpose
 -------
@@ -19,9 +19,10 @@ and easy use the push communication in the internet for Java client
 
 These servers are tested.
 
-- Grizzly2.0 + WebSocket(Draft76)
-- Jetty7.4.0 + WebSocket(Draft76)
-- Jetty7.4.0 + WebSocket(Draft06)
+- [Draft76] Grizzly2.0 + WebSocket
+- [Draft76] Jetty7.4.0 + WebSocket
+- [Draft06] Jetty7.4.0 + WebSocket
+- [Draft06 + Proxy] Apache(mod_proxy) + Jetty7.4.0 + WebSocket
 
 
 Requirements

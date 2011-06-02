@@ -21,30 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.frame.draft06;
+package jp.a840.websocket;
 
-import jp.a840.websocket.frame.FrameHeader;
-import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
+import jp.a840.websocket.frame.Frame;
 
 /**
- * The Class PongFrame.
+ * The Class WebSocketHandlerWrapper.
  *
  * @author Takahiro Hashimoto
  */
-public class PongFrame extends FrameDraft06 {
+public class WebSocketHandlerWrapper implements WebSocketHandler {
 
-	/**
-	 * Instantiates a new pong frame.
-	 *
-	 * @param header the header
-	 * @param bodyData the body data
-	 */
-	public PongFrame(FrameHeader header, byte[] bodyData) {
-		super(header, bodyData);
+	private WebSocketHandler handler_;
+	
+	public WebSocketHandlerWrapper(WebSocketHandler handler){
+		handler_ = handler;
 	}
 
-	public PongFrame(){
-		FrameHeader header = FrameBuilderDraft06.createFrameHeader(null, false, Opcode.PONG);
-		setHeader(header);
+	public void onOpen(WebSocket socket) {
+		handler_.onOpen(socket);
 	}
+
+	public void onMessage(WebSocket socket, Frame frame) {
+		handler_.onMessage(socket, frame);
+	}
+
+	public void onError(WebSocket socket, WebSocketException e) {
+		handler_.onError(socket, e);
+	}
+
+	public void onClose(WebSocket socket) {
+		handler_.onClose(socket);
+	}	
 }

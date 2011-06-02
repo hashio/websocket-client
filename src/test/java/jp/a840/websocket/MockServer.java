@@ -25,13 +25,22 @@ package jp.a840.websocket;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channel;
+import static java.nio.channels.SelectionKey.*;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Exchanger;
 
 import javax.net.ServerSocketFactory;
+
+import jp.a840.websocket.util.PacketDumpUtil;
 
 /**
  * The Class MockServer.
@@ -87,26 +96,51 @@ public class MockServer extends Thread {
 	 */
 	public void run() {
 		try {
-			ServerSocket serverSocket = ServerSocketFactory.getDefault()
-					.createServerSocket(this.port);
-			Socket socket = serverSocket.accept();
+			ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+			serverSocketChannel.socket().bind(new InetSocketAddress(this.port));
+			SocketChannel socket = serverSocketChannel.accept();
+			socket.configureBlocking(false);
+			Selector selector = Selector.open();
+			int requestCount = 1;
+			int responseCount = 1;
 			for (Scenario scenario : scenarioList) {
 				switch (scenario.getScenarioType()) {
 				case READ:
-					OutputStream os = socket.getOutputStream();
-					os.write(scenario.getResponse());
+					PacketDumpUtil.printPacketDump("response" + responseCount, scenario.getResponse());
+					responseCount++;
+					socket.register(selector, OP_WRITE);
+					selector.select();
+					socket.write(scenario.getResponse());
 					break;
 				case WRITE:
-					InputStream is = socket.getInputStream();
-					byte[] buf = new byte[is.available()];
-					is.read(buf);
-					scenario.verifyRequest(buf);
+					socket.register(selector, OP_READ);
+					selector.select();
+					ByteBuffer buffer = ByteBuffer.allocate(8192);
+					socket.read(buffer);
+					buffer.flip();
+					PacketDumpUtil.printPacketDump("request" + requestCount, buffer);
+					requestCount++;
+					scenario.verifyRequest(buffer);
 					break;
+				case CLOSE:
+					ByteBuffer responseBuffer = scenario.getResponse();
+					if(responseBuffer != null){
+						socket.register(selector, OP_WRITE);
+						selector.select();
+						PacketDumpUtil.printPacketDump("response" + responseCount, scenario.getResponse());
+						responseCount++;
+						socket.write(scenario.getResponse());
+					}
+					socket.close();
 				}
 			}
 			exchanger.exchange(null);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		} catch (Throwable t) {
+			try{
+				exchanger.exchange(t);
+			}catch(InterruptedException e){
+				;
+			}
 		}
 	}
 
@@ -119,8 +153,10 @@ public class MockServer extends Thread {
 		
 		/** The READ. */
 		READ, 
- /** The WRITE. */
- WRITE;
+		/** The WRITE. */
+		WRITE,
+		/** The CLOSE. */
+		CLOSE;
 	}
 
 	/**
@@ -128,8 +164,8 @@ public class MockServer extends Thread {
 	 *
 	 * @param response the response
 	 */
-	public void addResponse(byte[] response) {
-		Scenario scenario = new Scenario();
+	public void addResponse(ByteBuffer response) {
+		Scenario scenario = new Scenario(ScenarioType.READ);
 		scenario.setResponse(response);
 		scenarioList.add(scenario);
 	}
@@ -140,10 +176,16 @@ public class MockServer extends Thread {
 	 * @param verifyRequest the verify request
 	 */
 	public void addRequest(VerifyRequest verifyRequest) {
-		Scenario scenario = new Scenario();
+		Scenario scenario = new Scenario(ScenarioType.WRITE);
 		scenario.setVerifyRequest(verifyRequest);
 		scenarioList.add(scenario);
 	}
+	
+	public void addConnectionClose(ByteBuffer response) {
+		Scenario scenario = new Scenario(ScenarioType.CLOSE);
+		scenario.setResponse(response);
+		scenarioList.add(scenario);
+	}	
 
 	/**
 	 * The Interface VerifyRequest.
@@ -156,9 +198,8 @@ public class MockServer extends Thread {
 		 * Verify.
 		 *
 		 * @param request the request
-		 * @return true, if successful
 		 */
-		public boolean verify(byte[] request);
+		public void verify(ByteBuffer request);
 	}
 	
 	/**
@@ -167,9 +208,14 @@ public class MockServer extends Thread {
 	 * @author Takahiro Hashimoto
 	 */
 	public class Scenario {
+		private ScenarioType scenarioType_;
 
+		public Scenario(ScenarioType scenarioType){
+			scenarioType_ = scenarioType;
+		}
+		
 		/** The response. */
-		private byte[] response;
+		private ByteBuffer response;
 		
 		/** The verify request. */
 		private VerifyRequest verifyRequest;
@@ -179,7 +225,7 @@ public class MockServer extends Thread {
 		 *
 		 * @return the response
 		 */
-		public byte[] getResponse() {
+		public ByteBuffer getResponse() {
 			return response;
 		}
 
@@ -188,7 +234,7 @@ public class MockServer extends Thread {
 		 *
 		 * @param response the new response
 		 */
-		public void setResponse(byte[] response) {
+		public void setResponse(ByteBuffer response) {
 			this.response = response;
 		}
 
@@ -207,8 +253,8 @@ public class MockServer extends Thread {
 		 * @param request the request
 		 * @return true, if successful
 		 */
-		public boolean verifyRequest(byte[] request) {
-			return verifyRequest.verify(request);
+		public void verifyRequest(ByteBuffer request) {
+			verifyRequest.verify(request);
 		}
 
 		/**
@@ -217,10 +263,7 @@ public class MockServer extends Thread {
 		 * @return the scenario type
 		 */
 		public ScenarioType getScenarioType() {
-			if (response == null) {
-				return ScenarioType.WRITE;
-			}
-			return ScenarioType.READ;
+			return scenarioType_;
 		}
 	}
 }

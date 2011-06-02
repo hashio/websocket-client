@@ -125,8 +125,8 @@ public class StringUtil {
 		buf.get(tmp, 0, length);
 		try {
 			String line = new String(tmp, "US-ASCII");
-			if (log.isLoggable(Level.FINE)) {
-				log.fine(line.trim());
+			if (log.isLoggable(Level.FINEST)) {
+				log.finest(line.trim());
 			}
 			return line;
 		} catch (UnsupportedEncodingException e) {

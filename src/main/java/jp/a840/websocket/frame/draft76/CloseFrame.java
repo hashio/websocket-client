@@ -21,27 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.frame.draft06;
+package jp.a840.websocket.frame.draft76;
+
+import java.nio.ByteBuffer;
 
 import jp.a840.websocket.frame.FrameHeader;
-import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
 
 /**
  * The Class BinaryFrame.
  *
  * @author Takahiro Hashimoto
  */
-public class BinaryFrame extends FrameDraft06 {
+public class CloseFrame extends FrameDraft76 {
 
 	/**
 	 * Instantiates a new binary frame.
 	 *
 	 * @param bodyData the body data
 	 */
-	public BinaryFrame(byte[] bodyData){
-		FrameHeader header = FrameBuilderDraft06.createFrameHeader(bodyData, false, Opcode.BINARY_FRAME);
+	protected CloseFrame() {
+		super();
+		FrameHeaderDraft76 header = new FrameHeaderDraft76((byte)0xFF, 1);
 		setHeader(header);
-		setBody(bodyData);
+		setBody(new byte[]{0x00});
 	}
 	
 	/**
@@ -50,7 +52,43 @@ public class BinaryFrame extends FrameDraft06 {
 	 * @param header the header
 	 * @param bodyData the body data
 	 */
-	protected BinaryFrame(FrameHeader header, byte[] bodyData) {
+	protected CloseFrame(FrameHeader header, byte[] bodyData){
 		super(header, bodyData);
+	}
+
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.frame.Frame#toByteBuffer()
+	 */
+	@Override
+	public ByteBuffer toByteBuffer() {
+		byte[] bodyLengthBuf = getBodyLength(body);
+		ByteBuffer buf = ByteBuffer.allocate(1 + bodyLengthBuf.length + body.length);
+		buf.put(header.toByteBuffer());
+		buf.put(bodyLengthBuf);
+		buf.put(body);
+		buf.flip();
+		return buf;
+	}
+	
+	/**
+	 * Gets the body length.
+	 *
+	 * @param body the body
+	 * @return the body length
+	 */
+	private static byte[] getBodyLength(byte[] body){
+		byte[] tmp = new byte[body.length / 7 + 1];
+		int length = body.length;
+		int i = 0;
+		while(length != 0){
+			tmp[i] = (byte)((length | 0x7F) | 0x80);
+			length = length >> 7;
+			i++;
+		}
+		i--;
+		tmp[i] = (byte)(tmp[i] | 0x7F);
+		byte[] bodyLengthBuf = new byte[i];
+		System.arraycopy(tmp, 0, bodyLengthBuf, 0, bodyLengthBuf.length);
+		return bodyLengthBuf;
 	}
 }

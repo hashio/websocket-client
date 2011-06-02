@@ -34,13 +34,18 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import jp.a840.websocket.WebSocketBase.State;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.FrameParser;
 import jp.a840.websocket.frame.draft06.BinaryFrame;
+import jp.a840.websocket.frame.draft06.ConnectionCloseFrame;
 import jp.a840.websocket.frame.draft06.FrameBuilderDraft06;
+import jp.a840.websocket.frame.draft06.FrameDraft06;
 import jp.a840.websocket.frame.draft06.FrameHeaderDraft06;
 import jp.a840.websocket.frame.draft06.TextFrame;
+import jp.a840.websocket.frame.draft76.CloseFrame;
+import jp.a840.websocket.handler.MaskFrameStreamHandler;
 import jp.a840.websocket.handler.StreamHandler;
 import jp.a840.websocket.handler.StreamHandlerAdapter;
 import jp.a840.websocket.handler.StreamHandlerChain;
@@ -74,9 +79,8 @@ public class WebSocketDraft06 extends WebSocketBase {
 	/** The server extentions. */
 	protected String[] serverExtentions;
 	
-	/** The random. */
-	private static Random random = new Random();
-	                 
+	volatile private boolean sendFrame;
+		                 
 	/**
 	 * Instantiates a new web socket draft06.
 	 *
@@ -107,27 +111,33 @@ public class WebSocketDraft06 extends WebSocketBase {
 	 */
 	@Override
 	protected void initializePipeline(WebSocketPipeline pipeline) throws WebSocketException {
-		pipeline.addStreamHandler(new StreamHandlerAdapter() {
-			
-			public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
-					Frame frame, StreamHandlerChain chain) throws WebSocketException {
-				ByteBuffer buf = ByteBuffer.allocate(4 + buffer.remaining()); // mask-key + header + body
-				buf.putInt(random.nextInt());
-				buf.put(buffer);
-				buf.flip();
-				
-				byte[] maskkey = new byte[4];
-				buf.get(maskkey, 0, 4);
-				int m = 0;
-				while(buf.hasRemaining()){
-					int position = buf.position();
-					buf.put((byte)(buf.get(position) ^ maskkey[m++ % 4]));
-				}
-				buf.flip();
-				chain.nextUpstreamHandler(ws, buf, frame);
-			}
-		});
+		pipeline.addStreamHandler(new MaskFrameStreamHandler());
 		super.initializePipeline(pipeline);
+		// Add base response handler
+		pipeline.addStreamHandler(new StreamHandlerAdapter() {
+			public void nextDownstreamHandler(WebSocket ws, ByteBuffer buffer,
+					Frame frame, StreamHandlerChain chain) throws WebSocketException {
+				if(frame instanceof ConnectionCloseFrame){
+					if(state == State.WAIT){
+						chain.reverse().nextUpstreamHandler(ws, null, frame);
+					}
+					transitionTo(State.CLOSED);
+				} else {
+					WebSocketDraft06.this.handler.onMessage(ws, frame);
+				}
+			}
+
+			public void nextHandshakeDownstreamHandler(WebSocket ws, ByteBuffer buffer,
+					StreamHandlerChain chain) throws WebSocketException {
+				// set response status
+				responseHeader = getHandshake().getResponseHeader();
+				responseStatus = getHandshake().getResponseStatus();
+				transitionTo(State.WAIT);
+				// HANDSHAKE -> WAIT
+				WebSocketDraft06.this.handler.onOpen(WebSocketDraft06.this);
+			}
+		});		
+
 	}
 	
 	/* (non-Javadoc)
@@ -279,6 +289,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 		}
 	}
 
+	
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.String)
 	 */
@@ -313,4 +324,9 @@ public class WebSocketDraft06 extends WebSocketBase {
 		extensions.remove(extension);
 	}
 
+	@Override
+	protected void closeWebSocket() throws WebSocketException {
+		pipeline.sendUpstream(this, null, new ConnectionCloseFrame());
+		transitionTo(State.CLOSING);
+	}
 }

@@ -23,6 +23,9 @@
  */
 package jp.a840.websocket.frame.draft06;
 
+import jp.a840.websocket.frame.FrameHeader;
+import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
+
 
 /**
  * The Class PingFrame.
@@ -37,8 +40,12 @@ public class PingFrame extends FrameDraft06 {
 	 * @param header the header
 	 * @param bodyData the body data
 	 */
-	public PingFrame(FrameHeaderDraft06 header, byte[] bodyData) {
+	protected PingFrame(FrameHeaderDraft06 header, byte[] bodyData) {
 		super(header, bodyData);
 	}
 
+	public PingFrame(){
+		FrameHeader header = FrameBuilderDraft06.createFrameHeader(null, false, Opcode.PING);
+		setHeader(header);
+	}
 }

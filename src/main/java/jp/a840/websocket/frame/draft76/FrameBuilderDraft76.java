@@ -101,7 +101,11 @@ public class FrameBuilderDraft76 {
 		if((byte)0x00 <= header.getFrameType() && header.getFrameType() <= (byte)0x7F){
 			return new TextFrame(header, bodyData);
 		}else if((byte)0x80 <= header.getFrameType() && header.getFrameType() <= (byte)0xFF){
-		    return new BinaryFrame(header, bodyData);
+			if(bodyData.length == 1 && bodyData[0] == 0x00){
+				return new CloseFrame(header, bodyData);
+			}else{
+				return new BinaryFrame(header, bodyData);
+			}
 		}else{
 			throw new IllegalStateException("Not found Opcode type! (" + header.getFrameType() + ")");
 		}

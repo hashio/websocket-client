@@ -71,18 +71,6 @@ abstract public class FrameDraft06 extends Frame {
 	/**
 	 * Instantiates a new frame draft06.
 	 *
-	 * @param bodyData the body data
-	 */
-	protected FrameDraft06(byte[] bodyData){
-		super();
-		FrameHeader header = FrameBuilderDraft06.createFrameHeader(bodyData, false, Opcode.BINARY_FRAME);
-		setHeader(header);
-		setBody(bodyData);
-	}
-
-	/**
-	 * Instantiates a new frame draft06.
-	 *
 	 * @param header the header
 	 * @param bodyData the body data
 	 */
@@ -95,31 +83,17 @@ abstract public class FrameDraft06 extends Frame {
 	 */
 	public ByteBuffer toByteBuffer(){
 		ByteBuffer headerBuffer = header.toByteBuffer();
-		ByteBuffer buf = ByteBuffer.allocate(headerBuffer.limit() + body.length); // mask-key + header + body
+		int bodyLength = 0;
+		if(body != null){
+			bodyLength = body.length;
+		}
+		ByteBuffer buf = ByteBuffer.allocate(headerBuffer.limit() + bodyLength); // mask-key + header + body
 		buf.put(headerBuffer);
-		buf.put(body);
+		if(body != null){
+			buf.put(body);			
+		}
 		buf.flip();
 		return buf;
-	}
-	
-	/**
-	 * Creates the binary frame.
-	 *
-	 * @param body the body
-	 * @return the binary frame
-	 */
-	public static BinaryFrame createBinaryFrame(byte[] body){
-		return new BinaryFrame(body);
-	}
-	
-	/**
-	 * Creates the text frame.
-	 *
-	 * @param str the str
-	 * @return the text frame
-	 */
-	public static TextFrame createTextFrame(String str){
-		return new TextFrame(str);
 	}
 	
 	/**

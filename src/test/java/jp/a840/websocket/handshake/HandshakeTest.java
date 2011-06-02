@@ -54,34 +54,9 @@ public class HandshakeTest {
 	@Test
 	public void handshake1() throws Exception {
 		String request = "Test Request";
-		SocketChannel socket = mock(SocketChannel.class);
-
-		when(socket.write(any(ByteBuffer.class))).thenReturn(request.length());
 		
 		TestHandshake handshake = new TestHandshake(request);
-		handshake.handshake(socket);
-		
-		verify(socket).write(ByteBuffer.wrap(request.getBytes()));
-	}
-
-	/**
-	 * Handshake error1.
-	 *
-	 * @throws Exception the exception
-	 */
-	@Test
-	public void handshakeError1() throws Exception {
-		String request = "Test Request";
-		SocketChannel socket = mock(SocketChannel.class);
-
-		when(socket.write(any(ByteBuffer.class))).thenThrow(new IOException());
-		
-		TestHandshake handshake = new TestHandshake(request);
-		try{
-			handshake.handshake(socket);
-		}catch(WebSocketException e){
-			Assert.assertEquals(3100, e.getStatusCode());
-		}
+		Assert.assertEquals(request.getBytes(), handshake.createHandshakeRequest().array());
 	}
 	
 	/**

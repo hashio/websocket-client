@@ -32,12 +32,16 @@ import java.nio.ByteBuffer;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import jp.a840.websocket.WebSocketBase.State;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.FrameParser;
 import jp.a840.websocket.frame.draft76.BinaryFrame;
+import jp.a840.websocket.frame.draft76.CloseFrame;
 import jp.a840.websocket.frame.draft76.FrameBuilderDraft76;
 import jp.a840.websocket.frame.draft76.TextFrame;
+import jp.a840.websocket.handler.StreamHandlerAdapter;
+import jp.a840.websocket.handler.StreamHandlerChain;
 import jp.a840.websocket.handler.WebSocketPipeline;
 import jp.a840.websocket.handshake.Handshake;
 import jp.a840.websocket.proxy.Proxy;
@@ -216,10 +220,6 @@ public class WebSocketDraft76 extends WebSocketBase {
 		};
 	}	
 
-
-	
-	
-
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.WebSocketBase#getWebSocketVersion()
 	 */
@@ -337,5 +337,32 @@ public class WebSocketDraft76 extends WebSocketBase {
 			}
 			
 		};
+	}
+
+	@Override
+	protected void initializePipeline(WebSocketPipeline pipeline)
+			throws WebSocketException {
+		super.initializePipeline(pipeline);
+		// Add base response handler
+		this.pipeline.addStreamHandler(new StreamHandlerAdapter() {
+			public void nextDownstreamHandler(WebSocket ws, ByteBuffer buffer,
+					Frame frame, StreamHandlerChain chain) throws WebSocketException {
+				if(frame instanceof CloseFrame){
+					WebSocketDraft76.this.handler.onClose(ws);
+				}else{
+					WebSocketDraft76.this.handler.onMessage(ws, frame);
+				}
+			}
+
+			public void nextHandshakeDownstreamHandler(WebSocket ws, ByteBuffer buffer,
+					StreamHandlerChain chain) throws WebSocketException {
+				// set response status
+				responseHeader = getHandshake().getResponseHeader();
+				responseStatus = getHandshake().getResponseStatus();
+				transitionTo(State.WAIT);
+				// HANDSHAKE -> WAIT
+				WebSocketDraft76.this.handler.onOpen(WebSocketDraft76.this);
+			}
+		});		
 	}
 }

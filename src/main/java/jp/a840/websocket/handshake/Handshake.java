@@ -148,21 +148,6 @@ public abstract class Handshake {
 	protected BufferManager bufferManager = new BufferManager();
 	
 	/**
-	 * Handshake.
-	 *
-	 * @param socket the socket
-	 * @throws WebSocketException the web socket exception
-	 */
-	public void handshake(SocketChannel socket) throws WebSocketException {
-		try {
-			ByteBuffer request = createHandshakeRequest();
-			socket.write(request);
-		} catch (IOException ioe) {
-			throw new WebSocketException(3100, ioe);
-		}
-	}
-
-	/**
 	 * Handshake response.
 	 *
 	 * @param downloadBuffer the download buffer

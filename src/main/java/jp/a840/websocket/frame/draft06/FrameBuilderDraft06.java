@@ -366,7 +366,10 @@ public class FrameBuilderDraft06 {
 	 * @return the frame header draft06
 	 */
 	public static FrameHeaderDraft06 createFrameHeader(byte[] body, boolean fragmented, Opcode opcode) {
-		int payloadLength = body.length;
+		int payloadLength = 0;
+		if(body != null){
+			payloadLength = body.length;
+		}
 		PayloadLengthType payloadLengthType = PayloadLengthType.valueOf(payloadLength);
 		return new FrameHeaderDraft06(false, 2, payloadLengthType, (int)payloadLength, opcode);
 	}

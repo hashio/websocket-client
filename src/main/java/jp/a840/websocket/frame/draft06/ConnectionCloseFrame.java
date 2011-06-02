@@ -23,6 +23,9 @@
  */
 package jp.a840.websocket.frame.draft06;
 
+import jp.a840.websocket.frame.FrameHeader;
+import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
+
 
 /**
  * The Class ConnectionCloseFrame.
@@ -41,4 +44,8 @@ public class ConnectionCloseFrame extends FrameDraft06 {
 		super(header, bodyData);
 	}
 
+	public ConnectionCloseFrame(){
+		FrameHeader header = FrameBuilderDraft06.createFrameHeader(null, false, Opcode.CONNECTION_CLOSE);
+		setHeader(header);
+	}
 }

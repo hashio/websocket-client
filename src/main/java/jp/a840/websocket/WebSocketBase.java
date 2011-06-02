@@ -38,9 +38,12 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -90,10 +93,10 @@ abstract public class WebSocketBase implements WebSocket {
 	protected Proxy proxy;
 	
 	/** connection timeout(second). */
-	private int connectionTimeout = 60 * 1000;
+	protected int connectionTimeout = 60 * 1000;
 
 	/** connection read timeout(second). */
-	private int connectionReadTimeout = 0;
+	protected int connectionReadTimeout = 0;
 	
 	/** blocking mode. */
 	private boolean blockingMode = true;
@@ -102,7 +105,7 @@ abstract public class WebSocketBase implements WebSocket {
 	private static int packetDumpMode;
 	
 	/** quit flag. */
-	private volatile boolean quit;
+	volatile protected boolean quit;
 
 	/** subprotocol name array. */
 	protected String[] protocols;
@@ -153,7 +156,7 @@ abstract public class WebSocketBase implements WebSocket {
 	protected int responseStatus;
 
 	/** The state. */
-	volatile private State state = State.CLOSED;
+	volatile protected State state = State.CLOSED;
 
 	/**
 	 * Instantiates a new web socket base.
@@ -245,35 +248,14 @@ abstract public class WebSocketBase implements WebSocket {
 			}
 		});
 		
-		// for debug
-		this.pipeline.addStreamHandler(new PacketDumpStreamHandler());
-
 		if(this.useSsl){
 			this.sslHandshake = new SSLHandshake(this.endpointAddress);
-			this.pipeline.addStreamHandler(new SSLStreamHandler(this.sslHandshake, this.bufferSize));
 			this.pipeline.addStreamHandler(new PacketDumpStreamHandler());
+			this.pipeline.addStreamHandler(new SSLStreamHandler(this.sslHandshake, this.bufferSize));
 		}
 		
 		// orverriding initilize method by subclass
 		initializePipeline(pipeline);
-		
-		// Add base response handler
-		this.pipeline.addStreamHandler(new StreamHandlerAdapter() {
-			public void nextDownstreamHandler(WebSocket ws, ByteBuffer buffer,
-					Frame frame, StreamHandlerChain chain) throws WebSocketException {
-				WebSocketBase.this.handler.onMessage(ws, frame);
-			}
-
-			public void nextHandshakeDownstreamHandler(WebSocket ws, ByteBuffer buffer,
-					StreamHandlerChain chain) throws WebSocketException {
-				// set response status
-				responseHeader = getHandshake().getResponseHeader();
-				responseStatus = getHandshake().getResponseStatus();
-				transitionTo(State.WAIT);
-				// HANDSHAKE -> WAIT
-				WebSocketBase.this.handler.onOpen(WebSocketBase.this);
-			}
-		});		
 	}
 	
 	/**
@@ -283,6 +265,8 @@ abstract public class WebSocketBase implements WebSocket {
 	 * @throws WebSocketException the web socket exception
 	 */
 	protected void initializePipeline(WebSocketPipeline pipeline) throws WebSocketException {
+		// for debug
+		this.pipeline.addStreamHandler(new PacketDumpStreamHandler());
 		this.pipeline.addStreamHandler(new WebSocketStreamHandler(getHandshake(), getFrameParser()));
 	}
 	
@@ -377,6 +361,8 @@ abstract public class WebSocketBase implements WebSocket {
 		HANDSHAKE, 
 		/** The WAIT. */
 		WAIT, 
+		/** The CLOSING. */
+		CLOSING,
 		/** The CLOSED. */
 		CLOSED;
 
@@ -386,7 +372,8 @@ abstract public class WebSocketBase implements WebSocket {
 		static {
 			stateMap.put(CONNECTED, EnumSet.of(State.HANDSHAKE, State.CLOSED));
 			stateMap.put(HANDSHAKE, EnumSet.of(State.WAIT, State.CLOSED));
-			stateMap.put(WAIT, EnumSet.of(State.WAIT, State.CLOSED));
+			stateMap.put(WAIT, EnumSet.of(State.WAIT, State.CLOSING, State.CLOSED));
+			stateMap.put(CLOSING, EnumSet.of(State.CLOSED));
 			stateMap.put(CLOSED, EnumSet.of(State.CONNECTED, State.CLOSED));
 		}
 
@@ -401,6 +388,16 @@ abstract public class WebSocketBase implements WebSocket {
 			if (set == null)
 				return false;
 			return set.contains(state);
+		}
+		
+		boolean isConnected(){
+			switch(this){
+			case CONNECTED:
+			case HANDSHAKE:
+			case WAIT:
+				return true;
+			}
+			return false;
 		}
 	}
 
@@ -509,6 +506,7 @@ abstract public class WebSocketBase implements WebSocket {
 //			socket.write(upstreamQueue.take());
 
 			transitionTo(State.HANDSHAKE);
+			final CountDownLatch latch = new CountDownLatch(1);
 
 			Runnable worker = new Runnable() {
 				public void run() {
@@ -528,21 +526,27 @@ abstract public class WebSocketBase implements WebSocket {
 									case HANDSHAKE: // CONNECTED -> HANDSHAKE
 										pipeline.sendHandshakeDownstream(WebSocketBase.this, downstreamBuffer);
 										if (getHandshake().isDone()){
-											if (downstreamBuffer.hasRemaining()) {
-												processBuffer(downstreamBuffer);
-											}
+											processBuffer(downstreamBuffer);
+											latch.countDown();
 										}
 										break;
 									case WAIT: // read frames
+									case CLOSING:
 										processBuffer(downstreamBuffer);
-										break;
-									case CLOSED:
 										break;
 									}
 								}
 							}
 							if(!upstreamQueue.isEmpty()){
-								socket.register(selector, OP_READ | OP_WRITE);
+								if(state != State.CLOSED){
+									socket.register(selector, OP_READ | OP_WRITE);
+								} else {
+									socket.register(selector, OP_WRITE);									
+								}
+							} else {
+								if(state == State.CLOSED){
+									quit = true;
+								}
 							}
 						}
 					} catch (WebSocketException we) {
@@ -551,7 +555,7 @@ abstract public class WebSocketBase implements WebSocket {
 						handler.onError(WebSocketBase.this,
 								new WebSocketException(3043, e));
 					} finally {
-						try {
+						try {							
 							socket.close();
 						} catch (IOException e) {
 							;
@@ -561,6 +565,8 @@ abstract public class WebSocketBase implements WebSocket {
 						} catch (IOException e) {
 							;
 						}
+						handler.onClose(WebSocketBase.this);
+						latch.countDown();
 					}
 				}
 			};
@@ -572,6 +578,7 @@ abstract public class WebSocketBase implements WebSocket {
 				ExecutorService executorService = Executors
 						.newCachedThreadPool();
 				executorService.submit(worker);
+				latch.await();
 			}
 
 		} catch (WebSocketException we) {
@@ -598,21 +605,31 @@ abstract public class WebSocketBase implements WebSocket {
 	 * @see jp.a840.websocket.WebSocket#isConnected()
 	 */
 	public boolean isConnected() {
-		return socket.isConnected();
+		return socket.isConnected() || state.isConnected();
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.WebSocket#close()
 	 */
 	public void close() {
 		try {
-			quit = true;
-			selector.wakeup();
-		} catch (Exception e) {
-			log.log(Level.WARNING, "Caught exception.", e);
-		} finally {
-			handler.onClose(this);
+			switch(state){
+			case WAIT:
+				closeWebSocket();
+				selector.wakeup();
+				break;
+			}
+		} catch (WebSocketException e) {
+			handler.onError(this, e);
 		}
+	}
+	
+	protected void quit(){
+		quit = true;
+	}
+	
+	protected void closeWebSocket() throws WebSocketException {
+		transitionTo(State.CLOSED);
 	}
 
 	/* (non-Javadoc)

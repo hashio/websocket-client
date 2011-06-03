@@ -32,7 +32,7 @@ import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
  *
  * @author Takahiro Hashimoto
  */
-public class ConnectionCloseFrame extends FrameDraft06 {
+public class CloseFrame extends FrameDraft06 {
 
 	/**
 	 * Instantiates a new connection close frame.
@@ -40,11 +40,11 @@ public class ConnectionCloseFrame extends FrameDraft06 {
 	 * @param header the header
 	 * @param bodyData the body data
 	 */
-	protected ConnectionCloseFrame(FrameHeaderDraft06 header, byte[] bodyData) {
+	protected CloseFrame(FrameHeaderDraft06 header, byte[] bodyData) {
 		super(header, bodyData);
 	}
 
-	public ConnectionCloseFrame(){
+	public CloseFrame(){
 		FrameHeader header = FrameBuilderDraft06.createFrameHeader(null, false, Opcode.CONNECTION_CLOSE);
 		setHeader(header);
 	}

@@ -29,24 +29,19 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import jp.a840.websocket.WebSocketBase.State;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.FrameParser;
 import jp.a840.websocket.frame.draft06.BinaryFrame;
-import jp.a840.websocket.frame.draft06.ConnectionCloseFrame;
+import jp.a840.websocket.frame.draft06.CloseFrame;
 import jp.a840.websocket.frame.draft06.FrameBuilderDraft06;
-import jp.a840.websocket.frame.draft06.FrameDraft06;
 import jp.a840.websocket.frame.draft06.FrameHeaderDraft06;
 import jp.a840.websocket.frame.draft06.TextFrame;
-import jp.a840.websocket.frame.draft76.CloseFrame;
 import jp.a840.websocket.handler.MaskFrameStreamHandler;
-import jp.a840.websocket.handler.StreamHandler;
 import jp.a840.websocket.handler.StreamHandlerAdapter;
 import jp.a840.websocket.handler.StreamHandlerChain;
 import jp.a840.websocket.handler.WebSocketPipeline;
@@ -117,7 +112,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 		pipeline.addStreamHandler(new StreamHandlerAdapter() {
 			public void nextDownstreamHandler(WebSocket ws, ByteBuffer buffer,
 					Frame frame, StreamHandlerChain chain) throws WebSocketException {
-				if(frame instanceof ConnectionCloseFrame){
+				if(frame instanceof CloseFrame){
 					if(state == State.WAIT){
 						chain.reverse().nextUpstreamHandler(ws, null, frame);
 					}
@@ -326,7 +321,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 
 	@Override
 	protected void closeWebSocket() throws WebSocketException {
-		pipeline.sendUpstream(this, null, new ConnectionCloseFrame());
+		pipeline.sendUpstream(this, null, new CloseFrame());
 		transitionTo(State.CLOSING);
 	}
 }

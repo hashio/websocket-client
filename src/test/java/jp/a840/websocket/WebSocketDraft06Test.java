@@ -32,9 +32,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Random;
 
-import jp.a840.websocket.frame.draft06.ConnectionCloseFrame;
+import jp.a840.websocket.frame.draft06.CloseFrame;
 import jp.a840.websocket.handler.MaskFrameStreamHandler;
-import jp.a840.websocket.handler.PacketDumpStreamHandler;
 import jp.a840.websocket.util.PacketDumpUtil;
 
 import org.junit.Assert;
@@ -95,10 +94,10 @@ public class WebSocketDraft06Test extends TestCase {
 				expected.put((byte)(request.get(0) ^ 0x81));
 				expected.put((byte)(request.get(1) ^ 0x00));
 				expected.flip();
-				Assert.assertEquals("Not equals close frame.", expected, request.slice());
+				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
 		});
-		ms.addConnectionClose(new ConnectionCloseFrame().toByteBuffer());
+		ms.addConnectionClose(new CloseFrame().toByteBuffer());
 
 		ms.start();
 		

@@ -387,7 +387,7 @@ public class FrameBuilderDraft06 {
 			opcode = header.getOpcode();
 		}
 		switch(opcode){
-		case CONNECTION_CLOSE: return new ConnectionCloseFrame(header, bodyData);
+		case CONNECTION_CLOSE: return new CloseFrame(header, bodyData);
 		case PING:             return new PingFrame(header, bodyData);
 		case PONG:             return new PongFrame(header, bodyData);
 		case TEXT_FRAME:       return new TextFrame(header, bodyData);

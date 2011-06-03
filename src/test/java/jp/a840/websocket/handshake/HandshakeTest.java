@@ -56,7 +56,7 @@ public class HandshakeTest {
 		String request = "Test Request";
 		
 		TestHandshake handshake = new TestHandshake(request);
-		Assert.assertEquals(request.getBytes(), handshake.createHandshakeRequest().array());
+		Assert.assertArrayEquals(request.getBytes(), handshake.createHandshakeRequest().array());
 	}
 	
 	/**

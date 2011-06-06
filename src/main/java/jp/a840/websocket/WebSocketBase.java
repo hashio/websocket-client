@@ -158,6 +158,15 @@ abstract public class WebSocketBase implements WebSocket {
 	/** The state. */
 	volatile protected State state = State.CLOSED;
 
+	/** The close latch. */
+	protected CountDownLatch closeLatch;
+    
+	/** The handshake latch. */
+	protected CountDownLatch handshakeLatch;
+	
+	/** worker. */
+	protected ExecutorService executorService;
+
 	/**
 	 * Instantiates a new web socket base.
 	 *
@@ -390,6 +399,11 @@ abstract public class WebSocketBase implements WebSocket {
 			return set.contains(state);
 		}
 		
+		/**
+		 * Checks if is connected.
+		 *
+		 * @return true, if is connected
+		 */
 		boolean isConnected(){
 			switch(this){
 			case CONNECTED:
@@ -464,11 +478,20 @@ abstract public class WebSocketBase implements WebSocket {
 	 */
 	public void connect() throws WebSocketException {
 		try {
+			// check connection status
+			if (isConnected()){
+				throw new WebSocketException(3039, "Already connected");
+			}
+			
 			if (!state.canTransitionTo(State.CONNECTED)) {
 				throw new WebSocketException(3040,
 						"Can't transit state to CONNECTED. current state="
 								+ state);
 			}
+			
+			// initialize connection
+			handshakeLatch = new CountDownLatch(1);
+			closeLatch = new CountDownLatch(1);
 			
 			ProxyHandshake proxyHandshake = null;
 			if(proxy != null){
@@ -485,6 +508,8 @@ abstract public class WebSocketBase implements WebSocket {
 			if(proxyHandshake != null){
 				remoteAddress = proxyHandshake.getProxyAddress();
 			}
+			
+			// start connect to remote address
 			if (socket.connect(remoteAddress)) {
 				throw new WebSocketException(3041, "Already connected");
 			}
@@ -493,7 +518,8 @@ abstract public class WebSocketBase implements WebSocket {
 					throw new WebSocketException(3042, "Connection Timeout");
 				}
 			}
-
+			// connect done
+			// try handshakes			
 			transitionTo(State.CONNECTED);
 			if(proxyHandshake != null){
 				proxyHandshake.doHandshake(socket);
@@ -506,7 +532,6 @@ abstract public class WebSocketBase implements WebSocket {
 //			socket.write(upstreamQueue.take());
 
 			transitionTo(State.HANDSHAKE);
-			final CountDownLatch latch = new CountDownLatch(1);
 
 			Runnable worker = new Runnable() {
 				public void run() {
@@ -527,7 +552,7 @@ abstract public class WebSocketBase implements WebSocket {
 										pipeline.sendHandshakeDownstream(WebSocketBase.this, downstreamBuffer);
 										if (getHandshake().isDone()){
 											processBuffer(downstreamBuffer);
-											latch.countDown();
+											handshakeLatch.countDown();
 										}
 										break;
 									case WAIT: // read frames
@@ -566,7 +591,9 @@ abstract public class WebSocketBase implements WebSocket {
 							;
 						}
 						handler.onClose(WebSocketBase.this);
-						latch.countDown();
+						handshakeLatch.countDown();
+						closeLatch.countDown();
+						executorService.shutdown();
 					}
 				}
 			};
@@ -575,10 +602,11 @@ abstract public class WebSocketBase implements WebSocket {
 			if (blockingMode) {
 				worker.run();
 			} else {
-				ExecutorService executorService = Executors
-						.newCachedThreadPool();
+				executorService = Executors
+						.newSingleThreadExecutor();
 				executorService.submit(worker);
-				latch.await();
+				executorService.shutdown();
+				handshakeLatch.await();
 			}
 
 		} catch (WebSocketException we) {
@@ -605,7 +633,7 @@ abstract public class WebSocketBase implements WebSocket {
 	 * @see jp.a840.websocket.WebSocket#isConnected()
 	 */
 	public boolean isConnected() {
-		return socket.isConnected() || state.isConnected();
+		return state.isConnected();
 	}
 	
 	/* (non-Javadoc)
@@ -613,21 +641,57 @@ abstract public class WebSocketBase implements WebSocket {
 	 */
 	public void close() {
 		try {
-			switch(state){
-			case WAIT:
+			if(state == State.WAIT){
 				closeWebSocket();
 				selector.wakeup();
-				break;
+//				if(state == State.CLOSING){
+					try{
+						closeLatch.await(30, TimeUnit.SECONDS);
+					}catch(InterruptedException e){
+						;
+					}
+//				}
+				if(executorService != null){
+					try{
+						executorService.shutdown();
+						executorService.awaitTermination(30, TimeUnit.SECONDS);
+					} catch(InterruptedException e){
+						;
+					} finally {
+						executorService = null;
+					}
+				}
 			}
 		} catch (WebSocketException e) {
 			handler.onError(this, e);
 		}
 	}
 	
+	/**
+	 * Await termination.
+	 *
+	 * @param timeout the timeout
+	 * @param unit the unit
+	 * @throws InterruptedException the interrupted exception
+	 */
+	public void awaitTermination(int timeout, TimeUnit unit) throws InterruptedException {
+		if(executorService != null){
+			executorService.awaitTermination(timeout, unit);
+		}
+	}
+	
+	/**
+	 * Quit.
+	 */
 	protected void quit(){
 		quit = true;
 	}
 	
+	/**
+	 * Close web socket.
+	 *
+	 * @throws WebSocketException the web socket exception
+	 */
 	protected void closeWebSocket() throws WebSocketException {
 		transitionTo(State.CLOSED);
 	}

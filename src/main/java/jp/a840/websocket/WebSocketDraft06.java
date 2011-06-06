@@ -74,8 +74,9 @@ public class WebSocketDraft06 extends WebSocketBase {
 	/** The server extentions. */
 	protected String[] serverExtentions;
 	
+	/** The send frame. */
 	volatile private boolean sendFrame;
-		                 
+
 	/**
 	 * Instantiates a new web socket draft06.
 	 *
@@ -114,9 +115,10 @@ public class WebSocketDraft06 extends WebSocketBase {
 					Frame frame, StreamHandlerChain chain) throws WebSocketException {
 				if(frame instanceof CloseFrame){
 					if(state == State.WAIT){
-						chain.reverse().nextUpstreamHandler(ws, null, frame);
+						chain.nextUpstreamHandler(ws, null, frame);
 					}
 					transitionTo(State.CLOSED);
+					closeLatch.countDown();
 				} else {
 					WebSocketDraft06.this.handler.onMessage(ws, frame);
 				}
@@ -319,9 +321,13 @@ public class WebSocketDraft06 extends WebSocketBase {
 		extensions.remove(extension);
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#closeWebSocket()
+	 */
 	@Override
 	protected void closeWebSocket() throws WebSocketException {
 		pipeline.sendUpstream(this, null, new CloseFrame());
 		transitionTo(State.CLOSING);
 	}
+
 }

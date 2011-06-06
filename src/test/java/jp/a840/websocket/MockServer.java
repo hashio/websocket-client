@@ -23,24 +23,23 @@
  */
 package jp.a840.websocket;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import static java.nio.channels.SelectionKey.OP_READ;
+import static java.nio.channels.SelectionKey.OP_WRITE;
+
+import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channel;
-import static java.nio.channels.SelectionKey.*;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Exchanger;
 
-import javax.net.ServerSocketFactory;
-
 import jp.a840.websocket.util.PacketDumpUtil;
+
+import org.junit.Assert;
 
 /**
  * The Class MockServer.
@@ -58,13 +57,21 @@ public class MockServer extends Thread {
 	/** The exchanger. */
 	private Exchanger<Throwable> exchanger = new Exchanger<Throwable>();
 
+	/** The start latch. */
+	private CountDownLatch startLatch;
+	
+	/** The mask. */
+	private boolean mask;
+	
 	/**
 	 * Instantiates a new mock server.
 	 *
 	 * @param port the port
+	 * @param mask the mask
 	 */
-	public MockServer(int port) {
+	public MockServer(int port, boolean mask) {
 		this.port = port;
+		this.mask = mask;
 		
 		this.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			public void uncaughtException(Thread t, Throwable e) {
@@ -95,12 +102,18 @@ public class MockServer extends Thread {
 	 * @see java.lang.Thread#run()
 	 */
 	public void run() {
+		ServerSocketChannel serverSocketChannel = null;
+		SocketChannel socket = null;
 		try {
-			ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+			serverSocketChannel = ServerSocketChannel.open();
 			serverSocketChannel.socket().bind(new InetSocketAddress(this.port));
-			SocketChannel socket = serverSocketChannel.accept();
+			// start listening
+			startLatch.countDown();
+			socket = serverSocketChannel.accept();
 			socket.configureBlocking(false);
 			Selector selector = Selector.open();
+			
+
 			int requestCount = 1;
 			int responseCount = 1;
 			for (Scenario scenario : scenarioList) {
@@ -141,6 +154,21 @@ public class MockServer extends Thread {
 			}catch(InterruptedException e){
 				;
 			}
+		} finally {
+			try{
+				if(socket != null){
+					socket.close();
+				}
+			}catch(IOException e){
+				e.printStackTrace();
+			}
+			try{
+				if(serverSocketChannel != null){
+					serverSocketChannel.close();
+				}
+			}catch(IOException e){
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -176,12 +204,30 @@ public class MockServer extends Thread {
 	 * @param verifyRequest the verify request
 	 */
 	public void addRequest(VerifyRequest verifyRequest) {
+		addRequest(verifyRequest, this.mask);
+	}
+	
+	/**
+	 * Adds the request.
+	 *
+	 * @param verifyRequest the verify request
+	 * @param mask the mask
+	 */
+	public void addRequest(VerifyRequest verifyRequest, boolean mask) {
 		Scenario scenario = new Scenario(ScenarioType.WRITE);
+		if(mask){
+			verifyRequest = new VerifyUnmaskRequest(verifyRequest);
+		}
 		scenario.setVerifyRequest(verifyRequest);
 		scenarioList.add(scenario);
 	}
 	
-	public void addConnectionClose(ByteBuffer response) {
+	/**
+	 * Adds the close.
+	 *
+	 * @param response the response
+	 */
+	public void addClose(ByteBuffer response) {
 		Scenario scenario = new Scenario(ScenarioType.CLOSE);
 		scenario.setResponse(response);
 		scenarioList.add(scenario);
@@ -203,13 +249,60 @@ public class MockServer extends Thread {
 	}
 	
 	/**
+	 * The Class VerifyUnmaskRequest.
+	 *
+	 * @author Takahiro Hashimoto
+	 */
+	public class VerifyUnmaskRequest implements VerifyRequest {
+		
+		/** The delegate. */
+		private VerifyRequest delegate;
+		
+		/**
+		 * Instantiates a new verify unmask request.
+		 *
+		 * @param vr the vr
+		 */
+		public VerifyUnmaskRequest(VerifyRequest vr){
+			delegate = vr;
+		}
+		
+		/* (non-Javadoc)
+		 * @see jp.a840.websocket.MockServer.VerifyRequest#verify(java.nio.ByteBuffer)
+		 */
+		public void verify(ByteBuffer request){
+			ByteBuffer unmaskedBuffer = ByteBuffer.allocate(request.remaining() - 4);
+			byte[] seed = new byte[4];
+			request.get(seed);
+			
+			int c = 0;
+			while(unmaskedBuffer.hasRemaining()){
+				unmaskedBuffer.put((byte)(request.get() ^ seed[c]));
+				c++;
+				if(c >= seed.length){
+					c = 0;
+				}
+			}
+			unmaskedBuffer.flip();
+			delegate.verify(unmaskedBuffer);
+		}
+	}
+	
+	/**
 	 * The Class Scenario.
 	 *
 	 * @author Takahiro Hashimoto
 	 */
 	public class Scenario {
+		
+		/** The scenario type_. */
 		private ScenarioType scenarioType_;
 
+		/**
+		 * Instantiates a new scenario.
+		 *
+		 * @param scenarioType the scenario type
+		 */
 		public Scenario(ScenarioType scenarioType){
 			scenarioType_ = scenarioType;
 		}
@@ -264,6 +357,20 @@ public class MockServer extends Thread {
 		 */
 		public ScenarioType getScenarioType() {
 			return scenarioType_;
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Thread#start()
+	 */
+	@Override
+	public synchronized void start() {
+		startLatch = new CountDownLatch(1);
+		super.start();
+		try{
+			startLatch.await();
+		}catch(InterruptedException e){
+			Assert.fail(e.getMessage());
 		}
 	}
 }

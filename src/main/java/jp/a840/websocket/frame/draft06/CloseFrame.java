@@ -44,6 +44,9 @@ public class CloseFrame extends FrameDraft06 {
 		super(header, bodyData);
 	}
 
+	/**
+	 * Instantiates a new close frame.
+	 */
 	public CloseFrame(){
 		FrameHeader header = FrameBuilderDraft06.createFrameHeader(null, false, Opcode.CONNECTION_CLOSE);
 		setHeader(header);

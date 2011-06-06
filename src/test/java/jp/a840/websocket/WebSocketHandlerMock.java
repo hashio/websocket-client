@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jp.a840.websocket.frame.Frame;
+import jp.a840.websocket.util.PacketDumpUtil;
 
 
 /**
@@ -65,6 +66,8 @@ public class WebSocketHandlerMock implements WebSocketHandler {
 		List<Object> args = new ArrayList<Object>();
 		args.add(socket);
 		args.add(frame);
+		
+		PacketDumpUtil.printPacketDump("frame", frame.getRawBody());
 
 		onMessageList.add(args);
 	}

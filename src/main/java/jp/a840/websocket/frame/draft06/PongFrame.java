@@ -43,6 +43,9 @@ public class PongFrame extends FrameDraft06 {
 		super(header, bodyData);
 	}
 
+	/**
+	 * Instantiates a new pong frame.
+	 */
 	public PongFrame(){
 		FrameHeader header = FrameBuilderDraft06.createFrameHeader(null, false, Opcode.PONG);
 		setHeader(header);

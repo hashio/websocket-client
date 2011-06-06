@@ -32,24 +32,42 @@ import jp.a840.websocket.frame.Frame;
  */
 public class WebSocketHandlerWrapper implements WebSocketHandler {
 
+	/** The handler_. */
 	private WebSocketHandler handler_;
 	
+	/**
+	 * Instantiates a new web socket handler wrapper.
+	 *
+	 * @param handler the handler
+	 */
 	public WebSocketHandlerWrapper(WebSocketHandler handler){
 		handler_ = handler;
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketHandler#onOpen(jp.a840.websocket.WebSocket)
+	 */
 	public void onOpen(WebSocket socket) {
 		handler_.onOpen(socket);
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketHandler#onMessage(jp.a840.websocket.WebSocket, jp.a840.websocket.frame.Frame)
+	 */
 	public void onMessage(WebSocket socket, Frame frame) {
 		handler_.onMessage(socket, frame);
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketHandler#onError(jp.a840.websocket.WebSocket, jp.a840.websocket.WebSocketException)
+	 */
 	public void onError(WebSocket socket, WebSocketException e) {
 		handler_.onError(socket, e);
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketHandler#onClose(jp.a840.websocket.WebSocket)
+	 */
 	public void onClose(WebSocket socket) {
 		handler_.onClose(socket);
 	}	

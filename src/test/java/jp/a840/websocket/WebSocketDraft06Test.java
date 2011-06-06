@@ -30,16 +30,18 @@ import static org.mockito.Mockito.when;
 
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import jp.a840.websocket.frame.draft06.BinaryFrame;
 import jp.a840.websocket.frame.draft06.CloseFrame;
-import jp.a840.websocket.handler.MaskFrameStreamHandler;
+import jp.a840.websocket.frame.draft06.TextFrame;
 import jp.a840.websocket.util.PacketDumpUtil;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -55,25 +57,42 @@ import util.Base64;
 @PrepareForTest(Base64.class)
 public class WebSocketDraft06Test extends TestCase {
 	
+	/** The ms. */
+	MockServer ms;
+
 	/**
-	 * Connect.
+	 * Start mock server.
+	 */
+	@Before
+	public void startMockServer(){
+		ms = new MockServer(9999, true);			
+	}
+	
+	/**
+	 * Stop mock server.
 	 *
 	 * @throws Exception the exception
 	 */
+	@After
+	public void stopMockServer() throws Exception {
+		ms.join(100000);
+		Assert.assertFalse(ms.isAlive());
+	}
+	
+	/**
+	 * Connect.
+	 * connect -> handshake req -> handshake res -> close req -> close res -> terminate
+	 * @throws Exception the exception
+	 */
 	@Test
-	public void connect() throws Exception {
+	public void connect1() throws Exception {
 		System.setProperty("websocket.packatdump", String.valueOf(
 			PacketDumpUtil.ALL
 		));
 
-		Mockito.mock(MaskFrameStreamHandler.class);
-		
 		PowerMockito.mockStatic(Base64.class);
 		when(Base64.encodeToString(any(byte[].class), anyBoolean())).thenReturn("TESTKEY");
-		
-		PowerMockito.mockStatic(Random.class);
-		
-		MockServer ms = new MockServer(9999);
+				
 		// handshake request
 		ms.addRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
@@ -89,15 +108,15 @@ public class WebSocketDraft06Test extends TestCase {
 		// send close frame
 		ms.addRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
-				ByteBuffer expected = ByteBuffer.allocate(6);
-				expected.put(request.slice().array(), 0, 4);
-				expected.put((byte)(request.get(0) ^ 0x81));
-				expected.put((byte)(request.get(1) ^ 0x00));
+				ByteBuffer expected = ByteBuffer.allocate(2);
+				expected.put((byte)(0x81));
+				expected.put((byte)(0x00));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
 		});
-		ms.addConnectionClose(new CloseFrame().toByteBuffer());
+		ms.addResponse(new CloseFrame().toByteBuffer());
+		ms.addClose(null);
 
 		ms.start();
 		
@@ -121,8 +140,305 @@ public class WebSocketDraft06Test extends TestCase {
 		Assert.assertEquals(1, handler.getOnOpenList().size());
 		Assert.assertEquals(0, handler.getOnMessageList().size());
 		Assert.assertEquals(0, handler.getOnErrorList().size());
+		Assert.assertEquals(1, handler.getOnCloseList().size());
 	}
 	
+	/**
+	 * Connect.
+	 * connect -> handshake req -> handshake res -> frame response -> close req -> close res -> terminate
+	 * @throws Exception the exception
+	 */
+	@Test
+	public void connect2() throws Exception {
+		System.setProperty("websocket.packatdump", String.valueOf(
+			PacketDumpUtil.ALL
+		));
+
+//		PowerMockito.mockStatic(Base64.class);
+//		when(Base64.encodeToString(any(byte[].class), anyBoolean())).thenReturn("TESTKEY");
+				
+		// handshake request
+		ms.addRequest(new MockServer.VerifyRequest() {
+			public void verify(ByteBuffer request) {
+			}
+		});
+		// handshake response
+		ms.addResponse(toByteBuffer(
+				"HTTP/1.1 101 Switching Protocols\r\n" +
+				"Upgrade: websocket\r\n" +
+				"Connection: Upgrade\r\n" +
+				"Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n" +
+				"Sec-WebSocket-Protocol: chat\r\n\r\n"));
+		ms.addResponse(new TextFrame("TEST FRAMEテストフレーム").toByteBuffer());
+		// send close frame
+		ms.addRequest(new MockServer.VerifyRequest() {
+			public void verify(ByteBuffer request) {
+				ByteBuffer expected = ByteBuffer.allocate(2);
+				expected.put((byte)(0x81));
+				expected.put((byte)(0x00));
+				expected.flip();
+				Assert.assertEquals("Not equal close frame.", expected, request.slice());
+			}
+		});
+		ms.addClose(new CloseFrame().toByteBuffer());
+
+		ms.start();
+		
+		WebSocketHandlerMock handler = new WebSocketHandlerMock();
+		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler, null);
+		ws.setBlockingMode(false);
+		ws.connect();
+		ws.close();
+
+		if(!handler.getOnErrorList().isEmpty()){
+			for(List l : handler.getOnErrorList()){
+				((WebSocketException)l.get(1)).printStackTrace();
+			}
+			Assert.fail();
+		}
+		Throwable t = ms.getThrowable();
+		if(t != null){
+			t.printStackTrace();
+			Assert.fail(t.getMessage());
+		}
+		Assert.assertEquals(1, handler.getOnOpenList().size());
+		Assert.assertEquals(1, handler.getOnMessageList().size());
+		Assert.assertEquals(handler.getOnMessageList().get(0).get(1).toString(), "TEST FRAMEテストフレーム");
+		Assert.assertEquals(0, handler.getOnErrorList().size());
+		Assert.assertEquals(1, handler.getOnCloseList().size());
+	}
+	
+	/**
+	 * Connect.
+	 * connect -> handshake req -> handshake res -> close res -> close req -> terminate
+	 * @throws Exception the exception
+	 */
+	@Test
+	public void connect3() throws Exception {
+		System.setProperty("websocket.packatdump", String.valueOf(
+			PacketDumpUtil.ALL
+		));
+
+		PowerMockito.mockStatic(Base64.class);
+		when(Base64.encodeToString(any(byte[].class), anyBoolean())).thenReturn("TESTKEY");
+				
+		// handshake request
+		ms.addRequest(new MockServer.VerifyRequest() {
+			public void verify(ByteBuffer request) {
+			}
+		});
+		// handshake response
+		ms.addResponse(toByteBuffer(
+				"HTTP/1.1 101 Switching Protocols\r\n" +
+				"Upgrade: websocket\r\n" +
+				"Connection: Upgrade\r\n" +
+				"Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n" +
+				"Sec-WebSocket-Protocol: chat\r\n\r\n"));
+		// close frame response
+		ms.addResponse(new CloseFrame().toByteBuffer());		
+		// reply close frame request
+		ms.addRequest(new MockServer.VerifyRequest() {
+			public void verify(ByteBuffer request) {
+				ByteBuffer expected = ByteBuffer.allocate(2);
+				expected.put((byte)(0x81));
+				expected.put((byte)(0x00));
+				expected.flip();
+				Assert.assertEquals("Not equal close frame.", expected, request.slice());
+			}
+		});
+		// close frame response
+		ms.addClose(null);
+
+		ms.start();
+		
+		WebSocketHandlerMock handler = new WebSocketHandlerMock();
+		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler, null);
+		ws.setBlockingMode(false);
+		ws.connect();
+		ws.awaitTermination(5, TimeUnit.SECONDS);
+
+		if(!handler.getOnErrorList().isEmpty()){
+			for(List l : handler.getOnErrorList()){
+				((WebSocketException)l.get(1)).printStackTrace();
+			}
+			Assert.fail();
+		}
+		Throwable t = ms.getThrowable();
+		if(t != null){
+			t.printStackTrace();
+			Assert.fail(t.getMessage());
+		}
+		Assert.assertEquals(1, handler.getOnOpenList().size());
+		Assert.assertEquals(0, handler.getOnMessageList().size());
+		Assert.assertEquals(0, handler.getOnErrorList().size());
+		Assert.assertEquals(1, handler.getOnCloseList().size());
+	}
+	
+	/**
+	 * Connect.
+	 * connect -> handshake req -> handshake res -> frame req -> frame res -> close res -> close req -> terminate
+	 * @throws Exception the exception
+	 */
+	@Test
+	public void connect4() throws Exception {
+		System.setProperty("websocket.packatdump", String.valueOf(
+			PacketDumpUtil.ALL
+		));
+
+		PowerMockito.mockStatic(Base64.class);
+		when(Base64.encodeToString(any(byte[].class), anyBoolean())).thenReturn("TESTKEY");
+				
+		// handshake request
+		ms.addRequest(new MockServer.VerifyRequest() {
+			public void verify(ByteBuffer request) {
+			}
+		}, true);
+		// handshake response
+		ms.addResponse(toByteBuffer(
+				"HTTP/1.1 101 Switching Protocols\r\n" +
+				"Upgrade: websocket\r\n" +
+				"Connection: Upgrade\r\n" +
+				"Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n" +
+				"Sec-WebSocket-Protocol: chat\r\n\r\n"));
+		// binary frame request
+		final BinaryFrame testRequestFrame = new BinaryFrame("TEST FRAME".getBytes());
+		ms.addRequest(new MockServer.VerifyRequest() {
+			public void verify(ByteBuffer request) {
+				Assert.assertEquals(testRequestFrame.toByteBuffer().slice(), request.slice());
+			}
+		});
+		// binary frame response
+		BinaryFrame testResponseFrame = new BinaryFrame("TEST FRAME-RES".getBytes());
+		CloseFrame closeFrame = new CloseFrame();
+		int size = testResponseFrame.toByteBuffer().remaining();
+		size += closeFrame.toByteBuffer().remaining();
+		ByteBuffer buf = ByteBuffer.allocate(size);
+		
+		buf.put(testResponseFrame.toByteBuffer());
+		buf.put(closeFrame.toByteBuffer());
+		buf.flip();
+		// binary frame and close frame response
+		ms.addResponse(buf);
+		
+		// reply close frame request
+		ms.addRequest(new MockServer.VerifyRequest() {
+			public void verify(ByteBuffer request) {
+				ByteBuffer expected = ByteBuffer.allocate(2);
+				expected.put((byte)(0x81));
+				expected.put((byte)(request.get(1) ^ 0x00));
+				expected.flip();
+				Assert.assertEquals("Not equal close frame.", expected, request.slice());
+			}
+		});
+		// close frame response
+		ms.addClose(null);
+
+		ms.start();
+		
+		WebSocketHandlerMock handler = new WebSocketHandlerMock();
+		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler, null);
+		ws.setBlockingMode(false);
+		ws.connect();
+		ws.send(testRequestFrame);
+		ws.awaitTermination(5, TimeUnit.SECONDS);
+		if(!handler.getOnErrorList().isEmpty()){
+			for(List l : handler.getOnErrorList()){
+				((WebSocketException)l.get(1)).printStackTrace();
+			}
+			Assert.fail();
+		}
+		Throwable t = ms.getThrowable();
+		if(t != null){
+			t.printStackTrace();
+			Assert.fail(t.getMessage());
+		}
+		Assert.assertEquals(1, handler.getOnOpenList().size());
+		Assert.assertEquals(1, handler.getOnMessageList().size());
+		Assert.assertArrayEquals("TEST FRAME-RES".getBytes(), ((BinaryFrame)handler.getOnMessageList().get(0).get(1)).getRawBody().array());
+		Assert.assertEquals(0, handler.getOnErrorList().size());
+		Assert.assertEquals(1, handler.getOnCloseList().size());
+		
+	}
+	
+	/**
+	 * Connect.
+	 * connect -> handshake req -> handshake res -> frame req -> frame res -> close res -> close req -> terminate
+	 * @throws Exception the exception
+	 */
+	@Test
+	public void connect5() throws Exception {
+		System.setProperty("websocket.packatdump", String.valueOf(
+			PacketDumpUtil.ALL
+		));
+
+		PowerMockito.mockStatic(Base64.class);
+		when(Base64.encodeToString(any(byte[].class), anyBoolean())).thenReturn("TESTKEY");
+				
+		// handshake request
+		ms.addRequest(new MockServer.VerifyRequest() {
+			public void verify(ByteBuffer request) {
+			}
+		}, true);
+		// handshake response
+		ms.addResponse(toByteBuffer(
+				"HTTP/1.1 101 Switching Protocols\r\n" +
+				"Upgrade: websocket\r\n" +
+				"Connection: Upgrade\r\n" +
+				"Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n" +
+				"Sec-WebSocket-Protocol: chat\r\n\r\n"));
+		// binary frame request
+		final BinaryFrame testRequestFrame = new BinaryFrame("TEST FRAME".getBytes());
+		ms.addRequest(new MockServer.VerifyRequest() {
+			public void verify(ByteBuffer request) {
+				Assert.assertEquals(testRequestFrame.toByteBuffer().slice(), request.slice());
+			}
+		});
+		// binary frame response
+		BinaryFrame testResponseFrame = new BinaryFrame("TEST FRAME-RES".getBytes());
+		ms.addResponse(testResponseFrame.toByteBuffer());
+		// close frame response
+		ms.addResponse(new CloseFrame().toByteBuffer());
+		
+		// reply close frame request
+		ms.addRequest(new MockServer.VerifyRequest() {
+			public void verify(ByteBuffer request) {
+				ByteBuffer expected = ByteBuffer.allocate(2);
+				expected.put((byte)(0x81));
+				expected.put((byte)(request.get(1) ^ 0x00));
+				expected.flip();
+				Assert.assertEquals("Not equal close frame.", expected, request.slice());
+			}
+		});
+		// close frame response
+		ms.addClose(null);
+
+		ms.start();
+		
+		WebSocketHandlerMock handler = new WebSocketHandlerMock();
+		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler, null);
+		ws.setBlockingMode(false);
+		ws.connect();
+		ws.send(testRequestFrame);
+		ws.awaitTermination(5, TimeUnit.SECONDS);
+		if(!handler.getOnErrorList().isEmpty()){
+			for(List l : handler.getOnErrorList()){
+				((WebSocketException)l.get(1)).printStackTrace();
+			}
+			Assert.fail();
+		}
+		Throwable t = ms.getThrowable();
+		if(t != null){
+			t.printStackTrace();
+			Assert.fail(t.getMessage());
+		}
+		Assert.assertEquals(1, handler.getOnOpenList().size());
+		Assert.assertEquals(1, handler.getOnMessageList().size());
+		Assert.assertArrayEquals("TEST FRAME-RES".getBytes(), ((BinaryFrame)handler.getOnMessageList().get(0).get(1)).getRawBody().array());
+		Assert.assertEquals(0, handler.getOnErrorList().size());
+		Assert.assertEquals(1, handler.getOnCloseList().size());
+		
+	}
+
 	/**
 	 * To byte buffer.
 	 *

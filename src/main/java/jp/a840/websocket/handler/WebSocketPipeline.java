@@ -24,8 +24,6 @@
 package jp.a840.websocket.handler;
 
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import jp.a840.websocket.WebSocket;
 import jp.a840.websocket.WebSocketException;
@@ -39,11 +37,11 @@ import jp.a840.websocket.frame.Frame;
  */
 public class WebSocketPipeline {
 
-	/** The upstream handler list. */
-	private List<StreamHandler> upstreamHandlerList = new CopyOnWriteArrayList<StreamHandler>();
+	/** The start chain. */
+	private StreamHandlerChain startChain;
 	
-	/** The downstream handler list. */
-	private List<StreamHandler> downstreamHandlerList = new CopyOnWriteArrayList<StreamHandler>();
+	/** The last chain. */
+	private StreamHandlerChain lastChain;
 
 	/**
 	 * Send handshake upstream.
@@ -53,8 +51,7 @@ public class WebSocketPipeline {
 	 * @throws WebSocketException the web socket exception
 	 */
 	public void sendHandshakeUpstream(WebSocket ws, ByteBuffer buffer) throws WebSocketException {
-		StreamHandlerChain chain = new StreamHandlerChain(upstreamHandlerList);
-		chain.nextHandshakeUpstreamHandler(ws, buffer);
+		lastChain.nextHandshakeUpstreamHandler(ws, buffer);
 	}
 	
 	/**
@@ -65,8 +62,7 @@ public class WebSocketPipeline {
 	 * @throws WebSocketException the web socket exception
 	 */
 	public void sendHandshakeDownstream(WebSocket ws, ByteBuffer buffer) throws WebSocketException {
-		StreamHandlerChain chain = new StreamHandlerChain(downstreamHandlerList);
-		chain.nextHandshakeDownstreamHandler(ws, buffer);
+		startChain.nextHandshakeDownstreamHandler(ws, buffer);
 	}
 	
 	/**
@@ -78,8 +74,7 @@ public class WebSocketPipeline {
 	 * @throws WebSocketException the web socket exception
 	 */
 	public void sendUpstream(WebSocket ws, ByteBuffer buffer, Frame frame) throws WebSocketException {
-		StreamHandlerChain chain = new StreamHandlerChain(upstreamHandlerList);
-		chain.nextUpstreamHandler(ws, buffer, frame);
+		lastChain.nextUpstreamHandler(ws, buffer, frame);
 	}
 	
 	/**
@@ -91,8 +86,7 @@ public class WebSocketPipeline {
 	 * @throws WebSocketException the web socket exception
 	 */
 	public void sendDownstream(WebSocket ws, ByteBuffer buffer, Frame frame) throws WebSocketException {
-		StreamHandlerChain chain = new StreamHandlerChain(downstreamHandlerList);
-		chain.nextDownstreamHandler(ws, buffer,frame);
+		startChain.nextDownstreamHandler(ws, buffer,frame);
 	}
 	
 	/**
@@ -101,17 +95,22 @@ public class WebSocketPipeline {
 	 * @param handler the handler
 	 */
 	public void addStreamHandler(StreamHandler handler){
-		upstreamHandlerList.add(0, handler);
-		downstreamHandlerList.add(handler);
+		StreamHandlerChain c = new StreamHandlerChain(handler);
+		if(startChain == null){
+			startChain = c;
+			lastChain = c;
+		}else{
+			lastChain.add(c);
+			lastChain = c;
+		}
 	}
 
-	/**
-	 * Removes the stream handler.
-	 *
-	 * @param handler the handler
+	/* (non-Javadoc)
+	 * @see java.lang.Object#finalize()
 	 */
-	public void removeStreamHandler(StreamHandler handler){
-		upstreamHandlerList.remove(handler);
-		downstreamHandlerList.remove(handler);
+	@Override
+	protected void finalize() throws Throwable {
+		startChain.clear();
+		super.finalize();
 	}
 }

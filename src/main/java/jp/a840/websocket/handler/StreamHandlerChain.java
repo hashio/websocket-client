@@ -24,9 +24,6 @@
 package jp.a840.websocket.handler;
 
 import java.nio.ByteBuffer;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 
 import jp.a840.websocket.WebSocket;
 import jp.a840.websocket.WebSocketException;
@@ -40,26 +37,22 @@ import jp.a840.websocket.frame.Frame;
  */
 public class StreamHandlerChain {
 	
-	/** The it. */
-	private ListIterator<StreamHandler> it;
+	/** The next. */
+	private StreamHandlerChain next;
 	
-	/** The stream handler list. */
-	private List<StreamHandler> streamHandlerList;
+	/** The prev. */
+	private StreamHandlerChain prev;
+
+	/** The stream handler. */
+	final private StreamHandler streamHandler;
 
 	/**
 	 * Instantiates a new stream handler chain.
 	 *
-	 * @param streamHandlerList the stream handler list
+	 * @param streamHandler the stream handler
 	 */
-	public StreamHandlerChain(List<StreamHandler> streamHandlerList) {
-		this.streamHandlerList = streamHandlerList;
-		this.it = streamHandlerList.listIterator();
-	}
-
-	/**
-	 * Instantiates a new stream handler chain.
-	 */
-	private StreamHandlerChain() {
+	public StreamHandlerChain(StreamHandler streamHandler) {
+		this.streamHandler = streamHandler;
 	}
 
 	/**
@@ -70,8 +63,8 @@ public class StreamHandlerChain {
 	 * @throws WebSocketException the web socket exception
 	 */
 	public void nextHandshakeUpstreamHandler(WebSocket ws, ByteBuffer buffer) throws WebSocketException {
-		if(it.hasNext()) {
-			it.next().nextHandshakeUpstreamHandler(ws, buffer, this);
+		if(prev != null) {
+			prev.streamHandler.nextHandshakeUpstreamHandler(ws, buffer, prev);
 		}		
 	}
 
@@ -83,8 +76,8 @@ public class StreamHandlerChain {
 	 * @throws WebSocketException the web socket exception
 	 */
 	public void nextHandshakeDownstreamHandler(WebSocket ws, ByteBuffer buffer) throws WebSocketException {
-		if(it.hasNext()){
-			it.next().nextHandshakeDownstreamHandler(ws, buffer, this);
+		if(next != null){
+			next.streamHandler.nextHandshakeDownstreamHandler(ws, buffer, next);
 		}
 	}
 
@@ -97,8 +90,8 @@ public class StreamHandlerChain {
 	 * @throws WebSocketException the web socket exception
 	 */
 	public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer, Frame frame) throws WebSocketException {
-		if(it.hasNext()) {
-			it.next().nextUpstreamHandler(ws, buffer, frame, this);
+		if(prev != null) {
+			prev.streamHandler.nextUpstreamHandler(ws, buffer, frame, prev);
 		}
 	}
 
@@ -111,104 +104,26 @@ public class StreamHandlerChain {
 	 * @throws WebSocketException the web socket exception
 	 */
 	public void nextDownstreamHandler(WebSocket ws, ByteBuffer buffer, Frame frame) throws WebSocketException {
-		if(it.hasNext()){
-			it.next().nextDownstreamHandler(ws, buffer, frame, this);
+		if(next != null){
+			next.streamHandler.nextDownstreamHandler(ws, buffer, frame, next);
 		}
+	}
+		
+	/**
+	 * Adds the.
+	 *
+	 * @param next the next
+	 */
+	public void add(StreamHandlerChain next){
+		this.next = next;
+		next.prev = this;
 	}
 	
 	/**
-	 * Reverse.
-	 *
-	 * @return the stream handler chain
+	 * Clear.
 	 */
-	public StreamHandlerChain reverse(){
-		StreamHandlerChain chain = new StreamHandlerChain();
-		chain.streamHandlerList = streamHandlerList;
-		chain.it = new ReverseIterator<StreamHandler>(chain.streamHandlerList.listIterator(it.previousIndex()));
-		return chain;
-	}
-	
-	/**
-	 * The Class ReverseIterator.
-	 *
-	 * @param <E> the element type
-	 * @author Takahiro Hashimoto
-	 */
-	private class ReverseIterator<E> implements ListIterator<E> {
-		
-		/** The lit. */
-		private final ListIterator<E> lit; 
-		
-		/**
-		 * Instantiates a new reverse iterator.
-		 *
-		 * @param lit the lit
-		 */
-		public ReverseIterator(ListIterator<E> lit){
-			this.lit = lit;
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.util.ListIterator#hasNext()
-		 */
-		public boolean hasNext() {
-			return lit.hasPrevious();
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.util.ListIterator#next()
-		 */
-		public E next() {
-			return lit.previous();
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.util.ListIterator#hasPrevious()
-		 */
-		public boolean hasPrevious() {
-			return lit.hasNext();
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.util.ListIterator#previous()
-		 */
-		public E previous() {
-			return lit.next();
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.util.ListIterator#nextIndex()
-		 */
-		public int nextIndex() {
-			return lit.previousIndex();
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.util.ListIterator#previousIndex()
-		 */
-		public int previousIndex() {
-			return lit.nextIndex();
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.util.ListIterator#remove()
-		 */
-		public void remove() {
-			throw new UnsupportedOperationException("Not implemented");
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.util.ListIterator#set(java.lang.Object)
-		 */
-		public void set(E o) {
-			throw new UnsupportedOperationException("Not implemented");
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.util.ListIterator#add(java.lang.Object)
-		 */
-		public void add(E o) {
-			throw new UnsupportedOperationException("Not implemented");
-		}
+	public void clear(){
+		this.next.clear();
+		this.prev = null;
 	}
 }

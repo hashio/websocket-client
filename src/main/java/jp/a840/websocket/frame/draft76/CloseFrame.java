@@ -37,7 +37,6 @@ public class CloseFrame extends FrameDraft76 {
 	/**
 	 * Instantiates a new binary frame.
 	 *
-	 * @param bodyData the body data
 	 */
 	protected CloseFrame() {
 		super();

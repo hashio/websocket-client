@@ -44,6 +44,9 @@ public class PingFrame extends FrameDraft06 {
 		super(header, bodyData);
 	}
 
+	/**
+	 * Instantiates a new ping frame.
+	 */
 	public PingFrame(){
 		FrameHeader header = FrameBuilderDraft06.createFrameHeader(null, false, Opcode.PING);
 		setHeader(header);

@@ -53,6 +53,7 @@ public class HttpHeader {
 	 * @return the header value
 	 */
 	public String getHeaderValue(String name){
+		name = name.toLowerCase();
 		List<String> list = headerMap.get(name);
 		if(list == null){
 			return null;
@@ -67,6 +68,7 @@ public class HttpHeader {
 	 * @return the header values
 	 */
 	public List<String> getHeaderValues(String name){
+		name = name.toLowerCase();
 		List<String> list = headerMap.get(name);
 		if(list == null){
 			return null;
@@ -77,11 +79,12 @@ public class HttpHeader {
 	/**
 	 * Contains header.
 	 *
-	 * @param headerName the header name
+	 * @param name the header name
 	 * @return true, if successful
 	 */
-	public boolean containsHeader(String headerName){
-		return headerMap.containsKey(headerName);
+	public boolean containsHeader(String name){
+		name = name.toLowerCase();
+		return headerMap.containsKey(name);
 	}
 	
 	/**
@@ -91,6 +94,7 @@ public class HttpHeader {
 	 * @param value the value
 	 */
 	public void addHeader(String name, String value){
+		name = name.toLowerCase();
 		List<String> list = headerMap.get(name);
 		if(list == null){
 			list = new ArrayList<String>();
@@ -105,6 +109,7 @@ public class HttpHeader {
 	 * @param name the name
 	 */
 	public void removeHeader(String name){
+		name = name.toLowerCase();
 		headerMap.remove(name);
 	}
 	

@@ -239,7 +239,7 @@ abstract public class WebSocketBase implements WebSocket {
 		this.pipeline = new WebSocketPipeline();
 		
 		// Add upstream qeueue handler first.
-		// it push the upstream buffer to a sendqueue and then wakeup a selector if needed
+		// it push the upstream buffer to a sendqueue and then wakeup a selector
 		this.pipeline.addStreamHandler(new StreamHandlerAdapter() {
 			public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
 					Frame frame, StreamHandlerChain chain) throws WebSocketException {

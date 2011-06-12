@@ -29,6 +29,7 @@ import jp.a840.websocket.WebSocketHandler;
 import jp.a840.websocket.WebSockets;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.proxy.Proxy;
+import jp.a840.websocket.proxy.ProxyBasicCredentials;
 import jp.a840.websocket.util.PacketDumpUtil;
 
 
@@ -51,7 +52,7 @@ public class WebSocketChatServletProxyTest {
 		));
 //		System.setProperty("javax.net.debug", "all");
 		System.setProperty("java.util.logging.config.file", "logging.properties");
-		Proxy proxy = new Proxy();
+		Proxy proxy = new Proxy(new ProxyBasicCredentials("basic auth required", "test", "test"));
 		WebSocket socket = WebSockets.createDraft06("ws://192.168.0.51:8080/ws/", proxy, new WebSocketHandler() {
 			
 			public void onOpen(WebSocket socket) {

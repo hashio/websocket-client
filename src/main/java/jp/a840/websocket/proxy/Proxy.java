@@ -66,6 +66,16 @@ public class Proxy {
 	/**
 	 * Instantiates a new proxy.
 	 *
+	 * @param proxyAddress the proxy address
+	 */
+	public Proxy(InetSocketAddress proxyAddress){
+		this.proxy = proxyAddress;
+		this.credentials = null;
+	}
+	
+	/**
+	 * Instantiates a new proxy.
+	 *
 	 * @param userName the user name
 	 * @param password the password
 	 */

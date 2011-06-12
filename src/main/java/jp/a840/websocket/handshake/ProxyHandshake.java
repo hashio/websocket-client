@@ -23,7 +23,7 @@
  */
 package jp.a840.websocket.handshake;
 
-import static java.nio.channels.SelectionKey.OP_READ;
+import static java.nio.channels.SelectionKey.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -228,7 +228,8 @@ public class ProxyHandshake {
 							}
 							creadectialsStr = credentials.getCredentials(httpResponseHeaderParser.getResponseHeader());
 							if(creadectialsStr != null){
-								transitionTo(State.AUTH);				
+								transitionTo(State.AUTH);
+								socket.register(selector, OP_WRITE);
 							}else{
 								throw new WebSocketException(3999, "Have not support proxy authenticate schemes.");
 							}
@@ -243,10 +244,12 @@ public class ProxyHandshake {
 						PacketDumpUtil.printPacketDump("PROXY_HS_UP", buffer);
 					}
 					socket.write(buffer);
+					httpResponseHeaderParser = new HttpResponseHeaderParser();
 					transitionTo(State.METHOD);
+					socket.register(selector, OP_READ);
 					break;
 				}
-			} while(!completed);
+			} while(state != State.DONE);
 		} catch (IOException ioe) {
 			throw new WebSocketException(3100, ioe);
 		} finally {

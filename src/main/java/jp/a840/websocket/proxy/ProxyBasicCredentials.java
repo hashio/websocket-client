@@ -54,6 +54,18 @@ public class ProxyBasicCredentials implements ProxyCredentials {
 	
 	/**
 	 * Instantiates a new proxy basic credentials.
+	 * this is not check the server auth realm
+	 *
+	 * @param userId the user id
+	 * @param password the password
+	 */
+	public ProxyBasicCredentials(String userId, String password){
+		this.userId = userId;
+		this.password = password;
+	}
+	
+	/**
+	 * Instantiates a new proxy basic credentials.
 	 *
 	 * @param realm the realm
 	 * @param userId the user id
@@ -72,13 +84,12 @@ public class ProxyBasicCredentials implements ProxyCredentials {
 		List<String> proxyAuthenticateList = header.getHeaderValues(PROXY_AUTHENTICATE);
 		for(String proxyAuthenticateStr : proxyAuthenticateList){
 			// Proxy-Authenticate: Basic realm="WallyWorld"
-			String[] parts = proxyAuthenticateStr.split("[ =]+");
+			String[] parts = proxyAuthenticateStr.split("[ =]+",3);
 			String authScheme = parts[0];
-			String dummy = parts[1];
 			String serverRealm = parts[2].replaceAll("\"", "");
 
 			if (AUTH_SCHEME.equalsIgnoreCase(authScheme)) {
-				if (!realm.equalsIgnoreCase(serverRealm)) {
+				if (realm != null && !realm.equalsIgnoreCase(serverRealm)) {
 					throw new WebSocketException(3841,
 							"Realm does not match. Server Realm: "
 									+ serverRealm);

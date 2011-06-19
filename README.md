@@ -17,7 +17,9 @@ Support
 - SSL/TLS with wss://
 - proxy (Basic,Digest authentication support)
 
-These servers are tested.
+
+Test running for these combinations.
+
 - [Draft76] Grizzly2.0   + WebSocket
 - [Draft06] Grizzly2.1.1 + WebSocket
 - [Draft76] Jetty7.4.0   + WebSocket

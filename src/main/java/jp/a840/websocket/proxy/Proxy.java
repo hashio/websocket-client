@@ -33,7 +33,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jp.a840.websocket.WebSocket;
 import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.auth.Authenticator;
+import jp.a840.websocket.auth.Credentials;
+import jp.a840.websocket.auth.DefaultAuthenticator;
 import jp.a840.websocket.handshake.ProxyHandshake;
 
 
@@ -52,15 +56,17 @@ public class Proxy {
 	/** The proxy. */
 	private InetSocketAddress proxy;
 	
-	/** The credentials. */
-	private ProxyCredentials credentials;
+	/** The authenticator. */
+	private Authenticator authenticator;
+	
+	private Credentials credentials;
 	
 	/**
 	 * Instantiates a new proxy.
 	 */
 	public Proxy(){
 		this.autoDetect = true;
-		this.credentials = null;
+		this.authenticator = null;
 	}
 	
 	/**
@@ -70,18 +76,19 @@ public class Proxy {
 	 */
 	public Proxy(InetSocketAddress proxyAddress){
 		this.proxy = proxyAddress;
-		this.credentials = null;
+		this.authenticator = null;
 	}
 	
 	/**
 	 * Instantiates a new proxy.
 	 *
-	 * @param userName the user name
+	 * @param username the username
 	 * @param password the password
 	 */
-	public Proxy(String userName, String password){
+	public Proxy(String username, String password){
 		this.autoDetect = true;
-		this.credentials = new ProxyBasicCredentials(null, userName, password);
+		this.authenticator = new DefaultAuthenticator();
+		this.credentials = new Credentials(username, password);
 	}
 	
 	/**
@@ -89,9 +96,10 @@ public class Proxy {
 	 *
 	 * @param credentials the credentials
 	 */
-	public Proxy(ProxyCredentials credentials){
+	public Proxy(Credentials credentials, Authenticator authenticator){
 		this.autoDetect = true;
 		this.credentials = credentials;
+		this.authenticator = authenticator;
 	}
 	
 	/**
@@ -101,9 +109,10 @@ public class Proxy {
 	 * @param userName the user name
 	 * @param password the password
 	 */
-	public Proxy(InetSocketAddress proxyAddress, String userName, String password){
+	public Proxy(InetSocketAddress proxyAddress, String username, String password){
 		this.proxy = proxyAddress;
-		this.credentials = new ProxyBasicCredentials(null, userName, password);
+		this.authenticator = new DefaultAuthenticator();
+		this.credentials = new Credentials(username, password);
 	}
 	
 	/**
@@ -112,8 +121,9 @@ public class Proxy {
 	 * @param proxyAddress the proxy address
 	 * @param credentials the credentials
 	 */
-	public Proxy(InetSocketAddress proxyAddress, ProxyCredentials credentials){
+	public Proxy(InetSocketAddress proxyAddress, Credentials credentials, Authenticator authenticator){
 		this.proxy = proxyAddress;
+		this.authenticator = authenticator;
 		this.credentials = credentials;
 	}
 	
@@ -159,17 +169,22 @@ public class Proxy {
 	 * @return the proxy handshake
 	 * @throws WebSocketException the web socket exception
 	 */
-	public ProxyHandshake getProxyHandshake(InetSocketAddress endpoint) throws WebSocketException {
+	public ProxyHandshake getProxyHandshake(WebSocket ws) throws WebSocketException {
 		InetSocketAddress proxy = null;
-		if(autoDetect){
-			proxy = findProxy(endpoint);
+		if(this.autoDetect){
+			proxy = findProxy(ws.getEndpoint());
 			if(proxy == null){
 				return null;
 			}
 		}else{
 			proxy = this.proxy;
 		}
-		ProxyHandshake proxyHandshake = new ProxyHandshake(proxy, endpoint, this.credentials);
+		
+		if(this.authenticator != null){
+			this.authenticator.init(ws, this.credentials);
+		}
+		
+		ProxyHandshake proxyHandshake = new ProxyHandshake(proxy, ws.getEndpoint(), this.authenticator);
 		return proxyHandshake;
 	}
 }

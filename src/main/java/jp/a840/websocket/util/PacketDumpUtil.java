@@ -85,7 +85,7 @@ public class PacketDumpUtil {
 		while(buffer.hasRemaining()){
 			byte[] line = new byte[16];
 			StringBuilder dumpLine = new StringBuilder();
-			dumpLine.append(lpad(Integer.toHexString(16 * count++), 5, "0"));
+			dumpLine.append(StringUtil.lpad(Integer.toHexString(16 * count++), 5, "0"));
 			dumpLine.append(":");
 			int length = Math.min(buffer.remaining(), line.length);
 			buffer.get(line, 0, length);
@@ -93,32 +93,14 @@ public class PacketDumpUtil {
 				if(i % 2 == 0){
 					dumpLine.append(" ");
 				}
-				dumpLine.append(lpad(hex(line[i]), 2, "0"));
+				dumpLine.append(StringUtil.lpad(StringUtil.toHexString(line[i]), 2, "0"));
 			}
 			dumpLine.append(" ");
-			dump.append(rpad(dumpLine, header.length() + 3, " ") + dumpStr(line, length));
+			dump.append(StringUtil.rpad(dumpLine, header.length() + 3, " ") + dumpStr(line, length));
 			dump.append("\n");
 		}
 		log.info(dump.toString());
 		buffer.reset();
-	}
-	
-	/** The hex table. */
-	private static char[] hexTable = new char[]{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-	
-	/**
-	 * Hex.
-	 *
-	 * @param b the b
-	 * @return the string
-	 */
-	private static String hex(byte b){
-		char[] chars = new char[2];
-		int d = (b & 0xF0) >> 4;
-		int m =  b & 0x0F;
-		chars[0] = hexTable[d];
-		chars[1] = hexTable[m];
-		return new String(chars);
 	}
 	
 	/**
@@ -139,40 +121,6 @@ public class PacketDumpUtil {
 			}
 		}
 		return buf.toString();
-	}
-	
-	/**
-	 * Lpad.
-	 *
-	 * @param str the str
-	 * @param len the len
-	 * @param padding the padding
-	 * @return the string
-	 */
-	private static String lpad(Object str, int len, String padding){
-		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < len - str.toString().length(); i++){
-			sb.append(padding);
-		}
-		sb.append(str);
-		return sb.toString();
-	}
-	
-	/**
-	 * Rpad.
-	 *
-	 * @param str the str
-	 * @param len the len
-	 * @param padding the padding
-	 * @return the string
-	 */
-	private static String rpad(Object str, int len, String padding){
-		StringBuilder sb = new StringBuilder();
-		sb.append(str);
-		for(int i = 0; i < len - str.toString().length(); i++){
-			sb.append(padding);
-		}
-		return sb.toString();
 	}
 	
 	/**

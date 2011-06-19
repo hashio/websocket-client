@@ -21,24 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.proxy;
+package jp.a840.websocket.auth;
 
 import jp.a840.websocket.HttpHeader;
+import jp.a840.websocket.WebSocket;
 import jp.a840.websocket.WebSocketException;
 
 /**
  * The Interface ProxyCredentials.
  *
- * @author Takahiro Hashimoto
+ * @author t-hashimoto
  */
-public interface ProxyCredentials {
+public interface Authenticator {
 	
 	/**
 	 * Gets the credentials.
 	 *
-	 * @param header the header
+	 * @param method request method GET,POST,CONNECT(proxy)
+	 * @param requestUri
+	 * @param header http header
+	 * @param authenticate header name WWW-Authenticate or Proxy-Authenticate
 	 * @return the credentials
 	 * @throws WebSocketException the web socket exception
 	 */
-	public String getCredentials(HttpHeader header) throws WebSocketException;
+	public String getCredentials(String method, String requestUri, HttpHeader header, String authenticateHeaderName) throws WebSocketException;
+		
+	public void init(WebSocket websocket, Credentials credentials);
 }

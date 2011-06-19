@@ -47,6 +47,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jp.a840.websocket.auth.Authenticator;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameParser;
 import jp.a840.websocket.handler.PacketDumpStreamHandler;
@@ -59,7 +60,6 @@ import jp.a840.websocket.handshake.Handshake;
 import jp.a840.websocket.handshake.ProxyHandshake;
 import jp.a840.websocket.handshake.SSLHandshake;
 import jp.a840.websocket.proxy.Proxy;
-import jp.a840.websocket.proxy.ProxyCredentials;
 import jp.a840.websocket.util.StringUtil;
 
 
@@ -495,7 +495,7 @@ abstract public class WebSocketBase implements WebSocket {
 			
 			ProxyHandshake proxyHandshake = null;
 			if(proxy != null){
-				proxyHandshake = this.proxy.getProxyHandshake(this.endpointAddress);
+				proxyHandshake = this.proxy.getProxyHandshake(this);
 			}
 			
 			socket = SocketChannel.open();
@@ -593,7 +593,11 @@ abstract public class WebSocketBase implements WebSocket {
 						handler.onClose(WebSocketBase.this);
 						handshakeLatch.countDown();
 						closeLatch.countDown();
-						executorService.shutdown();
+						synchronized (this) {
+							if(executorService != null){
+								executorService.shutdown();
+							}
+						}
 					}
 				}
 			};
@@ -658,7 +662,9 @@ abstract public class WebSocketBase implements WebSocket {
 					} catch(InterruptedException e){
 						;
 					} finally {
-						executorService = null;
+						synchronized (this) {
+							executorService = null;							
+						}
 					}
 				}
 			}

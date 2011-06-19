@@ -59,6 +59,7 @@ public class Proxy {
 	/** The authenticator. */
 	private Authenticator authenticator;
 	
+	/** The credentials. */
 	private Credentials credentials;
 	
 	/**
@@ -95,6 +96,7 @@ public class Proxy {
 	 * Instantiates a new proxy.
 	 *
 	 * @param credentials the credentials
+	 * @param authenticator the authenticator
 	 */
 	public Proxy(Credentials credentials, Authenticator authenticator){
 		this.autoDetect = true;
@@ -106,7 +108,7 @@ public class Proxy {
 	 * Instantiates a new proxy.
 	 *
 	 * @param proxyAddress the proxy address
-	 * @param userName the user name
+	 * @param username the username
 	 * @param password the password
 	 */
 	public Proxy(InetSocketAddress proxyAddress, String username, String password){
@@ -120,6 +122,7 @@ public class Proxy {
 	 *
 	 * @param proxyAddress the proxy address
 	 * @param credentials the credentials
+	 * @param authenticator the authenticator
 	 */
 	public Proxy(InetSocketAddress proxyAddress, Credentials credentials, Authenticator authenticator){
 		this.proxy = proxyAddress;
@@ -165,7 +168,7 @@ public class Proxy {
 	/**
 	 * Gets the proxy handshake.
 	 *
-	 * @param endpoint the endpoint
+	 * @param ws the ws
 	 * @return the proxy handshake
 	 * @throws WebSocketException the web socket exception
 	 */

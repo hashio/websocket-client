@@ -276,6 +276,8 @@ public class ProxyHandshake {
 	/**
 	 * Creates the handshake request.
 	 *
+	 * @param method the method
+	 * @param host the host
 	 * @return the byte buffer
 	 */
 	public ByteBuffer createHandshakeRequest(String method, String host) {		

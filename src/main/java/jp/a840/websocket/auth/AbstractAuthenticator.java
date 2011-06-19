@@ -78,6 +78,13 @@ abstract public class AbstractAuthenticator implements Authenticator {
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.proxy.ProxyCredentials#getCredentials()
 	 */
+	/**
+	 * Gets the credentials.
+	 *
+	 * @param challengeList the challenge list
+	 * @return the credentials
+	 * @throws WebSocketException the web socket exception
+	 */
 	abstract public String getCredentials(List<Challenge> challengeList) throws WebSocketException;
 	
 	/* (non-Javadoc)

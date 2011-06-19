@@ -1,13 +1,57 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2011 Takahiro Hashimoto
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package jp.a840.websocket.auth;
 
 import java.util.Map;
 
+/**
+ * The Class Challenge.
+ *
+ * @author Takahiro Hashimoto
+ */
 public class Challenge {
+	
+	/** The scheme. */
 	private String scheme;
+	
+	/** The method. */
 	private String method;
+	
+	/** The request uri. */
 	private String requestUri;
+	
+	/** The param map. */
 	private Map<String,String> paramMap;
 	
+	/**
+	 * Instantiates a new challenge.
+	 *
+	 * @param method the method
+	 * @param requestUri the request uri
+	 * @param scheme the scheme
+	 * @param paramMap the param map
+	 */
 	public Challenge(String method, String requestUri, String scheme, Map<String, String> paramMap){
 		this.method = method;
 		this.requestUri = requestUri;
@@ -15,18 +59,39 @@ public class Challenge {
 		this.paramMap = paramMap;
 	}
 	
+	/**
+	 * Gets the scheme.
+	 *
+	 * @return the scheme
+	 */
 	public String getScheme(){
 		return this.scheme;
 	}
 	
+	/**
+	 * Gets the param.
+	 *
+	 * @param name the name
+	 * @return the param
+	 */
 	public String getParam(String name){
 		return this.paramMap.get(name);
 	}
 
+	/**
+	 * Gets the method.
+	 *
+	 * @return the method
+	 */
 	public String getMethod() {
 		return method;
 	}
 
+	/**
+	 * Gets the request uri.
+	 *
+	 * @return the request uri
+	 */
 	public String getRequestUri() {
 		return requestUri;
 	}

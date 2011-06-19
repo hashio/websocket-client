@@ -60,10 +60,16 @@ import jp.a840.websocket.util.StringUtil;
  * @see http://www.ietf.org/rfc/rfc2617.txt
  */
 public class DigestAuthenticator extends AbstractAuthenticator {
+	
+	/** The log. */
 	private Logger log = Logger.getLogger(DigestAuthenticator.class.getCanonicalName());
 	
+	/** The AUT h_ scheme. */
 	private static String AUTH_SCHEME = "Digest";
 
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.auth.AbstractAuthenticator#getCredentials(java.util.List)
+	 */
 	@Override
 	public String getCredentials(List<Challenge> challengeList)
 			throws WebSocketException {
@@ -75,6 +81,13 @@ public class DigestAuthenticator extends AbstractAuthenticator {
 		return null;
 	}
 	
+	/**
+	 * Gets the credentials.
+	 *
+	 * @param challenge the challenge
+	 * @return the credentials
+	 * @throws WebSocketException the web socket exception
+	 */
 	public String getCredentials(Challenge challenge) throws WebSocketException {
 		String username = this.credentials.getUsername();
 		String password = this.credentials.getPassword();
@@ -158,6 +171,11 @@ public class DigestAuthenticator extends AbstractAuthenticator {
 		return sb.toString();
 	}
 	
+	/**
+	 * Generate cnonce.
+	 *
+	 * @return the string
+	 */
 	private String generateCnonce(){
 		// cnonce is random string
 		byte[] cnonceBytes = new byte[16];

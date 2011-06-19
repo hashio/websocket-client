@@ -4,24 +4,24 @@ Copyright 2011 Takahiro Hashimoto
 
 MIT license
 
+Purpose
+-------
+The purpose of a WebSocket Client is implement to portable,high-performance
+and easy use the push communication in the internet for Java client 
+
 Support
 -------
 
 - JDK5 or higher
 - WebSocket Specification Draft76, Draft06
 - SSL/TLS with wss://
-- proxy (Unsupport authentication yet )
-
-Purpose
--------
-The purpose of a WebSocket Client is implement to portable,high-performance
-and easy use the push communication in the internet for Java client 
+- proxy (Basic,Digest authentication support)
 
 These servers are tested.
-
-- [Draft76] Grizzly2.0 + WebSocket
-- [Draft76] Jetty7.4.0 + WebSocket
-- [Draft06] Jetty7.4.0 + WebSocket
+- [Draft76] Grizzly2.0   + WebSocket
+- [Draft06] Grizzly2.1.1 + WebSocket
+- [Draft76] Jetty7.4.0   + WebSocket
+- [Draft06] Jetty7.4.0   + WebSocket
 - [Draft06 + Proxy] Apache(mod_proxy) + Jetty7.4.0 + WebSocket
 
 

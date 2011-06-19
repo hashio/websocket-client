@@ -21,72 +21,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.handshake;
+package jp.a840.websocket.auth;
 
-import java.nio.ByteBuffer;
+import java.util.List;
 
 import jp.a840.websocket.HttpHeader;
-import jp.a840.websocket.util.StringUtil;
+import jp.a840.websocket.WebSocket;
+import jp.a840.websocket.WebSocketException;
+import util.Base64;
+
 
 /**
- * The Class HttpResponseHeaderParser.
+ * The Class ProxyBasicCredentials.
  *
  * @author Takahiro Hashimoto
  */
-public class HttpResponseHeaderParser {
-	
-	/** The response header. */
-	private HttpHeader responseHeader = new HttpHeader();
+public class BasicAuthenticator extends AbstractAuthenticator {
 
-	/** The complete. */
-	private boolean complete = false;
-	
+	/** The AUTH_SCHEME. */
+	private static String AUTH_SCHEME = "Basic";
+		
 	/**
-	 * Parses the.
+	 * Instantiates a new proxy basic credentials.
+	 * this is not check the server auth realm
 	 *
-	 * @param buffer the buffer
 	 */
-	public void parse(ByteBuffer buffer){
-		if(complete){
-			throw new IllegalStateException("Parser already parse completed");
+	public BasicAuthenticator(){
+	}
+		
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.proxy.ProxyCredentials#getCredentials()
+	 */
+	public String getCredentials(List<Challenge> challengeList) throws WebSocketException {
+		for(Challenge challenge : challengeList){
+			if (AUTH_SCHEME.equalsIgnoreCase(challenge.getScheme())) {
+				return getCredentials(challenge);
+			}
 		}
-		do {
-			String line = StringUtil.readLine(buffer);
-			if(line == null){				
-				return;
-			}
-			if (line.indexOf(':') > 0) {
-				String[] keyValue = line.split(":", 2);
-				if (keyValue.length > 1) {
-					responseHeader.addHeader(keyValue[0].trim(),
-							keyValue[1].trim());
-				}
-			}
-			if ("\r\n".compareTo(line) == 0) {
-				complete = true;
-				return;
-			}
-			if (!buffer.hasRemaining()) {
-				return;
-			}
-		} while (true);
+		return null;
 	}
 	
-	/**
-	 * Checks if is completed.
-	 *
-	 * @return true, if is completed
-	 */
-	public boolean isCompleted(){
-		return complete;
-	}
-	
-	/**
-	 * Gets the response header.
-	 *
-	 * @return the response header
-	 */
-	public HttpHeader getResponseHeader(){
-		return responseHeader;
+	public String getCredentials(Challenge challenge) throws WebSocketException {
+		String credentialsStr = this.credentials.getUsername() + ":" + this.credentials.getPassword();
+		return AUTH_SCHEME + " "
+				+ Base64.encodeToString(credentialsStr.getBytes(), false);		
 	}
 }

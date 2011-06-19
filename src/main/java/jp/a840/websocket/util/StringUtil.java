@@ -25,7 +25,11 @@ package jp.a840.websocket.util;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -135,4 +139,177 @@ public class StringUtil {
 		return null;
 	}
 
+	public static StringBuilder addParam(StringBuilder sb, String key, String param){
+		sb.append(key).append("=").append(param);
+		return sb;
+	}
+
+	public static StringBuilder addQuotedParam(StringBuilder sb, String key, String param){
+		sb.append(key).append("=\"").append(param).append("\"");
+		return sb;
+	}
+	
+	public static String toMD5HexString(String str){
+		try{
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update(str.getBytes("US-ASCII"));
+			return toHexString(md.digest());
+		}catch(UnsupportedEncodingException e){
+			;
+		}catch(NoSuchAlgorithmException e){
+			;
+		}
+		return null;
+	}
+	
+	/** The hex table. */
+	private static char[] hexTable = new char[]{'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+	
+	/**
+	 * toHexString.
+	 *
+	 * @param b the b
+	 * @return the string
+	 */
+	public static String toHexString(byte b){
+		char[] chars = new char[2];
+		int d = (b & 0xF0) >> 4;
+		int m =  b & 0x0F;
+		chars[0] = hexTable[d];
+		chars[1] = hexTable[m];
+		return new String(chars);
+	}
+	
+	/**
+	 * toHexString.
+	 *
+	 * @param b the b
+	 * @return the string
+	 */
+	public static String toHexString(byte[] bytes){
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < bytes.length; i++){
+			char[] chars = new char[2];
+			int d = (bytes[i] & 0xF0) >> 4;
+			int m =  bytes[i] & 0x0F;
+			chars[0] = hexTable[d];
+			chars[1] = hexTable[m];
+			sb.append(chars);
+		}
+		return sb.toString();
+	}
+	
+	/**
+	 * Lpad.
+	 *
+	 * @param str the str
+	 * @param len the len
+	 * @param padding the padding
+	 * @return the string
+	 */
+	public static String lpad(Object str, int len, String padding){
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < len - str.toString().length(); i++){
+			sb.append(padding);
+		}
+		sb.append(str);
+		return sb.toString();
+	}
+	
+	/**
+	 * Rpad.
+	 *
+	 * @param str the str
+	 * @param len the len
+	 * @param padding the padding
+	 * @return the string
+	 */
+	public static String rpad(Object str, int len, String padding){
+		StringBuilder sb = new StringBuilder();
+		sb.append(str);
+		for(int i = 0; i < len - str.toString().length(); i++){
+			sb.append(padding);
+		}
+		return sb.toString();
+	}
+	
+
+	enum State {
+		KEY_START, KEY,VALUE_START, VALUE,DELIM;
+	}
+	/**
+	 * 
+	 * ex. realm="testrealm@host.com", qop="auth,auth-int"
+	 * @param str
+	 * @return
+	 */
+	public static Map<String, String> parseKeyValues(String str, char delim){
+		State state = State.KEY;
+		char[] chars = str.toCharArray();
+		String key = null;
+		String value = null;
+		StringBuilder sb = new StringBuilder();
+		Map<String, String> map = new HashMap<String, String>();
+		boolean isQuoted = false;
+		for(int i = 0; i < chars.length; i++){
+			switch(state){
+			case KEY_START:
+				if(chars[i] == ' '){
+					continue;
+				}else{
+					sb.append(chars[i]);
+					state = State.KEY;
+				}
+				break;
+			case KEY:
+				if(chars[i] == '='){
+					key = sb.toString().trim();
+					sb = new StringBuilder();
+					state = State.VALUE_START;
+				}else{
+					sb.append(chars[i]);
+				}
+				break;
+			case VALUE_START:
+				if(chars[i] == ' '){
+					continue;
+				}else if(chars[i] == '"'){
+					state = State.VALUE;
+					isQuoted = true;
+				}else{
+					sb.append(chars[i]);
+					state = State.VALUE;
+					isQuoted = false;
+				}
+				break;
+			case VALUE:
+				if(isQuoted && chars[i] == '"'){
+					state = State.DELIM;
+					value = sb.toString();
+					
+					map.put(key, value);
+					sb = new StringBuilder();
+				}else if(!isQuoted && chars[i] == delim){
+					state = State.KEY_START;
+					value = sb.toString();
+					
+					map.put(key, value);
+					sb = new StringBuilder();
+				}else{
+					sb.append(chars[i]);					
+				}
+				break;
+			case DELIM:
+				if(chars[i] == ' '){
+					continue;
+				}else if(chars[i] == ','){
+					state = State.KEY_START;
+				}else{
+					break;
+				}
+				break;
+			}
+		}
+		return map;
+	}
 }

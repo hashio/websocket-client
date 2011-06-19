@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 
 import jp.a840.websocket.BufferManager;
 import jp.a840.websocket.WebSocketException;
-import jp.a840.websocket.proxy.ProxyCredentials;
+import jp.a840.websocket.auth.Authenticator;
 import jp.a840.websocket.util.PacketDumpUtil;
 import jp.a840.websocket.util.StringUtil;
 
@@ -63,6 +63,9 @@ public class ProxyHandshake {
 	private static Logger log = Logger.getLogger(ProxyHandshake.class
 			.getName());
 
+	/** The PROXY_AUTHENTICATE. */
+	private static String PROXY_AUTHENTICATE = "Proxy-Authenticate";
+
 	/** The proxy. */
 	private final InetSocketAddress proxyAddress;
 	
@@ -75,8 +78,8 @@ public class ProxyHandshake {
 	/** The need authorize. */
 	private boolean needAuthorize;
 	
-	/** The credentials. */
-	private ProxyCredentials credentials;
+	/** The authenticator. */
+	private Authenticator authenticator;
 	
 	/** The selector. */
 	private Selector selector;
@@ -169,12 +172,12 @@ public class ProxyHandshake {
 	 *
 	 * @param proxy the proxy
 	 * @param origin the origin
-	 * @param credentials the credentials
+	 * @param authenticator the authenticator
 	 */
-	public ProxyHandshake(InetSocketAddress proxy, InetSocketAddress origin, ProxyCredentials credentials){
+	public ProxyHandshake(InetSocketAddress proxy, InetSocketAddress origin, Authenticator authenticator){
 		this.proxyAddress = proxy;
 		this.originAddress = origin;
-		this.credentials = credentials;
+		this.authenticator = authenticator;
 	}
 
 	/**
@@ -192,7 +195,9 @@ public class ProxyHandshake {
 			selector = Selector.open();
 			socket.register(selector, OP_READ);
 
-			ByteBuffer request = createHandshakeRequest();
+			String method = "CONNECT";
+			String host = originAddress.getHostName() + ":" + originAddress.getPort();
+			ByteBuffer request = createHandshakeRequest(method, host);
 			if(PacketDumpUtil.isDump(PacketDumpUtil.HS_UP)){
 				PacketDumpUtil.printPacketDump("PROXY_HS_UP", request);
 			}
@@ -202,6 +207,7 @@ public class ProxyHandshake {
 			ByteBuffer responseBuffer = ByteBuffer.allocate(8192);
 			String creadectialsStr = null;
 			boolean completed = false;
+			int authTry = 0;
 			do {
 				selector.select(connectionReadTimeout);
 
@@ -223,16 +229,20 @@ public class ProxyHandshake {
 						bufferManager.storeFragmentBuffer(responseBuffer);
 					}else{
 						if(needAuthorize){
-							if(credentials == null){
-								throw new WebSocketException(3999, "Need proxy authenticate. But not set a ProxyCredentials");
+							if(authTry > 0){
+								throw new WebSocketException(3999, "Need proxy authenticate. Proxy Authenticate fail.");						
 							}
-							creadectialsStr = credentials.getCredentials(httpResponseHeaderParser.getResponseHeader());
+							if(authenticator == null){
+								throw new WebSocketException(3999, "Need proxy authenticate. But not set a Authenticator");
+							}
+							creadectialsStr = authenticator.getCredentials(method, host, httpResponseHeaderParser.getResponseHeader(), PROXY_AUTHENTICATE);
 							if(creadectialsStr != null){
 								transitionTo(State.AUTH);
 								socket.register(selector, OP_WRITE);
 							}else{
 								throw new WebSocketException(3999, "Have not support proxy authenticate schemes.");
 							}
+							authTry++;
 						} else {
 							transitionTo(State.DONE);
 						}
@@ -268,11 +278,10 @@ public class ProxyHandshake {
 	 *
 	 * @return the byte buffer
 	 */
-	public ByteBuffer createHandshakeRequest() {		
+	public ByteBuffer createHandshakeRequest(String method, String host) {		
 		// Send GET request to server
 		StringBuilder sb = new StringBuilder();
-		String host = originAddress.getHostName() + ":" + originAddress.getPort();
-		sb.append("CONNECT " + host + " HTTP/1.1\r\n");
+		sb.append(method + " " + host + " HTTP/1.1\r\n");
 		StringUtil.addHeader(sb, "Host", host);
 		sb.append("\r\n");
 
@@ -342,24 +351,6 @@ public class ProxyHandshake {
 			return httpResponseHeaderParser.isCompleted();
 		}
 		return true;
-	}
-
-	/**
-	 * Gets the credentials.
-	 *
-	 * @return the credentials
-	 */
-	public ProxyCredentials getCredentials() {
-		return credentials;
-	}
-
-	/**
-	 * Sets the credentials.
-	 *
-	 * @param credentials the new credentials
-	 */
-	public void setCredentials(ProxyCredentials credentials) {
-		this.credentials = credentials;
 	}
 
 	/**

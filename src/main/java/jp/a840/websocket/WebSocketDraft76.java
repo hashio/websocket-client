@@ -339,6 +339,9 @@ public class WebSocketDraft76 extends WebSocketBase {
 		};
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#initializePipeline(jp.a840.websocket.handler.WebSocketPipeline)
+	 */
 	@Override
 	protected void initializePipeline(WebSocketPipeline pipeline)
 			throws WebSocketException {

@@ -61,6 +61,13 @@ public class BasicAuthenticator extends AbstractAuthenticator {
 		return null;
 	}
 	
+	/**
+	 * Gets the credentials.
+	 *
+	 * @param challenge the challenge
+	 * @return the credentials
+	 * @throws WebSocketException the web socket exception
+	 */
 	public String getCredentials(Challenge challenge) throws WebSocketException {
 		String credentialsStr = this.credentials.getUsername() + ":" + this.credentials.getPassword();
 		return AUTH_SCHEME + " "

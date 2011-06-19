@@ -139,16 +139,38 @@ public class StringUtil {
 		return null;
 	}
 
+	/**
+	 * Adds the param.
+	 *
+	 * @param sb the sb
+	 * @param key the key
+	 * @param param the param
+	 * @return the string builder
+	 */
 	public static StringBuilder addParam(StringBuilder sb, String key, String param){
 		sb.append(key).append("=").append(param);
 		return sb;
 	}
 
+	/**
+	 * Adds the quoted param.
+	 *
+	 * @param sb the sb
+	 * @param key the key
+	 * @param param the param
+	 * @return the string builder
+	 */
 	public static StringBuilder addQuotedParam(StringBuilder sb, String key, String param){
 		sb.append(key).append("=\"").append(param).append("\"");
 		return sb;
 	}
 	
+	/**
+	 * To m d5 hex string.
+	 *
+	 * @param str the str
+	 * @return the string
+	 */
 	public static String toMD5HexString(String str){
 		try{
 			MessageDigest md = MessageDigest.getInstance("MD5");
@@ -183,7 +205,7 @@ public class StringUtil {
 	/**
 	 * toHexString.
 	 *
-	 * @param b the b
+	 * @param bytes the bytes
 	 * @return the string
 	 */
 	public static String toHexString(byte[] bytes){
@@ -234,14 +256,31 @@ public class StringUtil {
 	}
 	
 
-	enum State {
-		KEY_START, KEY,VALUE_START, VALUE,DELIM;
-	}
 	/**
-	 * 
+	 * The Enum State.
+	 *
+	 * @author Takahiro Hashimoto
+	 */
+	enum State {
+		
+		/** The KE y_ start. */
+		KEY_START, 
+ /** The KEY. */
+ KEY,
+/** The VALU e_ start. */
+VALUE_START, 
+ /** The VALUE. */
+ VALUE,
+/** The DELIM. */
+DELIM;
+	}
+	
+	/**
 	 * ex. realm="testrealm@host.com", qop="auth,auth-int"
-	 * @param str
-	 * @return
+	 *
+	 * @param str the str
+	 * @param delim the delim
+	 * @return the map
 	 */
 	public static Map<String, String> parseKeyValues(String str, char delim){
 		State state = State.KEY;

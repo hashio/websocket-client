@@ -38,13 +38,19 @@ public interface Authenticator {
 	 * Gets the credentials.
 	 *
 	 * @param method request method GET,POST,CONNECT(proxy)
-	 * @param requestUri
+	 * @param requestUri the request uri
 	 * @param header http header
-	 * @param authenticate header name WWW-Authenticate or Proxy-Authenticate
+	 * @param authenticateHeaderName the authenticate header name
 	 * @return the credentials
 	 * @throws WebSocketException the web socket exception
 	 */
 	public String getCredentials(String method, String requestUri, HttpHeader header, String authenticateHeaderName) throws WebSocketException;
 		
+	/**
+	 * Inits the.
+	 *
+	 * @param websocket the websocket
+	 * @param credentials the credentials
+	 */
 	public void init(WebSocket websocket, Credentials credentials);
 }

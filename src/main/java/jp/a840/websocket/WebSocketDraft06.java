@@ -326,8 +326,8 @@ public class WebSocketDraft06 extends WebSocketBase {
 	 */
 	@Override
 	protected void closeWebSocket() throws WebSocketException {
-		pipeline.sendUpstream(this, null, new CloseFrame());
 		transitionTo(State.CLOSING);
+		pipeline.sendUpstream(this, null, new CloseFrame());
 	}
 
 }

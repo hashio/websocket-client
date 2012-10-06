@@ -175,8 +175,9 @@ abstract public class WebSocketBase implements WebSocket {
 	 * @param protocols the protocols
 	 * @throws WebSocketException the web socket exception
 	 */
-	public WebSocketBase(String url, WebSocketHandler handler,
+	public WebSocketBase(String url, String origin, WebSocketHandler handler,
 			String... protocols) throws WebSocketException {
+        this.origin = origin;
 		this.protocols = protocols;
 		this.handler = handler;
 
@@ -192,8 +193,9 @@ abstract public class WebSocketBase implements WebSocket {
 	 * @param protocols the protocols
 	 * @throws WebSocketException the web socket exception
 	 */
-	public WebSocketBase(String url, Proxy proxy, WebSocketHandler handler,
+	public WebSocketBase(String url, String origin, Proxy proxy, WebSocketHandler handler,
 			String... protocols) throws WebSocketException {
+        this.origin = origin;
 		this.protocols = protocols;
 		this.handler = handler;
 		this.proxy = proxy;
@@ -220,7 +222,6 @@ abstract public class WebSocketBase implements WebSocket {
 	 * @throws WebSocketException the web socket exception
 	 */
 	protected void initializeProperties() throws WebSocketException {
-		this.origin = System.getProperty("websocket.origin");
 		this.bufferSize = Integer.getInteger("websocket.bufferSize",0x7FFF);
 		int upstreamQueueSize = Integer.getInteger("websocket.upstreamQueueSize", 500);
 		this.upstreamQueue = new LinkedBlockingQueue<ByteBuffer>(upstreamQueueSize);
@@ -295,7 +296,7 @@ abstract public class WebSocketBase implements WebSocket {
 			if(uri.getScheme().equals("wss")){
 				useSsl = true;
 			}
-			path = uri.getPath();
+			path = (uri.getPath().equals("") ? "/" : uri.getPath()) + (uri.getQuery()  != null ? "?" + uri.getQuery() : "");
 			int port = uri.getPort();
 			if (port < 0) {
 				if (uri.getScheme().equals("ws")) {
@@ -529,7 +530,6 @@ abstract public class WebSocketBase implements WebSocket {
 				sslHandshake.doHandshake(socket);
 			}
 			pipeline.sendHandshakeUpstream(this, null); // send handshake request
-//			socket.write(upstreamQueue.take());
 
 			transitionTo(State.HANDSHAKE);
 

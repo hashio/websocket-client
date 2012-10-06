@@ -51,7 +51,7 @@ import jp.a840.websocket.proxy.Proxy;
  * A simple websocket client
  * this class is implement the WebSocket Draft76 specification.
  * 
- * @see http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76
+ * @see <a href="http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76">draft-hixie-thewebsocketprotocol-76</a>
  * @author t-hashimoto
  * 
  */
@@ -74,7 +74,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	 */
 	public WebSocketDraft76(String url, WebSocketHandler handler,
 			String... protocols) throws WebSocketException {
-		super(url, handler, protocols);
+		super(url, null, handler, protocols);
 	}
 	
 	/**
@@ -88,7 +88,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	 */
 	public WebSocketDraft76(String url, Proxy proxy, WebSocketHandler handler,
 			String... protocols) throws WebSocketException {
-		super(url, proxy, handler, protocols);
+		super(url, null, proxy, handler, protocols);
 	}
 	
 	/* (non-Javadoc)
@@ -116,7 +116,6 @@ public class WebSocketDraft76 extends WebSocketBase {
 			 * ^n:ds[4U
 			 * </pre>
 			 * 
-			 * @param socket
 			 */
 			@Override
 			public ByteBuffer createHandshakeRequest() {

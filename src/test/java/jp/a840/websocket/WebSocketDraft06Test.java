@@ -123,7 +123,7 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.start();
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler, null);
+		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", null, handler, null);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.close();
@@ -187,7 +187,7 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.start();
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler, null);
+		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999",null, handler, null);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.close();
@@ -254,7 +254,7 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.start();
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler, null);
+		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", null, handler, null);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.awaitTermination(5, TimeUnit.SECONDS);
@@ -338,7 +338,7 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.start();
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler, null);
+		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", null, handler, null);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.send(testRequestFrame);
@@ -417,7 +417,7 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.start();
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler, null);
+		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", null, handler, null);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.send(testRequestFrame);
@@ -499,7 +499,7 @@ public class WebSocketDraft06Test extends TestCase {
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
 		InetSocketAddress proxy = new InetSocketAddress("localhost", 9999);
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", new Proxy(proxy), handler, (String)null);
+		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", null, new Proxy(proxy), handler, (String)null);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.close();
@@ -595,7 +595,7 @@ public class WebSocketDraft06Test extends TestCase {
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
 		InetSocketAddress proxy = new InetSocketAddress("localhost", 9999);
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", new Proxy(proxy, "test", "test"), handler, (String)null);
+		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", null, new Proxy(proxy, "test", "test"), handler, (String)null);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.close();

@@ -21,24 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.jetty;
+package jp.a840.websocket.websocketorg;
 
 import jp.a840.websocket.WebSocket;
 import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.WebSocketHandler;
 import jp.a840.websocket.WebSockets;
+import jp.a840.websocket.auth.Credentials;
+import jp.a840.websocket.auth.DefaultAuthenticator;
+import jp.a840.websocket.auth.win32.Mechanism;
+import jp.a840.websocket.auth.win32.SpengoAuthenticator;
 import jp.a840.websocket.frame.Frame;
-import jp.a840.websocket.handler.PacketDumpStreamHandler;
+import jp.a840.websocket.proxy.Proxy;
+import jp.a840.websocket.util.PacketDumpUtil;
 
-import org.junit.Test;
+import java.net.InetSocketAddress;
 
 
 /**
- * The Class WebSocketChatServletTest.
+ * The Class WebSocketChatServletProxyTest.
  *
  * @author Takahiro Hashimoto
  */
-public class WebSocketChatServletTest {
+public class WebSocketEchoProxyTest {
 	
 	/**
 	 * The main method.
@@ -47,32 +52,39 @@ public class WebSocketChatServletTest {
 	 * @throws Exception the exception
 	 */
 	public static void main(String[] argv) throws Exception {
-//		System.setProperty("websocket.packatdump", String.valueOf(
-//				PacketDumpStreamHandler.ALL
-//		));
+		System.setProperty("websocket.packatdump", String.valueOf(
+				PacketDumpUtil.ALL
+		));
 //		System.setProperty("javax.net.debug", "all");
 		System.setProperty("java.util.logging.config.file", "logging.properties");
-		WebSocket socket = WebSockets.createDraft06("ws://localhost:8080/ws/", null, new WebSocketHandler() {
+//		Proxy proxy = new Proxy(new Credentials("test", "test"), new BasicAuthenticator());
+        SpengoAuthenticator.setDefaultMechanism(Mechanism.NTLM);
+		Proxy proxy = new Proxy(new InetSocketAddress("192.168.100.230", 8080),new Credentials("test", "test"), new DefaultAuthenticator());
+//		Proxy proxy = new Proxy(new Credentials("test", "test"), new DigestAuthenticator());
+		WebSocket socket = WebSockets.create("wss://echo.websocket.org", "http://www.websocket.org", proxy, new WebSocketHandler() {
 			
 			public void onOpen(WebSocket socket) {
 				System.err.println("Open");
 				try {
-					socket.send(socket.createFrame(System.getenv("USER") + ":has joined!"));
+					socket.send(socket.createFrame("Test"));
 				}catch(Exception e){
 					e.printStackTrace();
 				}
 			}
 			
 			public void onMessage(WebSocket socket, Frame frame) {
-				if(!frame.toString().startsWith(System.getenv("USER"))){
-					try {
-						socket.send(socket.createFrame(System.getenv("USER") + ":(echo)" + frame.toString()));
-					}catch(Exception e){
-						e.printStackTrace();
-					}
-				}
 				System.out.println(frame);
-			}
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+                try {
+                    socket.send(socket.createFrame("Boo"));
+                } catch (WebSocketException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
 			
 			public void onError(WebSocket socket, WebSocketException e) {
 				e.printStackTrace();
@@ -81,7 +93,7 @@ public class WebSocketChatServletTest {
 			public void onClose(WebSocket socket) {
 				System.err.println("Closed");
 			}
-		}, "chat");
+		}, null);
 		socket.setBlockingMode(true);
 		socket.connect();
 	}

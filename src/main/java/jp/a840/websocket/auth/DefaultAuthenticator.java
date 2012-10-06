@@ -23,11 +23,13 @@
  */
 package jp.a840.websocket.auth;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.auth.win32.SpengoAuthenticator;
 
 /**
  * The Class DefaultAuthenticator.
@@ -41,13 +43,19 @@ public class DefaultAuthenticator extends AbstractAuthenticator {
 	
 	/** The digest authenticator. */
 	private DigestAuthenticator digestAuthenticator;
-	
+
+    /** The spengo authenticator.(Windows only) */
+    private SpengoAuthenticator spengoAuthenticator;
+
 	/**
 	 * Instantiates a new default authenticator.
 	 */
 	public DefaultAuthenticator(){
 		this.basicAuthenticator = new BasicAuthenticator();
 		this.digestAuthenticator = new DigestAuthenticator();
+        if(System.getProperty("os.name").indexOf("Windows") > -1){
+            this.spengoAuthenticator = new SpengoAuthenticator();
+        }
 	}
 
 	/**
@@ -68,17 +76,20 @@ public class DefaultAuthenticator extends AbstractAuthenticator {
 	@Override
 	public String getCredentials(List<Challenge> challengeList)
 			throws WebSocketException {
-		Map<String, Challenge> schemeMap = new HashMap<String, Challenge>();
+		Map<AuthScheme, Challenge> schemeMap = new EnumMap<AuthScheme, Challenge>(AuthScheme.class);
 		for(Challenge challenge : challengeList){
 			schemeMap.put(challenge.getScheme(), challenge);
 		}
 		
-		if(schemeMap.containsKey("Digest")){
+        if(this.spengoAuthenticator != null && schemeMap.containsKey(AuthScheme.Negotiate)){
+            this.spengoAuthenticator.init(this.websocket, this.credentials);
+            return this.spengoAuthenticator.getCredentials(schemeMap.get(AuthScheme.Negotiate));
+        }else if(schemeMap.containsKey(AuthScheme.Digest)){
 			this.digestAuthenticator.init(this.websocket, this.credentials);
-			return this.digestAuthenticator.getCredentials(schemeMap.get("Digest"));
-		}else if(schemeMap.containsKey("Basic")){
+			return this.digestAuthenticator.getCredentials(schemeMap.get(AuthScheme.Digest));
+		}else if(schemeMap.containsKey(AuthScheme.Basic)){
 			this.basicAuthenticator.init(this.websocket, this.credentials);
-			return this.basicAuthenticator.getCredentials(schemeMap.get("Basic"));
+			return this.basicAuthenticator.getCredentials(schemeMap.get(AuthScheme.Basic));
 		}
 		return null;
 	}

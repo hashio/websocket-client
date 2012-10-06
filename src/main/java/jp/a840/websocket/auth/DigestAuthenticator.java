@@ -24,6 +24,7 @@
 package jp.a840.websocket.auth;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,15 +58,12 @@ import jp.a840.websocket.util.StringUtil;
  *   opaque="5ccc069c403ebaf9f0171e9517f40e41"
  *
  * @author Takahiro Hashimoto
- * @see http://www.ietf.org/rfc/rfc2617.txt
+ * @see <a href="http://www.ietf.org/rfc/rfc2617.txt">RFC2617</a>
  */
 public class DigestAuthenticator extends AbstractAuthenticator {
 	
 	/** The log. */
 	private Logger log = Logger.getLogger(DigestAuthenticator.class.getCanonicalName());
-	
-	/** The AUT h_ scheme. */
-	private static String AUTH_SCHEME = "Digest";
 
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.auth.AbstractAuthenticator#getCredentials(java.util.List)
@@ -74,7 +72,7 @@ public class DigestAuthenticator extends AbstractAuthenticator {
 	public String getCredentials(List<Challenge> challengeList)
 			throws WebSocketException {
 		for(Challenge challenge : challengeList){
-			if (AUTH_SCHEME.equalsIgnoreCase(challenge.getScheme())) {
+			if (AuthScheme.Digest.equals(challenge.getScheme())) {
 				return getCredentials(challenge);
 			}
 		}
@@ -91,13 +89,15 @@ public class DigestAuthenticator extends AbstractAuthenticator {
 	public String getCredentials(Challenge challenge) throws WebSocketException {
 		String username = this.credentials.getUsername();
 		String password = this.credentials.getPassword();
+        String param = challenge.getParam();
+        Map<String, String> paramMap = StringUtil.parseKeyValues(param, ',');
 		
 		String method = challenge.getMethod();
 		String uri = challenge.getRequestUri();
 		
-		String opaque = challenge.getParam("opaque");
-		String nonce = challenge.getParam("nonce");
-		String qop = challenge.getParam("qop");
+		String opaque = paramMap.get("opaque");
+		String nonce = paramMap.get("nonce");
+		String qop = paramMap.get("qop");
 		// qop support 'auth' only. cause of websocket can't hash for entity-body
 		if(qop != null){
 			String[] qops = qop.split(",");
@@ -110,8 +110,8 @@ public class DigestAuthenticator extends AbstractAuthenticator {
 				}
 			}
 		}
-		String realm = challenge.getParam("realm");
-		String algorithm = challenge.getParam("algorithm");
+		String realm = paramMap.get("realm");
+		String algorithm = paramMap.get("algorithm");
 		if(algorithm == null){
 			algorithm = "MD5";
 		}
@@ -121,7 +121,7 @@ public class DigestAuthenticator extends AbstractAuthenticator {
 		
 		String nc = "00000001";
 		
-		StringBuilder sb = new StringBuilder(AUTH_SCHEME);
+		StringBuilder sb = new StringBuilder(AuthScheme.Digest.name());
 		sb.append(" ");
 		StringUtil.addQuotedParam(sb, "username", username).append(", ");
 		StringUtil.addQuotedParam(sb, "realm", realm).append(", ");

@@ -33,7 +33,7 @@ import java.util.Map;
 public class Challenge {
 	
 	/** The scheme. */
-	private String scheme;
+	private AuthScheme scheme;
 	
 	/** The method. */
 	private String method;
@@ -41,22 +41,25 @@ public class Challenge {
 	/** The request uri. */
 	private String requestUri;
 	
-	/** The param map. */
-	private Map<String,String> paramMap;
-	
+	/** The param */
+	private String param;
+
+    /** param
+    private String param;
+
 	/**
 	 * Instantiates a new challenge.
 	 *
 	 * @param method the method
 	 * @param requestUri the request uri
 	 * @param scheme the scheme
-	 * @param paramMap the param map
+	 * @param param the param
 	 */
-	public Challenge(String method, String requestUri, String scheme, Map<String, String> paramMap){
+	public Challenge(String method, String requestUri, AuthScheme scheme, String param){
 		this.method = method;
 		this.requestUri = requestUri;
 		this.scheme = scheme;
-		this.paramMap = paramMap;
+        this.param = param;
 	}
 	
 	/**
@@ -64,18 +67,17 @@ public class Challenge {
 	 *
 	 * @return the scheme
 	 */
-	public String getScheme(){
+	public AuthScheme getScheme(){
 		return this.scheme;
 	}
 	
 	/**
 	 * Gets the param.
 	 *
-	 * @param name the name
 	 * @return the param
 	 */
-	public String getParam(String name){
-		return this.paramMap.get(name);
+	public String getParam(){
+		return this.param;
 	}
 
 	/**

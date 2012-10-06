@@ -229,8 +229,8 @@ public class ProxyHandshake {
 						bufferManager.storeFragmentBuffer(responseBuffer);
 					}else{
 						if(needAuthorize){
-							if(authTry > 0){
-								throw new WebSocketException(3999, "Need proxy authenticate. Proxy Authenticate fail.");						
+							if(!authenticator.isNeedAuthenticate()){
+								throw new WebSocketException(3999, "Need proxy authenticate. Proxy Authenticate fail.");
 							}
 							if(authenticator == null){
 								throw new WebSocketException(3999, "Need proxy authenticate. But not set a Authenticator");

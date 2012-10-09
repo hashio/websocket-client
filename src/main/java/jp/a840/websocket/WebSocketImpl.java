@@ -264,25 +264,11 @@ public class WebSocketImpl extends WebSocketBase {
 		};
 	}
 
-	
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.Object)
-	 */
-	@Override
-	public Frame createFrame(Object obj) throws WebSocketException {
-		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			oos.writeObject(obj);
-			
-			byte[] bodyData = baos.toByteArray();
-			return new BinaryFrame(bodyData);
-		} catch (Exception e) {
-			throw new WebSocketException(3650, e);
-		}
-	}
+    @Override
+    public Frame createFrame(byte[] bytes) throws WebSocketException {
+        return new BinaryFrame(bytes);
+    }
 
-	
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.String)
 	 */

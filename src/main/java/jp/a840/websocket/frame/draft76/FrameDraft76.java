@@ -25,8 +25,6 @@ package jp.a840.websocket.frame.draft76;
 
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
-import jp.a840.websocket.frame.draft06.BinaryFrame;
-import jp.a840.websocket.frame.draft06.TextFrame;
 
 /**
  * WebSocket Frame class
@@ -54,25 +52,5 @@ abstract public class FrameDraft76 extends Frame {
 	 */
 	protected FrameDraft76(FrameHeader header, byte[] body){
 		super(header, body);
-	}
-
-	/**
-	 * Creates the binary frame.
-	 *
-	 * @param body the body
-	 * @return the binary frame
-	 */
-	public static BinaryFrame createBinaryFrame(byte[] body){
-		return new BinaryFrame(body);
-	}
-	
-	/**
-	 * Creates the text frame.
-	 *
-	 * @param str the str
-	 * @return the text frame
-	 */
-	public static TextFrame createTextFrame(String str){
-		return new TextFrame(str);
 	}
 }

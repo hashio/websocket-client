@@ -100,18 +100,18 @@ public class FrameBuilderRfc6455 {
          */
         public static Opcode valueOf(int opc) {
             switch (opc) {
-                case 0:
+                case 0x0:
                     return CONTINUATION;
-                case 1:
-                    return CONNECTION_CLOSE;
-                case 2:
-                    return PING;
-                case 3:
-                    return PONG;
-                case 4:
+                case 0x1:
                     return TEXT_FRAME;
-                case 5:
+                case 0x2:
                     return BINARY_FRAME;
+                case 0x8:
+                    return CONNECTION_CLOSE;
+                case 0x9:
+                    return PING;
+                case 0xA:
+                    return PONG;
                 default:
                     return null;
             }

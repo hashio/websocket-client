@@ -73,7 +73,7 @@ abstract public class FrameRfc6455 extends Frame {
 	 * Instantiates a new frame draft06.
 	 *
 	 * @param header the header
-	 * @param bodyData the body data
+	 * @param bodyData the contents data
 	 */
 	protected FrameRfc6455(FrameHeader header, byte[] bodyData){
 		super(header, bodyData);
@@ -85,13 +85,13 @@ abstract public class FrameRfc6455 extends Frame {
 	public ByteBuffer toByteBuffer(){
 		ByteBuffer headerBuffer = header.toByteBuffer();
 		int bodyLength = 0;
-		if(body != null){
-			bodyLength = body.length;
+		if(contents != null){
+			bodyLength = contents.length;
 		}
-		ByteBuffer buf = ByteBuffer.allocate(headerBuffer.limit() + bodyLength); // mask-key + header + body
+		ByteBuffer buf = ByteBuffer.allocate(headerBuffer.limit() + bodyLength); // mask-key + header + contents
 		buf.put(headerBuffer);
-		if(body != null){
-			buf.put(body);			
+		if(contents != null){
+			buf.put(contents);
 		}
 		buf.flip();
 		return buf;

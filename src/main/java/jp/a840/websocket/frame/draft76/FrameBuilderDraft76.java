@@ -93,7 +93,7 @@ public class FrameBuilderDraft76 {
 	 * Creates the frame.
 	 *
 	 * @param h the h
-	 * @param bodyData the body data
+	 * @param bodyData the contents data
 	 * @return the frame
 	 */
 	public static Frame createFrame(FrameHeader h, byte[] bodyData){

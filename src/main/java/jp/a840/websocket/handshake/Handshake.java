@@ -214,7 +214,7 @@ public abstract class Handshake {
 	}
 		
 	/**
-	 * Parses the handshake response body.
+	 * Parses the handshake response contents.
 	 *
 	 * @param buffer the buffer
 	 * @return true, if successful

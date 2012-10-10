@@ -48,7 +48,7 @@ abstract public class FrameDraft76 extends Frame {
 	 * Instantiates a new frame draft76.
 	 *
 	 * @param header the header
-	 * @param body the body
+	 * @param body the contents
 	 */
 	protected FrameDraft76(FrameHeader header, byte[] body){
 		super(header, body);

@@ -415,7 +415,7 @@ public class FrameBuilderRfc6455 {
     /**
      * Creates the frame header.
      *
-     * @param body       the body
+     * @param body       the contents
      * @param fragmented the fragmented
      * @param opcode     the opcode
      * @return the frame header draft06
@@ -433,7 +433,7 @@ public class FrameBuilderRfc6455 {
      * Creates the frame.
      *
      * @param header   the header
-     * @param bodyData the body data
+     * @param bodyData the contents data
      * @return the frame
      */
     public static Frame createFrame(FrameHeaderRfc6455 header, byte[] bodyData) {

@@ -38,7 +38,7 @@ public class CloseFrame extends FrameDraft06 {
 	 * Instantiates a new connection close frame.
 	 *
 	 * @param header the header
-	 * @param bodyData the body data
+	 * @param bodyData the contents data
 	 */
 	protected CloseFrame(FrameHeaderDraft06 header, byte[] bodyData) {
 		super(header, bodyData);

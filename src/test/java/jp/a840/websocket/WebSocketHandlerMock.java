@@ -67,7 +67,7 @@ public class WebSocketHandlerMock implements WebSocketHandler {
 		args.add(socket);
 		args.add(frame);
 		
-		PacketDumpUtil.printPacketDump("frame", frame.getRawBody());
+		PacketDumpUtil.printPacketDump("frame", frame.getContents());
 
 		onMessageList.add(args);
 	}

@@ -37,20 +37,20 @@ public class BinaryFrame extends FrameDraft76 {
 	/**
 	 * Instantiates a new binary frame.
 	 *
-	 * @param bodyData the body data
+	 * @param bodyData the contents data
 	 */
 	public BinaryFrame(byte[] bodyData) {
 		super();
 		FrameHeaderDraft76 header = new FrameHeaderDraft76((byte)0xFF, bodyData.length);
 		setHeader(header);
-		setBody(bodyData);
+		setContents(bodyData);
 	}
 	
 	/**
 	 * Instantiates a new binary frame.
 	 *
 	 * @param header the header
-	 * @param bodyData the body data
+	 * @param bodyData the contents data
 	 */
 	protected BinaryFrame(FrameHeader header, byte[] bodyData){
 		super(header, bodyData);
@@ -61,20 +61,20 @@ public class BinaryFrame extends FrameDraft76 {
 	 */
 	@Override
 	public ByteBuffer toByteBuffer() {
-		byte[] bodyLengthBuf = getBodyLength(body);
-		ByteBuffer buf = ByteBuffer.allocate(1 + bodyLengthBuf.length + body.length);
+		byte[] bodyLengthBuf = getBodyLength(contents);
+		ByteBuffer buf = ByteBuffer.allocate(1 + bodyLengthBuf.length + contents.length);
 		buf.put(header.toByteBuffer());
 		buf.put(bodyLengthBuf);
-		buf.put(body);
+		buf.put(contents);
 		buf.flip();
 		return buf;
 	}
 	
 	/**
-	 * Gets the body length.
+	 * Gets the contents length.
 	 *
-	 * @param body the body
-	 * @return the body length
+	 * @param body the contents
+	 * @return the contents length
 	 */
 	private static byte[] getBodyLength(byte[] body){
 		byte[] tmp = new byte[body.length / 7 + 1];

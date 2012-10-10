@@ -24,7 +24,6 @@
 package jp.a840.websocket.frame.draft06;
 
 import java.nio.ByteBuffer;
-import java.util.Random;
 
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
@@ -72,7 +71,7 @@ abstract public class FrameDraft06 extends Frame {
 	 * Instantiates a new frame draft06.
 	 *
 	 * @param header the header
-	 * @param bodyData the body data
+	 * @param bodyData the contents data
 	 */
 	protected FrameDraft06(FrameHeader header, byte[] bodyData){
 		super(header, bodyData);
@@ -84,13 +83,13 @@ abstract public class FrameDraft06 extends Frame {
 	public ByteBuffer toByteBuffer(){
 		ByteBuffer headerBuffer = header.toByteBuffer();
 		int bodyLength = 0;
-		if(body != null){
-			bodyLength = body.length;
+		if(contents != null){
+			bodyLength = contents.length;
 		}
-		ByteBuffer buf = ByteBuffer.allocate(headerBuffer.limit() + bodyLength); // mask-key + header + body
+		ByteBuffer buf = ByteBuffer.allocate(headerBuffer.limit() + bodyLength); // mask-key + header + contents
 		buf.put(headerBuffer);
-		if(body != null){
-			buf.put(body);			
+		if(contents != null){
+			buf.put(contents);
 		}
 		buf.flip();
 		return buf;

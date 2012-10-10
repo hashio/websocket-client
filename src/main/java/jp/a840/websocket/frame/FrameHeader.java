@@ -40,11 +40,11 @@ public interface FrameHeader {
 	public long getFrameLength();
 	
 	/**
-	 * Gets the body length.
+	 * Gets the contents length.
 	 *
-	 * @return the body length
+	 * @return the contents length
 	 */
-	public long getBodyLength();
+	public long getContentsLength();
 	
 	/**
 	 * To byte buffer.

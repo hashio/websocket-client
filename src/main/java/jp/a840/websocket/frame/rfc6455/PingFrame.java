@@ -38,7 +38,7 @@ public class PingFrame extends FrameRfc6455 {
 	 * Instantiates a new ping frame.
 	 *
 	 * @param header the header
-	 * @param bodyData the body data
+	 * @param bodyData the contents data
 	 */
 	protected PingFrame(FrameHeaderRfc6455 header, byte[] bodyData) {
 		super(header, bodyData);

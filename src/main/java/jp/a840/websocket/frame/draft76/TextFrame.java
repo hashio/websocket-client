@@ -48,14 +48,14 @@ public class TextFrame extends FrameDraft76 {
 		byte[] body = convertStringToByteArray(str);
 		FrameHeaderDraft76 header = new FrameHeaderDraft76((byte)0x00, body.length + 1);
 		setHeader(header);
-		setBody(body);
+		setContents(body);
 	}
 	
 	/**
 	 * Instantiates a new text frame.
 	 *
 	 * @param header the header
-	 * @param body the body
+	 * @param body the contents
 	 */
 	public TextFrame(FrameHeader header, byte[] body){
 		super(header, stripTerminateFlag(body));
@@ -64,7 +64,7 @@ public class TextFrame extends FrameDraft76 {
 	/**
 	 * Strip terminate flag.
 	 *
-	 * @param body the body
+	 * @param body the contents
 	 * @return the byte[]
 	 */
 	private static byte[] stripTerminateFlag(byte[] body){
@@ -95,9 +95,9 @@ public class TextFrame extends FrameDraft76 {
 	 * @see jp.a840.websocket.frame.Frame#toByteBuffer()
 	 */
 	public ByteBuffer toByteBuffer() {
-		ByteBuffer buf = ByteBuffer.allocate(1 + body.length + 1);
+		ByteBuffer buf = ByteBuffer.allocate(1 + contents.length + 1);
 		buf.put(header.toByteBuffer());
-		buf.put(body);
+		buf.put(contents);
 		buf.put((byte)0xFF);
 		buf.flip();
 		return buf;
@@ -109,7 +109,7 @@ public class TextFrame extends FrameDraft76 {
 	public String toString(){
 		if(convertedString == null){
 			try{
-				convertedString = new String(body, "UTF-8");
+				convertedString = new String(contents, "UTF-8");
 			}catch(UnsupportedEncodingException e){
 				convertedString = "";
 			}

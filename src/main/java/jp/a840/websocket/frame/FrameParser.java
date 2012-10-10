@@ -131,7 +131,7 @@ public abstract class FrameParser {
 					bufferManager.storeFragmentBuffer(buffer);
 					return null;
 				}
-				if (header.getBodyLength() - 1 > Integer.MAX_VALUE) {
+				if (header.getContentsLength() - 1 > Integer.MAX_VALUE) {
 					throw new IllegalArgumentException(
 							"large data is not support yet");
 				}
@@ -139,12 +139,12 @@ public abstract class FrameParser {
 			}
 
 			if (State.FRAME.equals(state)) {
-				if (header.getBodyLength() > buffer.remaining()) {
+				if (header.getContentsLength() > buffer.remaining()) {
 					bufferManager.storeFragmentBuffer(buffer);
 					return null;
 				}
 
-				byte[] bodyBuf = new byte[(int) header.getBodyLength()];
+				byte[] bodyBuf = new byte[(int) header.getContentsLength()];
 				buffer.get(bodyBuf, 0, bodyBuf.length);
 				Frame frame = createFrame(header, bodyBuf);
 				transitionTo(State.DONE);
@@ -174,7 +174,7 @@ public abstract class FrameParser {
 	 * Creates the frame.
 	 *
 	 * @param h the h
-	 * @param bodyData the body data
+	 * @param bodyData the contents data
 	 * @return the frame
 	 */
 	abstract protected Frame createFrame(FrameHeader h, byte[] bodyData);

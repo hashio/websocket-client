@@ -42,7 +42,7 @@ public class TextFrame extends FrameDraft06 {
 	 * Instantiates a new text frame.
 	 *
 	 * @param header the header
-	 * @param bodyData the body data
+	 * @param bodyData the contents data
 	 */
 	public TextFrame(FrameHeaderDraft06 header, byte[] bodyData) {
 		super(header, bodyData);
@@ -57,7 +57,7 @@ public class TextFrame extends FrameDraft06 {
 		super();
 		byte[] body = convertStringToByteArray(str);
 		setHeader(FrameBuilderDraft06.createFrameHeader(body, false, Opcode.TEXT_FRAME));
-		setBody(body);
+		setContents(body);
 	}
 	
 	/**
@@ -81,7 +81,7 @@ public class TextFrame extends FrameDraft06 {
 	public String toString(){
 		if(convertedString == null){
 			try{
-				convertedString = new String(body, "UTF-8");
+				convertedString = new String(contents, "UTF-8");
 			}catch(UnsupportedEncodingException e){
 				convertedString = "";
 			}

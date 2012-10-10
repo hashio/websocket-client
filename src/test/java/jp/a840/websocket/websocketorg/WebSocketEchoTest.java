@@ -67,12 +67,12 @@ public class WebSocketEchoTest {
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    e.printStackTrace();  //To change contents of catch statement use File | Settings | File Templates.
                 }
                 try {
                     socket.send(socket.createFrame("Boo"));
                 } catch (WebSocketException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    e.printStackTrace();  //To change contents of catch statement use File | Settings | File Templates.
                 }
             }
 

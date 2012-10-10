@@ -356,7 +356,7 @@ public class WebSocketDraft06Test extends TestCase {
 		}
 		Assert.assertEquals(1, handler.getOnOpenList().size());
 		Assert.assertEquals(1, handler.getOnMessageList().size());
-		Assert.assertArrayEquals("TEST FRAME-RES".getBytes(), ((BinaryFrame)handler.getOnMessageList().get(0).get(1)).getRawBody().array());
+		Assert.assertArrayEquals("TEST FRAME-RES".getBytes(), ((BinaryFrame)handler.getOnMessageList().get(0).get(1)).getContents().array());
 		Assert.assertEquals(0, handler.getOnErrorList().size());
 		Assert.assertEquals(1, handler.getOnCloseList().size());
 		
@@ -435,7 +435,7 @@ public class WebSocketDraft06Test extends TestCase {
 		}
 		Assert.assertEquals(1, handler.getOnOpenList().size());
 		Assert.assertEquals(1, handler.getOnMessageList().size());
-		Assert.assertArrayEquals("TEST FRAME-RES".getBytes(), ((BinaryFrame)handler.getOnMessageList().get(0).get(1)).getRawBody().array());
+		Assert.assertArrayEquals("TEST FRAME-RES".getBytes(), ((BinaryFrame)handler.getOnMessageList().get(0).get(1)).getContents().array());
 		Assert.assertEquals(0, handler.getOnErrorList().size());
 		Assert.assertEquals(1, handler.getOnCloseList().size());
 		

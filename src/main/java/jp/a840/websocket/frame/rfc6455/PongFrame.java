@@ -37,7 +37,7 @@ public class PongFrame extends FrameRfc6455 {
 	 * Instantiates a new pong frame.
 	 *
 	 * @param header the header
-	 * @param bodyData the body data
+	 * @param bodyData the contents data
 	 */
 	public PongFrame(FrameHeader header, byte[] bodyData) {
 		super(header, bodyData);

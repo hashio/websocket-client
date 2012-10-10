@@ -115,9 +115,9 @@ public class FrameHeaderRfc6455 implements FrameHeader {
 	}
 	
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.frame.FrameHeader#getBodyLength()
+	 * @see jp.a840.websocket.frame.FrameHeader#getContentsLength()
 	 */
-	public long getBodyLength(){
+	public long getContentsLength(){
 		return payloadLength;
 	}
 	

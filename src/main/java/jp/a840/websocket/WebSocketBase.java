@@ -370,22 +370,18 @@ abstract public class WebSocketBase implements WebSocket {
 		pipeline.sendUpstream(this, null, frame);
 	}
 
-	/**
-	 * Send.
-	 *
-	 * @param obj the obj
-	 * @throws WebSocketException the web socket exception
-	 */
 	public void send(Object obj) throws WebSocketException {
 		send(createFrame(obj));
 	}
 
-	/**
-	 * Send.
-	 *
-	 * @param str the str
-	 * @throws WebSocketException the web socket exception
-	 */
+    public void send(ByteBuffer buffer) throws WebSocketException {
+   		send(createFrame(buffer));
+   	}
+
+   	public void send(byte[] bytes) throws WebSocketException {
+   		send(createFrame(bytes));
+   	}
+
 	public void send(String str) throws WebSocketException {
 		send(createFrame(str));
 	}

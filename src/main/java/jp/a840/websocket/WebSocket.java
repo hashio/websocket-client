@@ -45,7 +45,31 @@ public interface WebSocket {
 	 * @throws WebSocketException the web socket exception
 	 */
 	public void send(Frame frame) throws WebSocketException;
-	
+
+    /**
+   	 * Send.
+   	 *
+   	 * @param buffer the ByteBuffer
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public void send(ByteBuffer buffer) throws WebSocketException;
+
+    /**
+   	 * Send.
+   	 *
+   	 * @param bytes the bytes
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public void send(byte[] bytes) throws WebSocketException;
+
+    /**
+   	 * Send.
+   	 *
+   	 * @param text the text
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public void send(String text) throws WebSocketException;
+
 	/**
 	 * Connect.
 	 *

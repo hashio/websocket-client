@@ -74,7 +74,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	 */
 	public WebSocketDraft76(String url, WebSocketHandler handler,
 			String... protocols) throws WebSocketException {
-		super(url, null, handler, protocols);
+		super(url, (String)null, handler, protocols);
 	}
 	
 	/**
@@ -88,7 +88,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	 */
 	public WebSocketDraft76(String url, Proxy proxy, WebSocketHandler handler,
 			String... protocols) throws WebSocketException {
-		super(url, null, proxy, handler, protocols);
+		super(url, (String)null, proxy, handler, protocols);
 	}
 	
 	/* (non-Javadoc)

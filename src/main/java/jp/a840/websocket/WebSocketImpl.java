@@ -85,6 +85,18 @@ public class WebSocketImpl extends WebSocketBase {
 		super(url, origin, handler, protocols);
 	}
 
+    /**
+   	 * Instantiates a new web socket RFC6455.
+   	 *
+   	 * @param url the url
+   	 * @param handler the handler
+   	 * @param protocols the protocols
+   	 * @throws jp.a840.websocket.WebSocketException the web socket exception
+   	 */
+   	public WebSocketImpl(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
+   		super(url, handler, protocols);
+   	}
+
 	/**
 	 * Instantiates a new web socket RFC6455.
 	 *
@@ -98,6 +110,19 @@ public class WebSocketImpl extends WebSocketBase {
 	public WebSocketImpl(String url, String origin, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		super(url, origin, proxy, handler, protocols);
 	}
+
+    /**
+   	 * Instantiates a new web socket RFC6455.
+   	 *
+   	 * @param url the url
+   	 * @param proxy the proxy
+   	 * @param handler the handler
+   	 * @param protocols the protocols
+   	 * @throws jp.a840.websocket.WebSocketException the web socket exception
+   	 */
+   	public WebSocketImpl(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
+   		super(url, proxy, handler, protocols);
+   	}
 
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.WebSocketBase#initializePipeline(jp.a840.websocket.handler.WebSocketPipeline)

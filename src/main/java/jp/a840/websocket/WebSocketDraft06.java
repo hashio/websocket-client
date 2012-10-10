@@ -81,6 +81,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 	 * Instantiates a new web socket draft06.
 	 *
 	 * @param url the url
+     * @param origin the origin
 	 * @param handler the handler
 	 * @param protocols the protocols
 	 * @throws WebSocketException the web socket exception
@@ -89,6 +90,18 @@ public class WebSocketDraft06 extends WebSocketBase {
 		super(url, origin, handler, protocols);
 	}
 	
+    /**
+   	 * Instantiates a new web socket draft06.
+   	 *
+   	 * @param url the url
+   	 * @param handler the handler
+   	 * @param protocols the protocols
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public WebSocketDraft06(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
+   		super(url, handler, protocols);
+   	}
+
 	/**
 	 * Instantiates a new web socket draft06.
 	 *
@@ -102,6 +115,19 @@ public class WebSocketDraft06 extends WebSocketBase {
 	public WebSocketDraft06(String url, String origin, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		super(url, origin, proxy, handler, protocols);
 	}
+
+    /**
+   	 * Instantiates a new web socket draft06.
+   	 *
+   	 * @param url the url
+   	 * @param proxy the proxy
+   	 * @param handler the handler
+   	 * @param protocols the protocols
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public WebSocketDraft06(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
+   		super(url, proxy, handler, protocols);
+   	}
 
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.WebSocketBase#initializePipeline(jp.a840.websocket.handler.WebSocketPipeline)

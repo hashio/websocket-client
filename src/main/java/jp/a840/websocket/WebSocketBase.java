@@ -184,10 +184,29 @@ abstract public class WebSocketBase implements WebSocket {
 		init(url);
 	}
 	
+    /**
+	 * Instantiates a new web socket base.
+	 *
+	 * @param url the url
+	 * @param handler the handler
+	 * @param protocols the protocols
+	 * @throws WebSocketException the web socket exception
+	 */
+	public WebSocketBase(String url, WebSocketHandler handler,
+			String... protocols) throws WebSocketException {
+		this.protocols = protocols;
+		this.handler = handler;
+
+		init(url);
+
+        this.origin = this.location.getHost() + (this.location.getPort() > 0 ? ":" + this.location.getPort() : "");
+	}
+
 	/**
 	 * Instantiates a new web socket base.
 	 *
 	 * @param url the url
+     * @param origin the origin
 	 * @param proxy the proxy
 	 * @param handler the handler
 	 * @param protocols the protocols
@@ -202,6 +221,24 @@ abstract public class WebSocketBase implements WebSocket {
 		init(url);
 	}
 	
+    /**
+   	 * Instantiates a new web socket base.
+   	 *
+   	 * @param url the url
+   	 * @param proxy the proxy
+   	 * @param handler the handler
+   	 * @param protocols the protocols
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public WebSocketBase(String url, Proxy proxy, WebSocketHandler handler,
+   			String... protocols) throws WebSocketException {
+   		this.protocols = protocols;
+   		this.handler = handler;
+   		this.proxy = proxy;
+   		init(url);
+        this.origin = this.location.getHost() + ":" + this.location.getPort();
+   	}
+
 	/**
 	 * Inits the.
 	 *

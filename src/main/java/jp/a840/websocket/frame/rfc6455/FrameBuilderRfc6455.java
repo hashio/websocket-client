@@ -394,10 +394,10 @@ public class FrameBuilderRfc6455 {
         long payloadLength2 = payloadLength1;
         switch (payloadLengthType) {
             case LEN_16:
-                payloadLength2 = chunkData.getShort();
+                payloadLength2 = 0xFFFF & (chunkData.get() << 8 | chunkData.get());
                 break;
             case LEN_63:
-                payloadLength2 = chunkData.getLong();
+                payloadLength2 = 0x7FFFFFFFFFFFFFFFL & chunkData.getLong();
                 break;
         }
 

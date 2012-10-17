@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.impl;
+package jp.a840.websocket;
 
 import static java.nio.channels.SelectionKey.OP_READ;
 import static java.nio.channels.SelectionKey.OP_WRITE;
@@ -42,21 +42,20 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.exception.WebSocketException;
+import jp.a840.websocket.auth.Authenticator;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameParser;
-import jp.a840.websocket.handler.WebSocketHandler;
-import jp.a840.websocket.http.HttpHeader;
-import jp.a840.websocket.streamhandler.PacketDumpStreamHandler;
-import jp.a840.websocket.streamhandler.SSLStreamHandler;
-import jp.a840.websocket.streamhandler.StreamHandlerAdapter;
-import jp.a840.websocket.streamhandler.StreamHandlerChain;
-import jp.a840.websocket.streamhandler.WebSocketPipeline;
-import jp.a840.websocket.streamhandler.WebSocketStreamHandler;
+import jp.a840.websocket.handler.PacketDumpStreamHandler;
+import jp.a840.websocket.handler.SSLStreamHandler;
+import jp.a840.websocket.handler.StreamHandlerAdapter;
+import jp.a840.websocket.handler.StreamHandlerChain;
+import jp.a840.websocket.handler.WebSocketPipeline;
+import jp.a840.websocket.handler.WebSocketStreamHandler;
 import jp.a840.websocket.handshake.Handshake;
 import jp.a840.websocket.handshake.ProxyHandshake;
 import jp.a840.websocket.handshake.SSLHandshake;
@@ -129,7 +128,7 @@ abstract public class WebSocketBase implements WebSocket {
 	/** The upstream queue. */
 	protected BlockingQueue<ByteBuffer> upstreamQueue;
 
-	/** websocket streamhandler. */
+	/** websocket handler. */
 	protected WebSocketHandler handler;
 
 	/** The pipeline. */
@@ -172,7 +171,7 @@ abstract public class WebSocketBase implements WebSocket {
 	 * Instantiates a new web socket base.
 	 *
 	 * @param url the url
-	 * @param handler the streamhandler
+	 * @param handler the handler
 	 * @param protocols the protocols
 	 * @throws WebSocketException the web socket exception
 	 */
@@ -189,7 +188,7 @@ abstract public class WebSocketBase implements WebSocket {
 	 *
 	 * @param url the url
 	 * @param proxy the proxy
-	 * @param handler the streamhandler
+	 * @param handler the handler
 	 * @param protocols the protocols
 	 * @throws WebSocketException the web socket exception
 	 */
@@ -239,7 +238,7 @@ abstract public class WebSocketBase implements WebSocket {
 		// setup pipeline
 		this.pipeline = new WebSocketPipeline();
 		
-		// Add upstream qeueue streamhandler first.
+		// Add upstream qeueue handler first.
 		// it push the upstream buffer to a sendqueue and then wakeup a selector
 		this.pipeline.addStreamHandler(new StreamHandlerAdapter() {
 			public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,

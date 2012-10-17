@@ -25,7 +25,9 @@ package jp.a840.websocket.auth;
 
 import java.util.List;
 
-import jp.a840.websocket.exception.WebSocketException;
+import jp.a840.websocket.HttpHeader;
+import jp.a840.websocket.WebSocket;
+import jp.a840.websocket.WebSocketException;
 import util.Base64;
 
 
@@ -64,7 +66,7 @@ public class BasicAuthenticator extends AbstractAuthenticator {
 	 *
 	 * @param challenge the challenge
 	 * @return the credentials
-	 * @throws jp.a840.websocket.exception.WebSocketException the web socket exception
+	 * @throws WebSocketException the web socket exception
 	 */
 	public String getCredentials(Challenge challenge) throws WebSocketException {
 		String credentialsStr = this.credentials.getUsername() + ":" + this.credentials.getPassword();

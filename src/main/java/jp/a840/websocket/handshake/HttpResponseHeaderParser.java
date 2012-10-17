@@ -25,7 +25,7 @@ package jp.a840.websocket.handshake;
 
 import java.nio.ByteBuffer;
 
-import jp.a840.websocket.http.HttpHeader;
+import jp.a840.websocket.HttpHeader;
 import jp.a840.websocket.util.StringUtil;
 
 /**

@@ -21,15 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.streamhandler;
+package jp.a840.websocket;
 
-import jp.a840.websocket.streamhandler.StreamHandler;
+import jp.a840.websocket.frame.Frame;
 
 /**
- * The Interface WebSocketExtentionHandler.
+ * The Interface WebSocketHandler.
  *
  * @author Takahiro Hashimoto
  */
-public interface WebSocketExtentionHandler extends StreamHandler {
+public interface WebSocketHandler {
+	
+	/**
+	 * On open.
+	 *
+	 * @param socket the socket
+	 */
+	public void onOpen(WebSocket socket);
+	
+	/**
+	 * On message.
+	 *
+	 * @param socket the socket
+	 * @param frame the frame
+	 */
+	public void onMessage(WebSocket socket, Frame frame);
+	
+	/**
+	 * On error.
+	 *
+	 * @param socket the socket
+	 * @param e the e
+	 */
+	public void onError(WebSocket socket, WebSocketException e);
+	
+	/**
+	 * On close.
+	 *
+	 * @param socket the socket
+	 */
+	public void onClose(WebSocket socket);
 
 }

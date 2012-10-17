@@ -27,7 +27,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.logging.Logger;
 
-import jp.a840.websocket.impl.WebSocketBase;
+import jp.a840.websocket.WebSocketBase;
 
 /**
  * The Class PacketDumpUtil.

@@ -46,7 +46,7 @@ import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
 
-import jp.a840.websocket.exception.WebSocketException;
+import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.util.PacketDumpUtil;
 
 
@@ -216,7 +216,7 @@ public class SSLHandshake {
 	 *
 	 * @param netBuffer the net buffer
 	 * @param localBuffer the local buffer
-	 * @throws jp.a840.websocket.exception.WebSocketException the web socket exception
+	 * @throws WebSocketException the web socket exception
 	 */
 	public void unwrap(ByteBuffer netBuffer, ByteBuffer localBuffer) throws WebSocketException {
 		try {

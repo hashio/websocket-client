@@ -23,7 +23,7 @@
  */
 package jp.a840.websocket.auth;
 
-import jp.a840.websocket.http.HttpHeader;
+import jp.a840.websocket.HttpHeader;
 import jp.a840.websocket.TestCase;
 import jp.a840.websocket.WebSocket;
 

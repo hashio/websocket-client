@@ -21,12 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.streamhandler;
+package jp.a840.websocket.handler;
 
 import java.nio.ByteBuffer;
 
 import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.exception.WebSocketException;
+import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 
 
@@ -90,9 +90,9 @@ public class WebSocketPipeline {
 	}
 	
 	/**
-	 * Adds the stream streamhandler.
+	 * Adds the stream handler.
 	 *
-	 * @param handler the streamhandler
+	 * @param handler the handler
 	 */
 	public void addStreamHandler(StreamHandler handler){
 		StreamHandlerChain c = new StreamHandlerChain(handler);

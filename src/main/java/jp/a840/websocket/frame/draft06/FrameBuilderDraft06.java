@@ -382,7 +382,7 @@ public class FrameBuilderDraft06 {
 	 * @return the frame
 	 */
 	public static Frame createFrame(FrameHeaderDraft06 header, byte[] bodyData){
-		Opcode opcode = header.getOriginalOpcode();
+		Opcode opcode = header.getRealOpcode();
 		if(opcode == null){
 			opcode = header.getOpcode();
 		}

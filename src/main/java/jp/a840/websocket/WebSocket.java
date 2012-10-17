@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 
-import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 
 
@@ -49,7 +48,7 @@ public interface WebSocket {
 	/**
 	 * Connect.
 	 *
-	 * @throws jp.a840.websocket.exception.WebSocketException the web socket exception
+	 * @throws WebSocketException the web socket exception
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	public void connect() throws WebSocketException, IOException;

@@ -34,7 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.exception.WebSocketException;
+import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.auth.Authenticator;
 import jp.a840.websocket.auth.Credentials;
 import jp.a840.websocket.auth.DefaultAuthenticator;
@@ -135,7 +135,7 @@ public class Proxy {
 	 *
 	 * @param endpoint the endpoint
 	 * @return the inet socket address
-	 * @throws jp.a840.websocket.exception.WebSocketException the web socket exception
+	 * @throws WebSocketException the web socket exception
 	 */
 	protected InetSocketAddress findProxy(InetSocketAddress endpoint) throws WebSocketException {
 		try{

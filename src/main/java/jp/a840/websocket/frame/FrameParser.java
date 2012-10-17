@@ -27,8 +27,8 @@ import java.nio.ByteBuffer;
 import java.util.EnumMap;
 import java.util.EnumSet;
 
-import jp.a840.websocket.buffer.BufferManager;
-import jp.a840.websocket.exception.WebSocketException;
+import jp.a840.websocket.BufferManager;
+import jp.a840.websocket.WebSocketException;
 
 /**
  * The Class FrameParser.
@@ -111,7 +111,7 @@ public abstract class FrameParser {
 	 *
 	 * @param downloadBuffer the download buffer
 	 * @return the frame
-	 * @throws jp.a840.websocket.exception.WebSocketException the web socket exception
+	 * @throws WebSocketException the web socket exception
 	 */
 	public Frame parse(ByteBuffer downloadBuffer) throws WebSocketException {
 		ByteBuffer buffer = null;

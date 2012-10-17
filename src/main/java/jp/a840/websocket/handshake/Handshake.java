@@ -23,18 +23,14 @@
  */
 package jp.a840.websocket.handshake;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jp.a840.websocket.BufferManager;
 import jp.a840.websocket.HttpHeader;
-import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.util.StringUtil;
 
 
@@ -214,7 +210,7 @@ public abstract class Handshake {
 	}
 		
 	/**
-	 * Parses the handshake response body.
+	 * Parses the handshake response contents.
 	 *
 	 * @param buffer the buffer
 	 * @return true, if successful

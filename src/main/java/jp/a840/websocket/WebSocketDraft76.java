@@ -23,16 +23,13 @@
  */
 package jp.a840.websocket;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.Random;
 import java.util.logging.Logger;
 
-import jp.a840.websocket.WebSocketBase.State;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.FrameParser;
@@ -51,7 +48,7 @@ import jp.a840.websocket.proxy.Proxy;
  * A simple websocket client
  * this class is implement the WebSocket Draft76 specification.
  * 
- * @see http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76
+ * @see <a href="http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76">draft-hixie-thewebsocketprotocol-76</a>
  * @author t-hashimoto
  * 
  */
@@ -74,7 +71,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	 */
 	public WebSocketDraft76(String url, WebSocketHandler handler,
 			String... protocols) throws WebSocketException {
-		super(url, handler, protocols);
+		super(url, (String)null, handler, protocols);
 	}
 	
 	/**
@@ -88,7 +85,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	 */
 	public WebSocketDraft76(String url, Proxy proxy, WebSocketHandler handler,
 			String... protocols) throws WebSocketException {
-		super(url, proxy, handler, protocols);
+		super(url, (String)null, proxy, handler, protocols);
 	}
 	
 	/* (non-Javadoc)
@@ -116,7 +113,6 @@ public class WebSocketDraft76 extends WebSocketBase {
 			 * ^n:ds[4U
 			 * </pre>
 			 * 
-			 * @param socket
 			 */
 			@Override
 			public ByteBuffer createHandshakeRequest() {
@@ -294,22 +290,10 @@ public class WebSocketDraft76 extends WebSocketBase {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.Object)
-	 */
-	@Override
-	public Frame createFrame(Object obj) throws WebSocketException {
-		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			oos.writeObject(obj);
-			
-			byte[] bodyData = baos.toByteArray();
-			return new BinaryFrame(bodyData);
-		} catch (Exception e) {
-			throw new WebSocketException(3550, e);
-		}
-	}
+    @Override
+    public Frame createFrame(byte[] bytes) throws WebSocketException {
+        return new BinaryFrame(bytes);
+    }
 
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.String)

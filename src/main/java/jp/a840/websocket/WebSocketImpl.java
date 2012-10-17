@@ -23,23 +23,11 @@
  */
 package jp.a840.websocket;
 
-import java.nio.ByteBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-import java.util.logging.Logger;
-
 import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.FrameParser;
-import jp.a840.websocket.frame.draft06.BinaryFrame;
-import jp.a840.websocket.frame.draft06.CloseFrame;
-import jp.a840.websocket.frame.draft06.FrameBuilderDraft06;
-import jp.a840.websocket.frame.draft06.FrameHeaderDraft06;
-import jp.a840.websocket.frame.draft06.TextFrame;
+import jp.a840.websocket.frame.rfc6455.*;
 import jp.a840.websocket.handler.MaskFrameStreamHandler;
 import jp.a840.websocket.handler.StreamHandlerAdapter;
 import jp.a840.websocket.handler.StreamHandlerChain;
@@ -48,83 +36,88 @@ import jp.a840.websocket.handshake.Handshake;
 import jp.a840.websocket.proxy.Proxy;
 import util.Base64;
 
+import java.nio.ByteBuffer;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.logging.Logger;
 
 
 /**
  * A simple websocket client
  * 
- *  this class is implement the WebSocket Draft06 specification.
+ *  this class is implement the WebSocket RFC6455 specification.
  *  
- * @see <a href="http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-06">draft-ietf-hybi-thewebsocketprotocol-06</a>
+ * @see <a href="http://tools.ietf.org/html/rfc6455">RFC6455</a>
  * @author t-hashimoto
  *
  */
-public class WebSocketDraft06 extends WebSocketBase {
-	
+public class WebSocketImpl extends WebSocketBase {
+
 	/** The logger. */
-	private static Logger logger = Logger.getLogger(WebSocketDraft06.class.getName());
-	
+	private static Logger logger = Logger.getLogger(WebSocketImpl.class.getName());
+
 	/** The Constant VERSION. */
-	private static final int VERSION = 6;
-	
+	private static final int VERSION = 13;
+
 	/** The extensions. */
 	protected Set<String> extensions = new HashSet<String>();
-	
+
 	/** The server extentions. */
 	protected String[] serverExtentions;
-	
+
 	/** The send frame. */
 	volatile private boolean sendFrame;
 
 	/**
-	 * Instantiates a new web socket draft06.
+	 * Instantiates a new web socket RFC6455.
 	 *
 	 * @param url the url
      * @param origin the origin
 	 * @param handler the handler
 	 * @param protocols the protocols
-	 * @throws WebSocketException the web socket exception
+	 * @throws jp.a840.websocket.exception.WebSocketException the web socket exception
 	 */
-	public WebSocketDraft06(String url, String origin, WebSocketHandler handler, String... protocols) throws WebSocketException {
+	public WebSocketImpl(String url, String origin, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		super(url, origin, handler, protocols);
 	}
-	
+
     /**
-   	 * Instantiates a new web socket draft06.
+   	 * Instantiates a new web socket RFC6455.
    	 *
    	 * @param url the url
    	 * @param handler the handler
    	 * @param protocols the protocols
-   	 * @throws WebSocketException the web socket exception
+   	 * @throws jp.a840.websocket.exception.WebSocketException the web socket exception
    	 */
-   	public WebSocketDraft06(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
+   	public WebSocketImpl(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
    		super(url, handler, protocols);
    	}
 
 	/**
-	 * Instantiates a new web socket draft06.
+	 * Instantiates a new web socket RFC6455.
 	 *
 	 * @param url the url
      * @param origin the origin
 	 * @param proxy the proxy
 	 * @param handler the handler
 	 * @param protocols the protocols
-	 * @throws WebSocketException the web socket exception
+	 * @throws jp.a840.websocket.exception.WebSocketException the web socket exception
 	 */
-	public WebSocketDraft06(String url, String origin, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
+	public WebSocketImpl(String url, String origin, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		super(url, origin, proxy, handler, protocols);
 	}
 
     /**
-   	 * Instantiates a new web socket draft06.
+   	 * Instantiates a new web socket RFC6455.
    	 *
    	 * @param url the url
    	 * @param proxy the proxy
    	 * @param handler the handler
    	 * @param protocols the protocols
-   	 * @throws WebSocketException the web socket exception
+   	 * @throws jp.a840.websocket.exception.WebSocketException the web socket exception
    	 */
-   	public WebSocketDraft06(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
+   	public WebSocketImpl(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
    		super(url, proxy, handler, protocols);
    	}
 
@@ -146,7 +139,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 					transitionTo(State.CLOSED);
 					closeLatch.countDown();
 				} else {
-					WebSocketDraft06.this.handler.onMessage(ws, frame);
+					WebSocketImpl.this.handler.onMessage(ws, frame);
 				}
 			}
 
@@ -157,7 +150,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 				responseStatus = getHandshake().getResponseStatus();
 				transitionTo(State.WAIT);
 				// HANDSHAKE -> WAIT
-				WebSocketDraft06.this.handler.onOpen(WebSocketDraft06.this);
+				WebSocketImpl.this.handler.onOpen(WebSocketImpl.this);
 			}
 		});		
 
@@ -173,16 +166,16 @@ public class WebSocketDraft06 extends WebSocketBase {
 			 * Create a handshake requtest
 			 * 
 			 * <pre>
-			 * Sample (Draft06)
+			 * Sample (RFC6455)
 			 * client => server
 			 *   GET /chat HTTP/1.1
 			 *   Host: server.example.com
 			 *   Upgrade: websocket
 			 *   Connection: Upgrade
 			 *   Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
-			 *   Sec-WebSocket-Origin: http://example.com
+			 *   Origin: http://example.com
 			 *   Sec-WebSocket-Protocol: chat, superchat
-			 *   Sec-WebSocket-Version:6
+			 *   Sec-WebSocket-Version:13
 			 * </pre>
 			 *
 			 */
@@ -196,7 +189,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 				addHeader(sb, "Connection", "Upgrade");
 				addHeader(sb, "Sec-WebSocket-Key", generateWebSocketKey());
 				if (origin != null) {
-					addHeader(sb, "Sec-WebSocket-Origin", origin);
+					addHeader(sb, "Origin", origin);
 				}
 				if (protocols != null && protocols.length > 0) {
 					addHeader(sb, "Sec-WebSocket-Protocol", join(",", protocols));
@@ -260,12 +253,12 @@ public class WebSocketDraft06 extends WebSocketBase {
 	 * @return the string
 	 */
 	private String generateWebSocketKey(){
-		try{
-			MessageDigest md = MessageDigest.getInstance("SHA-1");
-			return Base64.encodeToString(md.digest(UUID.randomUUID().toString().getBytes()), false);
-		}catch(NoSuchAlgorithmException e){
-			return null;
-		}
+            // 16byte GUID
+            UUID uuid = UUID.randomUUID();
+            ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+            bb.putLong(uuid.getMostSignificantBits());
+            bb.putLong(uuid.getLeastSignificantBits());
+            return Base64.encodeToString(bb.array() ,false);
 	}
 	
 	
@@ -275,10 +268,10 @@ public class WebSocketDraft06 extends WebSocketBase {
 	@Override
 	protected FrameParser newFrameParserInstance() {
 		return new FrameParser() {
-			private FrameHeaderDraft06 previousCreatedFrameHeader;
+			private FrameHeaderRfc6455 previousCreatedFrameHeader;
 			@Override
 			protected FrameHeader createFrameHeader(ByteBuffer chunkData) {
-				FrameHeaderDraft06 header = FrameBuilderDraft06.createFrameHeader(chunkData, previousCreatedFrameHeader);
+				FrameHeaderRfc6455 header = FrameBuilderRfc6455.createFrameHeader(chunkData, previousCreatedFrameHeader);
 				if(!header.isContinuation()){
 					previousCreatedFrameHeader = header;
 				}
@@ -287,7 +280,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 
 			@Override
 			protected Frame createFrame(FrameHeader h, byte[] bodyData) {
-				return FrameBuilderDraft06.createFrame((FrameHeaderDraft06)h, bodyData);
+				return FrameBuilderRfc6455.createFrame((FrameHeaderRfc6455)h, bodyData);
 			}
 			
 		};
@@ -298,9 +291,9 @@ public class WebSocketDraft06 extends WebSocketBase {
         return new BinaryFrame(bytes);
     }
 
-    /* (non-Javadoc)
-      * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.String)
-      */
+	/* (non-Javadoc)
+	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.String)
+	 */
 	@Override
 	public Frame createFrame(String str) throws WebSocketException {
 		return new TextFrame(str);

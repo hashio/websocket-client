@@ -36,19 +36,19 @@ public class BinaryFrame extends FrameDraft06 {
 	/**
 	 * Instantiates a new binary frame.
 	 *
-	 * @param bodyData the body data
+	 * @param bodyData the contents data
 	 */
 	public BinaryFrame(byte[] bodyData){
 		FrameHeader header = FrameBuilderDraft06.createFrameHeader(bodyData, false, Opcode.BINARY_FRAME);
 		setHeader(header);
-		setBody(bodyData);
+		setContents(bodyData);
 	}
 	
 	/**
 	 * Instantiates a new binary frame.
 	 *
 	 * @param header the header
-	 * @param bodyData the body data
+	 * @param bodyData the contents data
 	 */
 	protected BinaryFrame(FrameHeader header, byte[] bodyData) {
 		super(header, bodyData);

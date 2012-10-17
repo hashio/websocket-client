@@ -21,22 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.frame.draft06;
+package jp.a840.websocket.frame.rfc6455;
+
+import jp.a840.websocket.frame.FrameHeader;
+import jp.a840.websocket.frame.rfc6455.FrameBuilderRfc6455.Opcode;
+import jp.a840.websocket.frame.rfc6455.FrameBuilderRfc6455.PayloadLengthType;
 
 import java.nio.ByteBuffer;
 
-import jp.a840.websocket.frame.FrameHeader;
-import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
-import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.PayloadLengthType;
-
-
 
 /**
- * The Class FrameHeaderDraft06.
+ * The Class FrameHeaderRfc6455.
  *
  * @author Takahiro Hashimoto
  */
-public class FrameHeaderDraft06 implements FrameHeader {
+public class FrameHeaderRfc6455 implements FrameHeader {
 	
 	/** The payload length. */
 	protected final long payloadLength;
@@ -56,6 +55,9 @@ public class FrameHeaderDraft06 implements FrameHeader {
 	/** The real opcode. */
 	protected Opcode realOpcode;
 
+    /** The mask */
+    protected boolean mask;
+
 	/**
 	 * Instantiates a new frame header draft06.
 	 *
@@ -64,13 +66,15 @@ public class FrameHeaderDraft06 implements FrameHeader {
 	 * @param payloadLengthType the payload length type
 	 * @param payloadLength the payload length
 	 * @param opcode the opcode
+     * @param mask the mask
 	 */
-	public FrameHeaderDraft06(boolean fragmented, int headerLength, PayloadLengthType payloadLengthType, long payloadLength, Opcode opcode) {
+	public FrameHeaderRfc6455(boolean fragmented, int headerLength, PayloadLengthType payloadLengthType, long payloadLength, Opcode opcode, boolean mask) {
 		this.headerLength = headerLength + payloadLengthType.offset();
 		this.payloadLengthType = payloadLengthType;
 		this.payloadLength = payloadLength;
 		this.fragmented = fragmented;
 		this.opcode = opcode;
+        this.mask = mask;
 	}
 	
 	/**
@@ -82,14 +86,16 @@ public class FrameHeaderDraft06 implements FrameHeader {
 	 * @param payloadLength the payload length
 	 * @param opcode the opcode
 	 * @param realOpcode the real opcode
+     * @param mask the mask
 	 */
-	public FrameHeaderDraft06(boolean fragmented, int headerLength, PayloadLengthType payloadLengthType, long payloadLength, Opcode opcode, Opcode realOpcode) {
+	public FrameHeaderRfc6455(boolean fragmented, int headerLength, PayloadLengthType payloadLengthType, long payloadLength, Opcode opcode, Opcode realOpcode, boolean mask) {
 		this.headerLength = headerLength + payloadLengthType.offset();
 		this.payloadLengthType = payloadLengthType;
 		this.payloadLength = payloadLength;
 		this.fragmented = fragmented;
 		this.opcode = opcode;
 		this.realOpcode = realOpcode;
+        this.mask = mask;
 	}
 	
 	/* (non-Javadoc)
@@ -158,16 +164,17 @@ public class FrameHeaderDraft06 implements FrameHeader {
 	public ByteBuffer toByteBuffer(){
 			ByteBuffer buf = ByteBuffer.allocate(2 + payloadLengthType.offset());
 			buf.put((byte)((fragmented ? 0 : 0x80) | opcode.intValue()));
+            byte maskBit = (byte)(mask ? 1 << 7 : 0);
 			switch(payloadLengthType){
 			case LEN_SHORT:
-				buf.put((byte)payloadLength);
+				buf.put((byte)(payloadLength | maskBit));
 				break;
 			case LEN_16:
-				buf.put((byte)payloadLengthType.byteValue());
+				buf.put((byte)(payloadLengthType.byteValue() | maskBit));
 				buf.putShort((short)payloadLength);
 				break;
 			case LEN_63:
-				buf.put((byte)payloadLengthType.byteValue());
+				buf.put((byte)(payloadLengthType.byteValue() | maskBit));
 				buf.putLong(payloadLength);
 				break;
 			}

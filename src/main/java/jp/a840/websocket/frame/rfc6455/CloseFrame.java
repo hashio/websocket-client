@@ -21,73 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.frame.draft76;
-
-import java.nio.ByteBuffer;
+package jp.a840.websocket.frame.rfc6455;
 
 import jp.a840.websocket.frame.FrameHeader;
+import jp.a840.websocket.frame.rfc6455.FrameBuilderRfc6455.Opcode;
+
 
 /**
- * The Class BinaryFrame.
+ * The Class ConnectionCloseFrame.
  *
  * @author Takahiro Hashimoto
  */
-public class CloseFrame extends FrameDraft76 {
+public class CloseFrame extends FrameRfc6455 {
 
 	/**
-	 * Instantiates a new binary frame.
-	 *
-	 */
-	protected CloseFrame() {
-		super();
-		FrameHeaderDraft76 header = new FrameHeaderDraft76((byte)0xFF, 1);
-		setHeader(header);
-		setContents(new byte[]{0x00});
-	}
-	
-	/**
-	 * Instantiates a new binary frame.
+	 * Instantiates a new connection close frame.
 	 *
 	 * @param header the header
 	 * @param bodyData the contents data
 	 */
-	protected CloseFrame(FrameHeader header, byte[] bodyData){
+	protected CloseFrame(FrameHeaderRfc6455 header, byte[] bodyData) {
 		super(header, bodyData);
 	}
 
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.frame.Frame#toByteBuffer()
-	 */
-	@Override
-	public ByteBuffer toByteBuffer() {
-		byte[] bodyLengthBuf = getBodyLength(contents);
-		ByteBuffer buf = ByteBuffer.allocate(1 + bodyLengthBuf.length + contents.length);
-		buf.put(header.toByteBuffer());
-		buf.put(bodyLengthBuf);
-		buf.put(contents);
-		buf.flip();
-		return buf;
-	}
-	
 	/**
-	 * Gets the contents length.
-	 *
-	 * @param body the contents
-	 * @return the contents length
+	 * Instantiates a new close frame.
 	 */
-	private static byte[] getBodyLength(byte[] body){
-		byte[] tmp = new byte[body.length / 7 + 1];
-		int length = body.length;
-		int i = 0;
-		while(length != 0){
-			tmp[i] = (byte)((length | 0x7F) | 0x80);
-			length = length >> 7;
-			i++;
-		}
-		i--;
-		tmp[i] = (byte)(tmp[i] | 0x7F);
-		byte[] bodyLengthBuf = new byte[i];
-		System.arraycopy(tmp, 0, bodyLengthBuf, 0, bodyLengthBuf.length);
-		return bodyLengthBuf;
+	public CloseFrame(){
+		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(null, false, Opcode.CONNECTION_CLOSE, true);
+		setHeader(header);
 	}
 }

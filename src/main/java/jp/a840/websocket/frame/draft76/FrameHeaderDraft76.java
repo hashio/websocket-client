@@ -34,7 +34,7 @@ import jp.a840.websocket.frame.FrameHeader;
  */
 public class FrameHeaderDraft76 implements FrameHeader {
 	
-	/** The body length. */
+	/** The contents length. */
 	protected final long bodyLength;
 
 	/** The frame type. */
@@ -71,9 +71,9 @@ public class FrameHeaderDraft76 implements FrameHeader {
 	}
 	
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.frame.FrameHeader#getBodyLength()
+	 * @see jp.a840.websocket.frame.FrameHeader#getContentsLength()
 	 */
-	public long getBodyLength(){
+	public long getContentsLength(){
 		return bodyLength;
 	}
 

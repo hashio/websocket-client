@@ -27,9 +27,8 @@ import java.nio.ByteBuffer;
 import java.util.Random;
 
 import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
-import jp.a840.websocket.frame.draft76.CloseFrame;
 
 /**
  * The Class MaskFrameStreamHandler.
@@ -46,12 +45,17 @@ public class MaskFrameStreamHandler extends StreamHandlerAdapter {
 	@Override
 	public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
 			Frame frame, StreamHandlerChain chain) throws WebSocketException {
-		ByteBuffer buf = ByteBuffer.allocate(4 + buffer.remaining()); // mask-key + header + body
+		ByteBuffer buf = ByteBuffer.allocate(4 + buffer.remaining()); // mask-key + header + contents
+        int limit = buffer.limit();
+        buffer.limit(buffer.position() + 2);
+        buf.put(buffer);
 		buf.putInt(random.nextInt());
+        buffer.limit(limit);
 		buf.put(buffer);
 		buf.flip();
 
 		byte[] maskkey = new byte[4];
+        buf.position(buf.position() + 2);
 		buf.get(maskkey, 0, 4);
 		int m = 0;
 		while (buf.hasRemaining()) {

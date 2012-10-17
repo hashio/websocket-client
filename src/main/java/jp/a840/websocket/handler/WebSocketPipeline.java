@@ -26,7 +26,7 @@ package jp.a840.websocket.handler;
 import java.nio.ByteBuffer;
 
 import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 
 
@@ -48,7 +48,7 @@ public class WebSocketPipeline {
 	 *
 	 * @param ws the ws
 	 * @param buffer the buffer
-	 * @throws WebSocketException the web socket exception
+	 * @throws jp.a840.websocket.exception.WebSocketException the web socket exception
 	 */
 	public void sendHandshakeUpstream(WebSocket ws, ByteBuffer buffer) throws WebSocketException {
 		lastChain.nextHandshakeUpstreamHandler(ws, buffer);
@@ -59,7 +59,7 @@ public class WebSocketPipeline {
 	 *
 	 * @param ws the ws
 	 * @param buffer the buffer
-	 * @throws WebSocketException the web socket exception
+	 * @throws jp.a840.websocket.exception.WebSocketException the web socket exception
 	 */
 	public void sendHandshakeDownstream(WebSocket ws, ByteBuffer buffer) throws WebSocketException {
 		startChain.nextHandshakeDownstreamHandler(ws, buffer);

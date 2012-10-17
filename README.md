@@ -1,6 +1,6 @@
 WebSocket Client
 =================
-Copyright 2011 Takahiro Hashimoto
+Copyright 2011,2012 Takahiro Hashimoto
 
 MIT license
 
@@ -13,9 +13,9 @@ Support
 -------
 
 - JDK5 or higher
-- WebSocket Specification Draft76, Draft06
+- WebSocket Specification Draft76, Draft06, RFC6455
 - SSL/TLS with wss://
-- proxy (Basic,Digest authentication support)
+- proxy [Basic,Digest,Negotiate(Windows only) authentication support]
 
 
 Test running for these combinations.
@@ -25,6 +25,8 @@ Test running for these combinations.
 - [Draft76] Jetty7.4.0   + WebSocket
 - [Draft06] Jetty7.4.0   + WebSocket
 - [Draft06 + Proxy] Apache(mod_proxy) + Jetty7.4.0 + WebSocket
+- [RFC6455] netty + WebSocket
+- [RFC6455 + Proxy] www.websocket.org/echo + WebSocket
 
 
 Requirements
@@ -83,7 +85,7 @@ WebSocket socket = WebSockets.createDraft06("ws://localhost:8080/ws/", new WebSo
     public void onOpen(WebSocket socket) {
         System.err.println("Open");
         try {
-            socket.send(socket.createFrame(System.getenv("USER") + ":has joined!"));
+            socket.send(System.getenv("USER") + ":has joined!");
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -92,7 +94,7 @@ WebSocket socket = WebSockets.createDraft06("ws://localhost:8080/ws/", new WebSo
     public void onMessage(WebSocket socket, Frame frame) {
         if(!frame.toString().startsWith(System.getenv("USER"))){
             try {
-                socket.send(socket.createFrame(System.getenv("USER") + ":(echo)" + frame.toString()));
+                socket.send(System.getenv("USER") + ":(echo)" + frame.toString());
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -108,18 +110,17 @@ WebSocket socket = WebSockets.createDraft06("ws://localhost:8080/ws/", new WebSo
         System.err.println("Closed");
     }
 }, "chat");
+
 socket.setBlockingMode(true);
 socket.connect();
 ```
+socket.awaitClose();
+exit 0;
 
 System Property
 ===============
 
-websocket.origin (Default:none)  
--------------------------------------------
-use Origin header
-
-websocket.bufferSize (Default:32767)  
+websocket.bufferSize (Default:32767)
 ---------------------------------------------------
 received buffer size  
 If you ever receive large frames to increase the buffer size
@@ -154,7 +155,6 @@ Packet dump print to a console
                                       ));
 TODO
 ====
-- English hard work!!!
 - Support Proxy
 - Send large frame with split to fragment frames
         

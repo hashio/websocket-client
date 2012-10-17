@@ -21,11 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.frame.draft06;
+package jp.a840.websocket.frame.rfc6455;
+
+import jp.a840.websocket.frame.rfc6455.FrameBuilderRfc6455.Opcode;
 
 import java.io.UnsupportedEncodingException;
-
-import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
 
 
 /**
@@ -33,7 +33,7 @@ import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
  *
  * @author Takahiro Hashimoto
  */
-public class TextFrame extends FrameDraft06 {
+public class TextFrame extends FrameRfc6455 {
 
 	/** The converted string. */
 	private String convertedString;
@@ -44,7 +44,7 @@ public class TextFrame extends FrameDraft06 {
 	 * @param header the header
 	 * @param bodyData the contents data
 	 */
-	public TextFrame(FrameHeaderDraft06 header, byte[] bodyData) {
+	public TextFrame(FrameHeaderRfc6455 header, byte[] bodyData) {
 		super(header, bodyData);
 	}
 
@@ -56,7 +56,7 @@ public class TextFrame extends FrameDraft06 {
 	public TextFrame(String str){
 		super();
 		byte[] body = convertStringToByteArray(str);
-		setHeader(FrameBuilderDraft06.createFrameHeader(body, false, Opcode.TEXT_FRAME));
+		setHeader(FrameBuilderRfc6455.createFrameHeader(body, false, Opcode.TEXT_FRAME, true));
 		setContents(body);
 	}
 	

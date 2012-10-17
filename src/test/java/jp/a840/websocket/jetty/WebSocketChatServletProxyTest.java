@@ -26,11 +26,13 @@ package jp.a840.websocket.jetty;
 import java.net.InetSocketAddress;
 
 import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.WebSocketHandler;
 import jp.a840.websocket.WebSockets;
 import jp.a840.websocket.auth.Credentials;
-import jp.a840.websocket.auth.DigestAuthenticator;
+import jp.a840.websocket.auth.DefaultAuthenticator;
+import jp.a840.websocket.auth.win32.Mechanism;
+import jp.a840.websocket.auth.win32.SpengoAuthenticator;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.proxy.Proxy;
 import jp.a840.websocket.util.PacketDumpUtil;
@@ -56,10 +58,11 @@ public class WebSocketChatServletProxyTest {
 //		System.setProperty("javax.net.debug", "all");
 		System.setProperty("java.util.logging.config.file", "logging.properties");
 //		Proxy proxy = new Proxy(new Credentials("test", "test"), new BasicAuthenticator());
-		Proxy proxy = new Proxy(new InetSocketAddress("192.168.0.20", 80),new Credentials("test", "test"), new DigestAuthenticator());
+        SpengoAuthenticator.setDefaultMechanism(Mechanism.NTLM);
+		Proxy proxy = new Proxy(new InetSocketAddress("192.168.100.230", 8080),new Credentials("test", "test"), new DefaultAuthenticator());
 //		Proxy proxy = new Proxy(new Credentials("test", "test"), new DigestAuthenticator());
-		WebSocket socket = WebSockets.createDraft06("ws://192.168.0.51:8080/ws/", proxy, new WebSocketHandler() {
-			
+		WebSocket socket = WebSockets.createDraft06("wss://echo.websocket.org", null, proxy, new WebSocketHandler() {
+
 			public void onOpen(WebSocket socket) {
 				System.err.println("Open");
 				try {

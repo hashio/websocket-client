@@ -23,6 +23,7 @@
  */
 package jp.a840.websocket;
 
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 
 /**

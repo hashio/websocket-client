@@ -36,7 +36,7 @@ import java.util.EnumSet;
 import java.util.logging.Logger;
 
 import jp.a840.websocket.BufferManager;
-import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.auth.Authenticator;
 import jp.a840.websocket.util.PacketDumpUtil;
 import jp.a840.websocket.util.StringUtil;
@@ -229,8 +229,8 @@ public class ProxyHandshake {
 						bufferManager.storeFragmentBuffer(responseBuffer);
 					}else{
 						if(needAuthorize){
-							if(authTry > 0){
-								throw new WebSocketException(3999, "Need proxy authenticate. Proxy Authenticate fail.");						
+							if(!authenticator.isNeedAuthenticate()){
+								throw new WebSocketException(3999, "Need proxy authenticate. Proxy Authenticate fail.");
 							}
 							if(authenticator == null){
 								throw new WebSocketException(3999, "Need proxy authenticate. But not set a Authenticator");

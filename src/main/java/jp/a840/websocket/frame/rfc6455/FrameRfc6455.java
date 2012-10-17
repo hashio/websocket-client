@@ -21,35 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.frame.draft06;
-
-import java.nio.ByteBuffer;
+package jp.a840.websocket.frame.rfc6455;
 
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
-import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
+import jp.a840.websocket.frame.rfc6455.FrameBuilderRfc6455.Opcode;
+
+import java.nio.ByteBuffer;
 
 /**
  *  WebSocket Frame class
  *
- *  Frame (Draft06)
+ *  Frame (RFC6455)
  *  <pre>
- *    0               1               2               3
- *    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- *   +-+-+-+-+-------+-+-------------+-------------------------------+
- *   |F|R|R|R| opcode|R| Payload len |    Extended payload length    |
- *   |I|S|S|S|  (4)  |S|     (7)     |             (16/63)           |
- *   |N|V|V|V|       |V|             |   (if payload len==126/127)   |
- *   | |1|2|3|       |4|             |                               |
- *   +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
- *   |     Extended payload length continued, if payload len == 127  |
- *   + - - - - - - - - - - - - - - - +-------------------------------+
- *   |                               |         Extension data        |
- *   +-------------------------------+ - - - - - - - - - - - - - - - +
- *   :                                                               :
- *   +---------------------------------------------------------------+
- *   :                       Application data                        :
- *   +---------------------------------------------------------------+
+ *  0                   1                   2                   3
+ *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ * +-+-+-+-+-------+-+-------------+-------------------------------+
+ * |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
+ * |I|S|S|S|  (4)  |A|     (7)     |             (16/63)           |
+ * |N|V|V|V|       |S|             |   (if payload len==126/127)   |
+ * | |1|2|3|       |K|             |                               |
+ * +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+ * |     Extended payload length continued, if payload len == 127  |
+ * + - - - - - - - - - - - - - - - +-------------------------------+
+ * |                               |Masking-key, if MASK set to 1  |
+ * +-------------------------------+-------------------------------+
+ * | Masking-key (continued)       |          Payload Data         |
+ * +-------------------------------- - - - - - - - - - - - - - - - +
+ * :                     Payload Data continued ...                :
+ * + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+ * |                     Payload Data continued ...                |
+ * +---------------------------------------------------------------+
  * </pre>
  * payload length = extention data length + application data length.
  * the extention data length may be zero.
@@ -59,12 +61,12 @@ import jp.a840.websocket.frame.draft06.FrameBuilderDraft06.Opcode;
  * @author t-hashimoto
  *
  */
-abstract public class FrameDraft06 extends Frame {
+abstract public class FrameRfc6455 extends Frame {
 
 	/**
 	 * Instantiates a new frame draft06.
 	 */
-	protected FrameDraft06(){
+	protected FrameRfc6455(){
 	}
 
 	/**
@@ -73,7 +75,7 @@ abstract public class FrameDraft06 extends Frame {
 	 * @param header the header
 	 * @param bodyData the contents data
 	 */
-	protected FrameDraft06(FrameHeader header, byte[] bodyData){
+	protected FrameRfc6455(FrameHeader header, byte[] bodyData){
 		super(header, bodyData);
 	}
 	
@@ -101,6 +103,6 @@ abstract public class FrameDraft06 extends Frame {
 	 * @return true, if is continuation frame
 	 */
 	public boolean isContinuationFrame(){
-		return ((FrameHeaderDraft06)header).getOpcode().equals(Opcode.CONTINUATION);
+		return ((FrameHeaderRfc6455)header).getOpcode().equals(Opcode.CONTINUATION);
 	}
 }

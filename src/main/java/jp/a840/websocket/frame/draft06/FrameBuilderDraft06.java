@@ -339,12 +339,14 @@ public class FrameBuilderDraft06 {
 		}
 		
 		long payloadLength2 = payloadLength1;
-		switch(payloadLengthType){
-		case LEN_16: payloadLength2 = chunkData.getShort();
-			break;
-		case LEN_63: payloadLength2 = chunkData.getLong();
-			break;
-		}
+        switch (payloadLengthType) {
+            case LEN_16:
+                payloadLength2 = 0xFFFF & (chunkData.get() << 8 | chunkData.get());
+                break;
+            case LEN_63:
+                payloadLength2 = 0x7FFFFFFFFFFFFFFFL & chunkData.getLong();
+                break;
+        }
 
 		if(payloadLength2 > Integer.MAX_VALUE){
 			throw new IllegalArgumentException("large data is not support yet");
@@ -360,7 +362,7 @@ public class FrameBuilderDraft06 {
 	/**
 	 * Creates the frame header.
 	 *
-	 * @param body the body
+	 * @param body the contents
 	 * @param fragmented the fragmented
 	 * @param opcode the opcode
 	 * @return the frame header draft06
@@ -378,7 +380,7 @@ public class FrameBuilderDraft06 {
 	 * Creates the frame.
 	 *
 	 * @param header the header
-	 * @param bodyData the body data
+	 * @param bodyData the contents data
 	 * @return the frame
 	 */
 	public static Frame createFrame(FrameHeaderDraft06 header, byte[] bodyData){

@@ -26,7 +26,7 @@ package jp.a840.websocket.handler;
 import java.nio.ByteBuffer;
 
 import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 
 /**

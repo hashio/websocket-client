@@ -32,7 +32,7 @@ import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 
 import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.util.PacketDumpUtil;
 

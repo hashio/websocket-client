@@ -24,13 +24,12 @@
 package jp.a840.websocket.auth;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import jp.a840.websocket.HttpHeader;
 import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.util.StringUtil;
 
 /**
@@ -46,6 +45,8 @@ abstract public class AbstractAuthenticator implements Authenticator {
 	/** The credentials. */
 	protected Credentials credentials;
 
+    private boolean isDone = false;
+
 	/**
 	 * Instantiates a new abstract authenticator.
 	 */
@@ -56,6 +57,10 @@ abstract public class AbstractAuthenticator implements Authenticator {
 	 * @see jp.a840.websocket.auth.Authenticator#getCredentials(java.lang.String, java.lang.String, jp.a840.websocket.HttpHeader, java.lang.String)
 	 */
 	public String getCredentials(String method, String requestUri, HttpHeader header, String authenticateHeaderName) throws WebSocketException {
+        if(isDone) {
+            throw new IllegalStateException("this Authenticator already executed");
+        }
+
 		List<String> proxyAuthenticateList = header
 				.getHeaderValues(authenticateHeaderName);
 		
@@ -64,12 +69,19 @@ abstract public class AbstractAuthenticator implements Authenticator {
 			// key:   Proxy-Authenticate
 			// value: Basic realm="WallyWorld"
 			String[] parts = proxyAuthenticateStr.split(" +", 2);
-			String authScheme = parts[0];
-			String authParams = parts[1];
+			AuthScheme authScheme = null;
+            try{
+                authScheme = AuthScheme.valueOf(parts[0]);
+            }catch(IllegalArgumentException e){
+                continue; // Skip non-supported Scheme
+            }
 
-			Map<String, String> paramMap = StringUtil.parseKeyValues(authParams, ',');
+            String param = null;
+            if(parts.length > 1){
+                param = parts[1];
+            }
 
-			challengeList.add(new Challenge(method, requestUri, authScheme, paramMap));
+			challengeList.add(new Challenge(method, requestUri, authScheme, param));
 		}
 		
 		return getCredentials(challengeList);
@@ -91,7 +103,26 @@ abstract public class AbstractAuthenticator implements Authenticator {
 	 * @see jp.a840.websocket.auth.Authenticator#init(jp.a840.websocket.WebSocket, jp.a840.websocket.auth.Credentials)
 	 */
 	public void init(WebSocket websocket, Credentials credentials) {
+        if(isDone) {
+            throw new IllegalStateException("this Authenticator already executed");
+        }
 		this.websocket = websocket;
 		this.credentials = credentials;
 	}
+
+    protected void parseParams(Map<String, String> paramMap, String authParams){
+        paramMap.putAll(StringUtil.parseKeyValues(authParams, ','));
+    }
+
+    public void done() {
+        isDone = true;
+    }
+
+    public boolean isDone() {
+        return isDone;
+    }
+
+    public boolean isNeedAuthenticate() {
+        return true;
+    }
 }

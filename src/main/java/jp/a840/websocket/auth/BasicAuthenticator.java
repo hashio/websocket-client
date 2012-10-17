@@ -25,9 +25,7 @@ package jp.a840.websocket.auth;
 
 import java.util.List;
 
-import jp.a840.websocket.HttpHeader;
-import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.exception.WebSocketException;
 import util.Base64;
 
 
@@ -38,9 +36,6 @@ import util.Base64;
  */
 public class BasicAuthenticator extends AbstractAuthenticator {
 
-	/** The AUTH_SCHEME. */
-	private static String AUTH_SCHEME = "Basic";
-		
 	/**
 	 * Instantiates a new proxy basic credentials.
 	 * this is not check the server auth realm
@@ -54,7 +49,7 @@ public class BasicAuthenticator extends AbstractAuthenticator {
 	 */
 	public String getCredentials(List<Challenge> challengeList) throws WebSocketException {
 		for(Challenge challenge : challengeList){
-			if (AUTH_SCHEME.equalsIgnoreCase(challenge.getScheme())) {
+			if (AuthScheme.Basic.equals(challenge.getScheme())) {
 				return getCredentials(challenge);
 			}
 		}
@@ -70,7 +65,7 @@ public class BasicAuthenticator extends AbstractAuthenticator {
 	 */
 	public String getCredentials(Challenge challenge) throws WebSocketException {
 		String credentialsStr = this.credentials.getUsername() + ":" + this.credentials.getPassword();
-		return AUTH_SCHEME + " "
-				+ Base64.encodeToString(credentialsStr.getBytes(), false);		
+		return AuthScheme.Basic.name() + " "
+				+ Base64.encodeToString(credentialsStr.getBytes(), false);
 	}
 }

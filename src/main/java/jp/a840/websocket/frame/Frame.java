@@ -25,9 +25,6 @@ package jp.a840.websocket.frame;
 
 import java.nio.ByteBuffer;
 
-import jp.a840.websocket.frame.draft06.BinaryFrame;
-import jp.a840.websocket.frame.draft06.TextFrame;
-
 
 /**
  * The Class Frame.
@@ -38,9 +35,9 @@ abstract public class Frame {
 
 	/** The header. */
 	protected FrameHeader header;
-	
-	/** The body. */
-	protected byte[] body;
+
+	/** The contents. */
+	protected byte[] contents;
 	
 	/**
 	 * Instantiates a new frame.
@@ -52,20 +49,20 @@ abstract public class Frame {
 	 * Instantiates a new frame.
 	 *
 	 * @param header the header
-	 * @param body the body
+	 * @param contents the contents
 	 */
-	protected Frame(FrameHeader header, byte[] body){
+	protected Frame(FrameHeader header, byte[] contents){
 		this.header = header;
-		this.body = body;
+		this.contents = contents;
 	}
 
 	/**
-	 * Gets the body length.
+	 * Gets the contents length.
 	 *
-	 * @return the body length
+	 * @return the contents length
 	 */
-	public long getBodyLength(){
-		return header.getBodyLength();
+	public long getContentsLength(){
+		return header.getContentsLength();
 	}
 	
 	/**
@@ -85,13 +82,31 @@ abstract public class Frame {
 	abstract public ByteBuffer toByteBuffer();
 
 	/**
-	 * Gets the raw body.
+	 * Gets the raw contents.
 	 *
-	 * @return the raw body
+	 * @return the raw contents
 	 */
-	public ByteBuffer getRawBody(){
-		return ByteBuffer.wrap(body);
+	public ByteBuffer getContents(){
+		return ByteBuffer.wrap(contents);
 	}
+
+    /**
+   	 * Gets the raw contents.
+   	 *
+   	 * @return the raw contents
+   	 */
+   	public void readContents(byte[] buf){
+           System.arraycopy(contents, 0, buf, 0, buf.length);
+   	}
+
+    /**
+   	 * Gets the raw contents.
+   	 *
+   	 * @return the raw contents
+   	 */
+   	public void readContents(byte[] buf, int offset, int length){
+           System.arraycopy(contents, 0, buf, offset, length);
+   	}
 
 	/**
 	 * Sets the header.
@@ -103,31 +118,11 @@ abstract public class Frame {
 	}
 
 	/**
-	 * Sets the body.
+	 * Sets the contents.
 	 *
-	 * @param body the new body
+	 * @param contents the new contents
 	 */
-	protected void setBody(byte[] body) {
-		this.body = body;
-	}
-	
-	/**
-	 * Creates the binary frame.
-	 *
-	 * @param body the body
-	 * @return the binary frame
-	 */
-	public static BinaryFrame createBinaryFrame(byte[] body){
-		return new BinaryFrame(body);
-	}
-	
-	/**
-	 * Creates the text frame.
-	 *
-	 * @param str the str
-	 * @return the text frame
-	 */
-	public static TextFrame createTextFrame(String str){
-		return new TextFrame(str);
+	protected void setContents(byte[] contents) {
+		this.contents = contents;
 	}
 }

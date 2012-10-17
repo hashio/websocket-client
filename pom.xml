@@ -7,6 +7,7 @@
   <name>websocket-client</name>
   <url>http://maven.apache.org</url>
   <properties>
+    <jna.version>3.2.7</jna.version>
     <powermock.version>1.4.9</powermock.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -14,8 +15,8 @@
   <repositories>
     <repository>
       <id>repo2</id>
-      <name>Maven repo2 repository</name>
-      <url>http://repo2.maven.org/maven2/</url>
+      <name>Maven repo1 repository</name>
+      <url>http://repo1.maven.org/maven2/</url>
       <releases>
         <enabled>true</enabled>
       </releases>
@@ -50,6 +51,16 @@
       <version>${powermock.version}</version>
       <scope>test</scope>
    </dependency>
+   <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>${jna.version}</version>
+   </dependency>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>platform</artifactId>
+      <version>${jna.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <pluginManagement>

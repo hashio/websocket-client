@@ -25,10 +25,10 @@ package jp.a840.websocket.auth;
 
 import jp.a840.websocket.HttpHeader;
 import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.exception.WebSocketException;
 
 /**
- * The Interface ProxyCredentials.
+ * The Interface of ProxyCredentials.
  *
  * @author t-hashimoto
  */
@@ -45,12 +45,21 @@ public interface Authenticator {
 	 * @throws WebSocketException the web socket exception
 	 */
 	public String getCredentials(String method, String requestUri, HttpHeader header, String authenticateHeaderName) throws WebSocketException;
-		
 	/**
-	 * Inits the.
+	 * inits authenticator
 	 *
 	 * @param websocket the websocket
 	 * @param credentials the credentials
 	 */
 	public void init(WebSocket websocket, Credentials credentials);
+
+    /**
+     * finish authenticate phase.
+     * if retry authenticate, need to create a new Authenticator instance.
+     */
+    public void done();
+
+    public boolean isNeedAuthenticate();
+
+    public boolean isDone();
 }

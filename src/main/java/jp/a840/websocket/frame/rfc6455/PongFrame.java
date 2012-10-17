@@ -21,43 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket;
+package jp.a840.websocket.frame.rfc6455;
 
-import jp.a840.websocket.frame.Frame;
+import jp.a840.websocket.frame.FrameHeader;
+import jp.a840.websocket.frame.rfc6455.FrameBuilderRfc6455.Opcode;
 
 /**
- * The Class WebSocketHandlerAdapter.
+ * The Class PongFrame.
  *
  * @author Takahiro Hashimoto
  */
-abstract public class WebSocketHandlerAdapter implements WebSocketHandler {
+public class PongFrame extends FrameRfc6455 {
 
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onClose(jp.a840.websocket.WebSocket)
+	/**
+	 * Instantiates a new pong frame.
+	 *
+	 * @param header the header
+	 * @param bodyData the contents data
 	 */
-	public void onClose(WebSocket socket) {
-		;
+	public PongFrame(FrameHeader header, byte[] bodyData) {
+		super(header, bodyData);
 	}
 
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onError(jp.a840.websocket.WebSocket, jp.a840.websocket.WebSocketException)
+	/**
+	 * Instantiates a new pong frame.
 	 */
-	public void onError(WebSocket socket, WebSocketException e) {
-		e.printStackTrace();
+	public PongFrame(){
+		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(null, false, Opcode.PONG, true);
+		setHeader(header);
 	}
-
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onMessage(jp.a840.websocket.WebSocket, jp.a840.websocket.frame.Frame)
-	 */
-	public void onMessage(WebSocket socket, Frame frame) {
-		;
-	}
-
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onOpen(jp.a840.websocket.WebSocket)
-	 */
-	public void onOpen(WebSocket socket) {
-		;
-	}
-
 }

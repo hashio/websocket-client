@@ -26,6 +26,7 @@ package jp.a840.websocket;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.util.PacketDumpUtil;
 
@@ -67,13 +68,13 @@ public class WebSocketHandlerMock implements WebSocketHandler {
 		args.add(socket);
 		args.add(frame);
 		
-		PacketDumpUtil.printPacketDump("frame", frame.getRawBody());
+		PacketDumpUtil.printPacketDump("frame", frame.getContents());
 
 		onMessageList.add(args);
 	}
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onError(jp.a840.websocket.WebSocket, jp.a840.websocket.WebSocketException)
+	 * @see jp.a840.websocket.WebSocketHandler#onError(jp.a840.websocket.WebSocket, jp.a840.websocket.exception.WebSocketException)
 	 */
 	public void onError(WebSocket socket, WebSocketException e) {
 		List<Object> args = new ArrayList<Object>();

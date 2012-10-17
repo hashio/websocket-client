@@ -23,6 +23,7 @@
  */
 package jp.a840.websocket;
 
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.proxy.Proxy;
 
 
@@ -33,35 +34,64 @@ import jp.a840.websocket.proxy.Proxy;
  */
 public class WebSockets {
 	
-	/**
-	 * Create a websocket of current spec.
-	 *
-	 * @param url the url
-	 * @param handler the handler
-	 * @param protocols the protocols
-	 * @return websocket
-	 * @throws WebSocketException the web socket exception
-	 */
-	public static WebSocket create(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
-		return new WebSocketDraft06(url, handler, protocols);
-	}
+    /**
+   	 * Create websocket
+   	 *
+   	 * @param url the url
+     * @param origin the origin
+   	 * @param handler the handler
+   	 * @param protocols the protocols
+   	 * @return websocket
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public static WebSocket create(String url, String origin, WebSocketHandler handler, String... protocols) throws WebSocketException {
+   		return new WebSocketImpl(url, origin, handler, protocols);
+   	}
+
+    /**
+   	 * Create websocket
+   	 *
+   	 * @param url the url
+   	 * @param handler the handler
+   	 * @param protocols the protocols
+   	 * @return websocket
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public static WebSocket create(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
+   		return new WebSocketImpl(url, handler, protocols);
+   	}
+
+   	/**
+     * Create websocket
+   	 *
+   	 * @param url the url
+     * @param origin the origin
+   	 * @param proxy the proxy
+   	 * @param handler the handler
+   	 * @param protocols the protocols
+   	 * @return the web socket
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public static WebSocket create(String url, String origin, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
+   		return new WebSocketImpl(url, origin, proxy, handler, protocols);
+   	}
+
+    /**
+     * Create websocket
+   	 *
+   	 * @param url the url
+   	 * @param proxy the proxy
+   	 * @param handler the handler
+   	 * @param protocols the protocols
+   	 * @return the web socket
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public static WebSocket create(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
+   		return new WebSocketImpl(url, proxy, handler, protocols);
+   	}
 
 	/**
-	 * Creates the.
-	 *
-	 * @param url the url
-	 * @param proxy the proxy
-	 * @param handler the handler
-	 * @param protocols the protocols
-	 * @return the web socket
-	 * @throws WebSocketException the web socket exception
-	 */
-	public static WebSocket create(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
-		return new WebSocketDraft06(url, proxy, handler, protocols);
-	}
-
-	/**
-	 * Create a websocket of Draft76.
+	 * Create Draft76 websocket.
 	 *
 	 * @param url the url
 	 * @param handler the handler
@@ -74,7 +104,7 @@ public class WebSockets {
 	}
 
 	/**
-	 * Creates the draft76.
+	 * Creates Draft76 websocket.
 	 *
 	 * @param url the url
 	 * @param proxy the proxy
@@ -88,29 +118,58 @@ public class WebSockets {
 	}
 
 	/**
-	 * Create a websocket of Draft06.
+	 * Create Draft06 websocket.
 	 *
 	 * @param url the url
+     * @param origin the origin
 	 * @param handler the handler
 	 * @param protocols the protocols
 	 * @return websocket
 	 * @throws WebSocketException the web socket exception
 	 */
-	public static WebSocket createDraft06(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
-		return new WebSocketDraft06(url, handler, protocols);
+	public static WebSocket createDraft06(String url, String origin, WebSocketHandler handler, String... protocols) throws WebSocketException {
+		return new WebSocketDraft06(url, origin, handler, protocols);
 	}
 
+    /**
+   	 * Create Draft06 websocket.
+   	 *
+   	 * @param url the url
+   	 * @param handler the handler
+   	 * @param protocols the protocols
+   	 * @return websocket
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public static WebSocket createDraft06(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
+   		return new WebSocketDraft06(url,handler, protocols);
+   	}
+
 	/**
-	 * Creates the draft06.
+	 * Creates Draft06 websocket.
 	 *
 	 * @param url the url
+     * @param origin the origin
 	 * @param proxy the proxy
 	 * @param handler the handler
 	 * @param protocols the protocols
 	 * @return the web socket
 	 * @throws WebSocketException the web socket exception
 	 */
-	public static WebSocket createDraft06(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
-		return new WebSocketDraft06(url, proxy, handler, protocols);
+	public static WebSocket createDraft06(String url, String origin, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
+		return new WebSocketDraft06(url, origin, proxy, handler, protocols);
 	}
+
+    /**
+   	 * Creates Draft06 websocket.
+   	 *
+   	 * @param url the url
+   	 * @param proxy the proxy
+   	 * @param handler the handler
+   	 * @param protocols the protocols
+   	 * @return the web socket
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public static WebSocket createDraft06(String url, Proxy proxy, WebSocketHandler handler, String... protocols) throws WebSocketException {
+   		return new WebSocketDraft06(url, proxy, handler, protocols);
+   	}
 }

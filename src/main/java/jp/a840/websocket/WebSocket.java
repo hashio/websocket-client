@@ -26,7 +26,9 @@ package jp.a840.websocket;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.nio.ByteBuffer;
 
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 
 
@@ -44,7 +46,31 @@ public interface WebSocket {
 	 * @throws WebSocketException the web socket exception
 	 */
 	public void send(Frame frame) throws WebSocketException;
-	
+
+    /**
+   	 * Send.
+   	 *
+   	 * @param buffer the ByteBuffer
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public void send(ByteBuffer buffer) throws WebSocketException;
+
+    /**
+   	 * Send.
+   	 *
+   	 * @param bytes the bytes
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public void send(byte[] bytes) throws WebSocketException;
+
+    /**
+   	 * Send.
+   	 *
+   	 * @param text the text
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public void send(String text) throws WebSocketException;
+
 	/**
 	 * Connect.
 	 *
@@ -64,7 +90,12 @@ public interface WebSocket {
 	 * Close.
 	 */
 	public void close();
-	
+
+    /**
+     * await close
+     */
+    public void awaitClose() throws InterruptedException;
+
 	/**
 	 * Checks if is blocking mode.
 	 *
@@ -122,7 +153,25 @@ public interface WebSocket {
 	 * @throws WebSocketException the web socket exception
 	 */
 	public Frame createFrame(Object obj) throws WebSocketException;
-	
+
+    /**
+   	 * Creates the frame.
+   	 *
+   	 * @param bytes the byte array
+   	 * @return the frame
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public Frame createFrame(byte[] bytes) throws WebSocketException;
+
+    /**
+   	 * Creates the frame.
+   	 *
+   	 * @param buffer the ByteBuffer
+   	 * @return the frame
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public Frame createFrame(ByteBuffer buffer) throws WebSocketException;
+
 	/**
 	 * Creates the frame.
 	 *

@@ -24,13 +24,10 @@
 package jp.a840.websocket.jetty;
 
 import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.WebSocketHandler;
 import jp.a840.websocket.WebSockets;
 import jp.a840.websocket.frame.Frame;
-import jp.a840.websocket.handler.PacketDumpStreamHandler;
-
-import org.junit.Test;
 
 
 /**
@@ -52,7 +49,7 @@ public class WebSocketChatServletTest {
 //		));
 //		System.setProperty("javax.net.debug", "all");
 		System.setProperty("java.util.logging.config.file", "logging.properties");
-		WebSocket socket = WebSockets.createDraft06("ws://localhost:8080/ws/", new WebSocketHandler() {
+		WebSocket socket = WebSockets.createDraft06("ws://localhost:8080/ws/", (String)null, new WebSocketHandler() {
 			
 			public void onOpen(WebSocket socket) {
 				System.err.println("Open");

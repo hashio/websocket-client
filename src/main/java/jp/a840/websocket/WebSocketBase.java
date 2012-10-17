@@ -26,7 +26,9 @@ package jp.a840.websocket;
 import static java.nio.channels.SelectionKey.OP_READ;
 import static java.nio.channels.SelectionKey.OP_WRITE;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,19 +39,14 @@ import java.nio.channels.SocketChannel;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
-import jp.a840.websocket.auth.Authenticator;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameParser;
+import jp.a840.websocket.frame.draft76.BinaryFrame;
 import jp.a840.websocket.handler.PacketDumpStreamHandler;
 import jp.a840.websocket.handler.SSLStreamHandler;
 import jp.a840.websocket.handler.StreamHandlerAdapter;
@@ -167,7 +164,28 @@ abstract public class WebSocketBase implements WebSocket {
 	/** worker. */
 	protected ExecutorService executorService;
 
-	/**
+    private AtomicInteger executorThreadNumber = new AtomicInteger(0);
+
+    private String executorThreadName;
+
+    /**
+	 * Instantiates a new web socket base.
+	 *
+	 * @param url the url
+	 * @param handler the handler
+	 * @param protocols the protocols
+	 * @throws WebSocketException the web socket exception
+	 */
+	public WebSocketBase(String url, String origin, WebSocketHandler handler,
+			String... protocols) throws WebSocketException {
+        this.origin = origin;
+		this.protocols = protocols;
+		this.handler = handler;
+
+		init(url);
+	}
+	
+    /**
 	 * Instantiates a new web socket base.
 	 *
 	 * @param url the url
@@ -181,25 +199,47 @@ abstract public class WebSocketBase implements WebSocket {
 		this.handler = handler;
 
 		init(url);
+
+        this.origin = this.location.getHost() + (this.location.getPort() > 0 ? ":" + this.location.getPort() : "");
 	}
-	
+
 	/**
 	 * Instantiates a new web socket base.
 	 *
 	 * @param url the url
+     * @param origin the origin
 	 * @param proxy the proxy
 	 * @param handler the handler
 	 * @param protocols the protocols
 	 * @throws WebSocketException the web socket exception
 	 */
-	public WebSocketBase(String url, Proxy proxy, WebSocketHandler handler,
+	public WebSocketBase(String url, String origin, Proxy proxy, WebSocketHandler handler,
 			String... protocols) throws WebSocketException {
+        this.origin = origin;
 		this.protocols = protocols;
 		this.handler = handler;
 		this.proxy = proxy;
 		init(url);
 	}
 	
+    /**
+   	 * Instantiates a new web socket base.
+   	 *
+   	 * @param url the url
+   	 * @param proxy the proxy
+   	 * @param handler the handler
+   	 * @param protocols the protocols
+   	 * @throws WebSocketException the web socket exception
+   	 */
+   	public WebSocketBase(String url, Proxy proxy, WebSocketHandler handler,
+   			String... protocols) throws WebSocketException {
+   		this.protocols = protocols;
+   		this.handler = handler;
+   		this.proxy = proxy;
+   		init(url);
+        this.origin = this.location.getHost() + ":" + this.location.getPort();
+   	}
+
 	/**
 	 * Inits the.
 	 *
@@ -220,7 +260,6 @@ abstract public class WebSocketBase implements WebSocket {
 	 * @throws WebSocketException the web socket exception
 	 */
 	protected void initializeProperties() throws WebSocketException {
-		this.origin = System.getProperty("websocket.origin");
 		this.bufferSize = Integer.getInteger("websocket.bufferSize",0x7FFF);
 		int upstreamQueueSize = Integer.getInteger("websocket.upstreamQueueSize", 500);
 		this.upstreamQueue = new LinkedBlockingQueue<ByteBuffer>(upstreamQueueSize);
@@ -295,7 +334,7 @@ abstract public class WebSocketBase implements WebSocket {
 			if(uri.getScheme().equals("wss")){
 				useSsl = true;
 			}
-			path = uri.getPath();
+			path = (uri.getPath().equals("") ? "/" : uri.getPath()) + (uri.getQuery()  != null ? "?" + uri.getQuery() : "");
 			int port = uri.getPort();
 			if (port < 0) {
 				if (uri.getScheme().equals("ws")) {
@@ -342,12 +381,14 @@ abstract public class WebSocketBase implements WebSocket {
 		send(createFrame(obj));
 	}
 
-	/**
-	 * Send.
-	 *
-	 * @param str the str
-	 * @throws WebSocketException the web socket exception
-	 */
+    public void send(ByteBuffer buffer) throws WebSocketException {
+   		send(createFrame(buffer));
+   	}
+
+   	public void send(byte[] bytes) throws WebSocketException {
+   		send(createFrame(bytes));
+   	}
+
 	public void send(String str) throws WebSocketException {
 		send(createFrame(str));
 	}
@@ -529,7 +570,6 @@ abstract public class WebSocketBase implements WebSocket {
 				sslHandshake.doHandshake(socket);
 			}
 			pipeline.sendHandshakeUpstream(this, null); // send handshake request
-//			socket.write(upstreamQueue.take());
 
 			transitionTo(State.HANDSHAKE);
 
@@ -606,8 +646,15 @@ abstract public class WebSocketBase implements WebSocket {
 			if (blockingMode) {
 				worker.run();
 			} else {
+                this.executorThreadName = "WebSocket-Executor-" + executorThreadNumber.incrementAndGet();
 				executorService = Executors
-						.newSingleThreadExecutor();
+						.newSingleThreadExecutor(new ThreadFactory() {
+                            public Thread newThread(Runnable r) {
+                                Thread t = new Thread(r, executorThreadName);
+                                t.setDaemon(true);
+                                return t;
+                            }
+                        });
 				executorService.submit(worker);
 				executorService.shutdown();
 				handshakeLatch.await();
@@ -649,24 +696,26 @@ abstract public class WebSocketBase implements WebSocket {
 				closeWebSocket();
 				selector.wakeup();
 //				if(state == State.CLOSING){
+                if(!Thread.currentThread().getName().equals(this.executorThreadName)){
 					try{
 						closeLatch.await(30, TimeUnit.SECONDS);
 					}catch(InterruptedException e){
 						;
 					}
 //				}
-				if(executorService != null){
-					try{
-						executorService.shutdown();
-						executorService.awaitTermination(30, TimeUnit.SECONDS);
-					} catch(InterruptedException e){
-						;
-					} finally {
-						synchronized (this) {
-							executorService = null;							
-						}
-					}
-				}
+                    if (executorService != null) {
+                        try {
+                            executorService.shutdown();
+                            executorService.awaitTermination(30, TimeUnit.SECONDS);
+                        } catch (InterruptedException e) {
+                            ;
+                        } finally {
+                            synchronized (this) {
+                                executorService = null;
+                            }
+                        }
+                    }
+                }
 			}
 		} catch (WebSocketException e) {
 			handler.onError(this, e);
@@ -680,12 +729,16 @@ abstract public class WebSocketBase implements WebSocket {
 	 * @param unit the unit
 	 * @throws InterruptedException the interrupted exception
 	 */
-	public void awaitTermination(int timeout, TimeUnit unit) throws InterruptedException {
+	protected void awaitTermination(int timeout, TimeUnit unit) throws InterruptedException {
 		if(executorService != null){
 			executorService.awaitTermination(timeout, unit);
 		}
 	}
-	
+
+    public void awaitClose() throws InterruptedException {
+        closeLatch.await();
+   	}
+
 	/**
 	 * Quit.
 	 */
@@ -702,10 +755,29 @@ abstract public class WebSocketBase implements WebSocket {
 		transitionTo(State.CLOSED);
 	}
 
-	/* (non-Javadoc)
+	public Frame createFrame(Object obj) throws WebSocketException {
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			oos.writeObject(obj);
+
+			byte[] bodyData = baos.toByteArray();
+			return new BinaryFrame(bodyData);
+		} catch (Exception e) {
+			throw new WebSocketException(3550, e);
+		}
+	}
+	
+    public Frame createFrame(ByteBuffer buffer) throws WebSocketException {
+        byte[] bytes = new byte[buffer.limit()];
+        buffer.get(bytes);
+        return createFrame(bytes);
+    }
+
+   	/* (non-Javadoc)
 	 * @see jp.a840.websocket.WebSocket#createFrame(java.lang.Object)
 	 */
-	abstract public Frame createFrame(Object obj) throws WebSocketException;
+	abstract public Frame createFrame(byte[] bytes) throws WebSocketException;
 
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.WebSocket#createFrame(java.lang.String)

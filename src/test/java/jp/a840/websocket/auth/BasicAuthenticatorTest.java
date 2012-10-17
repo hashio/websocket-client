@@ -23,9 +23,7 @@
  */
 package jp.a840.websocket.auth;
 
-import jp.a840.websocket.HttpHeader;
-import jp.a840.websocket.auth.BasicAuthenticator;
-import jp.a840.websocket.auth.Credentials;
+import jp.a840.websocket.http.HttpHeader;
 
 import org.junit.Assert;
 import org.junit.Test;

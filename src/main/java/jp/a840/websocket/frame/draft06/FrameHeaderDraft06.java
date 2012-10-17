@@ -53,8 +53,8 @@ public class FrameHeaderDraft06 implements FrameHeader {
 	/** The opcode. */
 	protected final Opcode opcode;
 	
-	/** The real opcode. */
-	protected Opcode realOpcode;
+	/** The continuation flag. */
+	protected boolean isContinuation;
 
 	/**
 	 * Instantiates a new frame header draft06.
@@ -71,6 +71,7 @@ public class FrameHeaderDraft06 implements FrameHeader {
 		this.payloadLength = payloadLength;
 		this.fragmented = fragmented;
 		this.opcode = opcode;
+        this.isContinuation = false;
 	}
 	
 	/**
@@ -81,15 +82,15 @@ public class FrameHeaderDraft06 implements FrameHeader {
 	 * @param payloadLengthType the payload length type
 	 * @param payloadLength the payload length
 	 * @param opcode the opcode
-	 * @param realOpcode the real opcode
+	 * @param isContinuation
 	 */
-	public FrameHeaderDraft06(boolean fragmented, int headerLength, PayloadLengthType payloadLengthType, long payloadLength, Opcode opcode, Opcode realOpcode) {
+	public FrameHeaderDraft06(boolean fragmented, int headerLength, PayloadLengthType payloadLengthType, long payloadLength, Opcode opcode, boolean isContinuation) {
 		this.headerLength = headerLength + payloadLengthType.offset();
 		this.payloadLengthType = payloadLengthType;
 		this.payloadLength = payloadLength;
 		this.fragmented = fragmented;
 		this.opcode = opcode;
-		this.realOpcode = realOpcode;
+		this.isContinuation = isContinuation;
 	}
 	
 	/* (non-Javadoc)
@@ -130,7 +131,7 @@ public class FrameHeaderDraft06 implements FrameHeader {
 	 * @return true, if is continuation
 	 */
 	public boolean isContinuation(){
-		return Opcode.CONTINUATION.equals(opcode);
+		return isContinuation;
 	}
 	
 	/**
@@ -140,16 +141,6 @@ public class FrameHeaderDraft06 implements FrameHeader {
 	 */
 	public Opcode getOpcode(){
 		return opcode;
-	}
-	
-	/**
-	 * If opcode is CONTINUATION, real opcode has previous non-CONTINUATION opcode
-	 * or not real opcode is null.
-	 *
-	 * @return previous non-CONTINUATION opcode
-	 */
-	public Opcode getRealOpcode(){
-		return realOpcode;
 	}
 	
 	/* (non-Javadoc)

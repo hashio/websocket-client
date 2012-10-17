@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket;
+package jp.a840.websocket.http;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -23,6 +23,10 @@
  */
 package jp.a840.websocket;
 
+import jp.a840.websocket.exception.WebSocketException;
+import jp.a840.websocket.handler.WebSocketHandler;
+import jp.a840.websocket.impl.WebSocketDraft06;
+import jp.a840.websocket.impl.WebSocketDraft76;
 import jp.a840.websocket.proxy.Proxy;
 
 
@@ -37,10 +41,10 @@ public class WebSockets {
 	 * Create a websocket of current spec.
 	 *
 	 * @param url the url
-	 * @param handler the handler
+	 * @param handler the streamhandler
 	 * @param protocols the protocols
 	 * @return websocket
-	 * @throws WebSocketException the web socket exception
+	 * @throws jp.a840.websocket.exception.WebSocketException the web socket exception
 	 */
 	public static WebSocket create(String url, WebSocketHandler handler, String... protocols) throws WebSocketException {
 		return new WebSocketDraft06(url, handler, protocols);
@@ -51,7 +55,7 @@ public class WebSockets {
 	 *
 	 * @param url the url
 	 * @param proxy the proxy
-	 * @param handler the handler
+	 * @param handler the streamhandler
 	 * @param protocols the protocols
 	 * @return the web socket
 	 * @throws WebSocketException the web socket exception
@@ -64,7 +68,7 @@ public class WebSockets {
 	 * Create a websocket of Draft76.
 	 *
 	 * @param url the url
-	 * @param handler the handler
+	 * @param handler the streamhandler
 	 * @param protocols the protocols
 	 * @return websocket
 	 * @throws WebSocketException the web socket exception
@@ -78,7 +82,7 @@ public class WebSockets {
 	 *
 	 * @param url the url
 	 * @param proxy the proxy
-	 * @param handler the handler
+	 * @param handler the streamhandler
 	 * @param protocols the protocols
 	 * @return the web socket
 	 * @throws WebSocketException the web socket exception
@@ -91,7 +95,7 @@ public class WebSockets {
 	 * Create a websocket of Draft06.
 	 *
 	 * @param url the url
-	 * @param handler the handler
+	 * @param handler the streamhandler
 	 * @param protocols the protocols
 	 * @return websocket
 	 * @throws WebSocketException the web socket exception
@@ -105,7 +109,7 @@ public class WebSockets {
 	 *
 	 * @param url the url
 	 * @param proxy the proxy
-	 * @param handler the handler
+	 * @param handler the streamhandler
 	 * @param protocols the protocols
 	 * @return the web socket
 	 * @throws WebSocketException the web socket exception

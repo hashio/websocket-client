@@ -21,54 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket;
+package jp.a840.websocket.streamhandler;
 
+import java.nio.ByteBuffer;
+import java.util.Random;
+
+import jp.a840.websocket.WebSocket;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 
 /**
- * The Class WebSocketHandlerWrapper.
+ * The Class MaskFrameStreamHandler.
  *
  * @author Takahiro Hashimoto
  */
-public class WebSocketHandlerWrapper implements WebSocketHandler {
-
-	/** The handler_. */
-	private WebSocketHandler handler_;
-	
-	/**
-	 * Instantiates a new web socket handler wrapper.
-	 *
-	 * @param handler the handler
-	 */
-	public WebSocketHandlerWrapper(WebSocketHandler handler){
-		handler_ = handler;
-	}
+public class MaskFrameStreamHandler extends StreamHandlerAdapter {
+	/** The random. */
+	private static Random random = new Random();
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onOpen(jp.a840.websocket.WebSocket)
+	 * @see jp.a840.websocket.streamhandler.StreamHandlerAdapter#nextUpstreamHandler(jp.a840.websocket.WebSocket, java.nio.ByteBuffer, jp.a840.websocket.frame.Frame, jp.a840.websocket.streamhandler.StreamHandlerChain)
 	 */
-	public void onOpen(WebSocket socket) {
-		handler_.onOpen(socket);
-	}
+	@Override
+	public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
+			Frame frame, StreamHandlerChain chain) throws WebSocketException {
+		ByteBuffer buf = ByteBuffer.allocate(4 + buffer.remaining()); // mask-key + header + body
+		buf.putInt(random.nextInt());
+		buf.put(buffer);
+		buf.flip();
 
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onMessage(jp.a840.websocket.WebSocket, jp.a840.websocket.frame.Frame)
-	 */
-	public void onMessage(WebSocket socket, Frame frame) {
-		handler_.onMessage(socket, frame);
+		byte[] maskkey = new byte[4];
+		buf.get(maskkey, 0, 4);
+		int m = 0;
+		while (buf.hasRemaining()) {
+			int position = buf.position();
+			buf.put((byte) (buf.get(position) ^ maskkey[m++ % 4]));
+		}
+		buf.flip();
+		chain.nextUpstreamHandler(ws, buf, frame);
 	}
-
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onError(jp.a840.websocket.WebSocket, jp.a840.websocket.WebSocketException)
-	 */
-	public void onError(WebSocket socket, WebSocketException e) {
-		handler_.onError(socket, e);
-	}
-
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onClose(jp.a840.websocket.WebSocket)
-	 */
-	public void onClose(WebSocket socket) {
-		handler_.onClose(socket);
-	}	
 }

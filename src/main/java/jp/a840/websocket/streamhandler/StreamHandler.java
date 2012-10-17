@@ -21,12 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.handler;
+package jp.a840.websocket.streamhandler;
 
 import java.nio.ByteBuffer;
 
 import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 
 
@@ -38,7 +38,7 @@ import jp.a840.websocket.frame.Frame;
 public interface StreamHandler {
 	
 	/**
-	 * Next handshake upstream handler.
+	 * Next handshake upstream streamhandler.
 	 *
 	 * @param ws the ws
 	 * @param buffer the buffer
@@ -48,17 +48,17 @@ public interface StreamHandler {
 	public void nextHandshakeUpstreamHandler(WebSocket ws, ByteBuffer buffer, StreamHandlerChain chain) throws WebSocketException;
 	
 	/**
-	 * Next handshake downstream handler.
+	 * Next handshake downstream streamhandler.
 	 *
 	 * @param ws the ws
 	 * @param buffer the buffer
 	 * @param chain the chain
-	 * @throws WebSocketException the web socket exception
+	 * @throws jp.a840.websocket.exception.WebSocketException the web socket exception
 	 */
 	public void nextHandshakeDownstreamHandler(WebSocket ws, ByteBuffer buffer, StreamHandlerChain chain) throws WebSocketException;
 	
 	/**
-	 * Next upstream handler.
+	 * Next upstream streamhandler.
 	 *
 	 * @param ws the ws
 	 * @param buffer the buffer
@@ -69,7 +69,7 @@ public interface StreamHandler {
 	public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer, Frame frame, StreamHandlerChain chain) throws WebSocketException;
 	
 	/**
-	 * Next downstream handler.
+	 * Next downstream streamhandler.
 	 *
 	 * @param ws the ws
 	 * @param buffer the buffer

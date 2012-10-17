@@ -24,13 +24,12 @@
 package jp.a840.websocket.auth;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jp.a840.websocket.HttpHeader;
+import jp.a840.websocket.exception.WebSocketException;
+import jp.a840.websocket.http.HttpHeader;
 import jp.a840.websocket.WebSocket;
-import jp.a840.websocket.WebSocketException;
 import jp.a840.websocket.util.StringUtil;
 
 /**
@@ -53,7 +52,7 @@ abstract public class AbstractAuthenticator implements Authenticator {
 	}
 	
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.auth.Authenticator#getCredentials(java.lang.String, java.lang.String, jp.a840.websocket.HttpHeader, java.lang.String)
+	 * @see jp.a840.websocket.auth.Authenticator#getCredentials(java.lang.String, java.lang.String, jp.a840.websocket.http.HttpHeader, java.lang.String)
 	 */
 	public String getCredentials(String method, String requestUri, HttpHeader header, String authenticateHeaderName) throws WebSocketException {
 		List<String> proxyAuthenticateList = header

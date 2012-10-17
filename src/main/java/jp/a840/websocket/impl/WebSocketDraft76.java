@@ -21,10 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket;
+package jp.a840.websocket.impl;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,7 +31,8 @@ import java.nio.ByteBuffer;
 import java.util.Random;
 import java.util.logging.Logger;
 
-import jp.a840.websocket.WebSocketBase.State;
+import jp.a840.websocket.WebSocket;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.FrameParser;
@@ -40,9 +40,10 @@ import jp.a840.websocket.frame.draft76.BinaryFrame;
 import jp.a840.websocket.frame.draft76.CloseFrame;
 import jp.a840.websocket.frame.draft76.FrameBuilderDraft76;
 import jp.a840.websocket.frame.draft76.TextFrame;
-import jp.a840.websocket.handler.StreamHandlerAdapter;
-import jp.a840.websocket.handler.StreamHandlerChain;
-import jp.a840.websocket.handler.WebSocketPipeline;
+import jp.a840.websocket.handler.WebSocketHandler;
+import jp.a840.websocket.streamhandler.StreamHandlerAdapter;
+import jp.a840.websocket.streamhandler.StreamHandlerChain;
+import jp.a840.websocket.streamhandler.WebSocketPipeline;
 import jp.a840.websocket.handshake.Handshake;
 import jp.a840.websocket.proxy.Proxy;
 
@@ -68,7 +69,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	 * Instantiates a new web socket draft76.
 	 *
 	 * @param url the url
-	 * @param handler the handler
+	 * @param handler the streamhandler
 	 * @param protocols the protocols
 	 * @throws WebSocketException the web socket exception
 	 */
@@ -82,7 +83,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	 *
 	 * @param url the url
 	 * @param proxy the proxy
-	 * @param handler the handler
+	 * @param handler the streamhandler
 	 * @param protocols the protocols
 	 * @throws WebSocketException the web socket exception
 	 */
@@ -92,7 +93,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	}
 	
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#newHandshakeInstance()
+	 * @see jp.a840.websocket.impl.WebSocketBase#newHandshakeInstance()
 	 */
 	@Override
 	protected Handshake newHandshakeInstance() {
@@ -221,7 +222,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	}	
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#getWebSocketVersion()
+	 * @see jp.a840.websocket.impl.WebSocketBase#getWebSocketVersion()
 	 */
 	@Override
 	protected int getWebSocketVersion() {
@@ -295,7 +296,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	}
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.Object)
+	 * @see jp.a840.websocket.impl.WebSocketBase#createFrame(java.lang.Object)
 	 */
 	@Override
 	public Frame createFrame(Object obj) throws WebSocketException {
@@ -312,7 +313,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	}
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.String)
+	 * @see jp.a840.websocket.impl.WebSocketBase#createFrame(java.lang.String)
 	 */
 	@Override
 	public Frame createFrame(String str) throws WebSocketException {
@@ -320,7 +321,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 	}
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#newFrameParserInstance()
+	 * @see jp.a840.websocket.impl.WebSocketBase#newFrameParserInstance()
 	 */
 	@Override
 	protected FrameParser newFrameParserInstance() {
@@ -340,13 +341,13 @@ public class WebSocketDraft76 extends WebSocketBase {
 	}
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#initializePipeline(jp.a840.websocket.handler.WebSocketPipeline)
+	 * @see jp.a840.websocket.impl.WebSocketBase#initializePipeline(jp.a840.websocket.streamhandler.WebSocketPipeline)
 	 */
 	@Override
 	protected void initializePipeline(WebSocketPipeline pipeline)
 			throws WebSocketException {
 		super.initializePipeline(pipeline);
-		// Add base response handler
+		// Add base response streamhandler
 		this.pipeline.addStreamHandler(new StreamHandlerAdapter() {
 			public void nextDownstreamHandler(WebSocket ws, ByteBuffer buffer,
 					Frame frame, StreamHandlerChain chain) throws WebSocketException {

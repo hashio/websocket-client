@@ -25,6 +25,7 @@ package jp.a840.websocket;
 
 import java.util.List;
 
+import jp.a840.websocket.http.HttpHeader;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

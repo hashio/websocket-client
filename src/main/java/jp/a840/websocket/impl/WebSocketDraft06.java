@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket;
+package jp.a840.websocket.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
@@ -33,6 +33,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import jp.a840.websocket.WebSocket;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.FrameParser;
@@ -41,10 +43,11 @@ import jp.a840.websocket.frame.draft06.CloseFrame;
 import jp.a840.websocket.frame.draft06.FrameBuilderDraft06;
 import jp.a840.websocket.frame.draft06.FrameHeaderDraft06;
 import jp.a840.websocket.frame.draft06.TextFrame;
-import jp.a840.websocket.handler.MaskFrameStreamHandler;
-import jp.a840.websocket.handler.StreamHandlerAdapter;
-import jp.a840.websocket.handler.StreamHandlerChain;
-import jp.a840.websocket.handler.WebSocketPipeline;
+import jp.a840.websocket.handler.WebSocketHandler;
+import jp.a840.websocket.streamhandler.MaskFrameStreamHandler;
+import jp.a840.websocket.streamhandler.StreamHandlerAdapter;
+import jp.a840.websocket.streamhandler.StreamHandlerChain;
+import jp.a840.websocket.streamhandler.WebSocketPipeline;
 import jp.a840.websocket.handshake.Handshake;
 import jp.a840.websocket.proxy.Proxy;
 import util.Base64;
@@ -81,7 +84,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 	 * Instantiates a new web socket draft06.
 	 *
 	 * @param url the url
-	 * @param handler the handler
+	 * @param handler the streamhandler
 	 * @param protocols the protocols
 	 * @throws WebSocketException the web socket exception
 	 */
@@ -94,7 +97,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 	 *
 	 * @param url the url
 	 * @param proxy the proxy
-	 * @param handler the handler
+	 * @param handler the streamhandler
 	 * @param protocols the protocols
 	 * @throws WebSocketException the web socket exception
 	 */
@@ -103,13 +106,13 @@ public class WebSocketDraft06 extends WebSocketBase {
 	}
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#initializePipeline(jp.a840.websocket.handler.WebSocketPipeline)
+	 * @see jp.a840.websocket.impl.WebSocketBase#initializePipeline(jp.a840.websocket.streamhandler.WebSocketPipeline)
 	 */
 	@Override
 	protected void initializePipeline(WebSocketPipeline pipeline) throws WebSocketException {
 		pipeline.addStreamHandler(new MaskFrameStreamHandler());
 		super.initializePipeline(pipeline);
-		// Add base response handler
+		// Add base response streamhandler
 		pipeline.addStreamHandler(new StreamHandlerAdapter() {
 			public void nextDownstreamHandler(WebSocket ws, ByteBuffer buffer,
 					Frame frame, StreamHandlerChain chain) throws WebSocketException {
@@ -138,7 +141,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 	}
 	
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#newHandshakeInstance()
+	 * @see jp.a840.websocket.impl.WebSocketBase#newHandshakeInstance()
 	 */
 	@Override
 	protected Handshake newHandshakeInstance(){
@@ -245,7 +248,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 	
 	
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#newFrameParserInstance()
+	 * @see jp.a840.websocket.impl.WebSocketBase#newFrameParserInstance()
 	 */
 	@Override
 	protected FrameParser newFrameParserInstance() {
@@ -270,7 +273,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 
 	
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.Object)
+	 * @see jp.a840.websocket.impl.WebSocketBase#createFrame(java.lang.Object)
 	 */
 	@Override
 	public Frame createFrame(Object obj) throws WebSocketException {
@@ -288,7 +291,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 
 	
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.String)
+	 * @see jp.a840.websocket.impl.WebSocketBase#createFrame(java.lang.String)
 	 */
 	@Override
 	public Frame createFrame(String str) throws WebSocketException {
@@ -296,7 +299,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 	}
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#getWebSocketVersion()
+	 * @see jp.a840.websocket.impl.WebSocketBase#getWebSocketVersion()
 	 */
 	@Override
 	protected int getWebSocketVersion() {
@@ -322,7 +325,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 	}
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#closeWebSocket()
+	 * @see jp.a840.websocket.impl.WebSocketBase#closeWebSocket()
 	 */
 	@Override
 	protected void closeWebSocket() throws WebSocketException {

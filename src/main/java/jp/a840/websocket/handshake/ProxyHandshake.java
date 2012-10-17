@@ -35,8 +35,8 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.logging.Logger;
 
-import jp.a840.websocket.BufferManager;
-import jp.a840.websocket.WebSocketException;
+import jp.a840.websocket.buffer.BufferManager;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.auth.Authenticator;
 import jp.a840.websocket.util.PacketDumpUtil;
 import jp.a840.websocket.util.StringUtil;

@@ -21,43 +21,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket;
+package jp.a840.websocket.handler;
 
+import jp.a840.websocket.WebSocket;
+import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 
 /**
- * The Class WebSocketHandlerAdapter.
+ * The Interface WebSocketHandler.
  *
  * @author Takahiro Hashimoto
  */
-abstract public class WebSocketHandlerAdapter implements WebSocketHandler {
-
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onClose(jp.a840.websocket.WebSocket)
+public interface WebSocketHandler {
+	
+	/**
+	 * On open.
+	 *
+	 * @param socket the socket
 	 */
-	public void onClose(WebSocket socket) {
-		;
-	}
-
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onError(jp.a840.websocket.WebSocket, jp.a840.websocket.WebSocketException)
+	public void onOpen(WebSocket socket);
+	
+	/**
+	 * On message.
+	 *
+	 * @param socket the socket
+	 * @param frame the frame
 	 */
-	public void onError(WebSocket socket, WebSocketException e) {
-		e.printStackTrace();
-	}
-
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onMessage(jp.a840.websocket.WebSocket, jp.a840.websocket.frame.Frame)
+	public void onMessage(WebSocket socket, Frame frame);
+	
+	/**
+	 * On error.
+	 *
+	 * @param socket the socket
+	 * @param e the e
 	 */
-	public void onMessage(WebSocket socket, Frame frame) {
-		;
-	}
-
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onOpen(jp.a840.websocket.WebSocket)
+	public void onError(WebSocket socket, WebSocketException e);
+	
+	/**
+	 * On close.
+	 *
+	 * @param socket the socket
 	 */
-	public void onOpen(WebSocket socket) {
-		;
-	}
+	public void onClose(WebSocket socket);
 
 }

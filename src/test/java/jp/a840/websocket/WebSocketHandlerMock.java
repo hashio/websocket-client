@@ -28,6 +28,7 @@ import java.util.List;
 
 import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
+import jp.a840.websocket.handler.WebSocketHandler;
 import jp.a840.websocket.util.PacketDumpUtil;
 
 
@@ -51,7 +52,7 @@ public class WebSocketHandlerMock implements WebSocketHandler {
 	private List<List<Object>> onCloseList = new ArrayList<List<Object>>();
 	
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onOpen(jp.a840.websocket.WebSocket)
+	 * @see jp.a840.websocket.handler.WebSocketHandler#onOpen(jp.a840.websocket.WebSocket)
 	 */
 	public void onOpen(WebSocket socket) {
 		List<Object> args = new ArrayList<Object>();
@@ -61,7 +62,7 @@ public class WebSocketHandlerMock implements WebSocketHandler {
 	}
 	
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onMessage(jp.a840.websocket.WebSocket, jp.a840.websocket.frame.Frame)
+	 * @see jp.a840.websocket.handler.WebSocketHandler#onMessage(jp.a840.websocket.WebSocket, jp.a840.websocket.frame.Frame)
 	 */
 	public void onMessage(WebSocket socket, Frame frame) {
 		List<Object> args = new ArrayList<Object>();
@@ -74,7 +75,7 @@ public class WebSocketHandlerMock implements WebSocketHandler {
 	}
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onError(jp.a840.websocket.WebSocket, jp.a840.websocket.exception.WebSocketException)
+	 * @see jp.a840.websocket.handler.WebSocketHandler#onError(jp.a840.websocket.WebSocket, jp.a840.websocket.exception.WebSocketException)
 	 */
 	public void onError(WebSocket socket, WebSocketException e) {
 		List<Object> args = new ArrayList<Object>();
@@ -85,7 +86,7 @@ public class WebSocketHandlerMock implements WebSocketHandler {
 	}
 	
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketHandler#onClose(jp.a840.websocket.WebSocket)
+	 * @see jp.a840.websocket.handler.WebSocketHandler#onClose(jp.a840.websocket.WebSocket)
 	 */
 	public void onClose(WebSocket socket) {
 		List<Object> args = new ArrayList<Object>();

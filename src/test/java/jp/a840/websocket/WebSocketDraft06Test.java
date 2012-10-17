@@ -31,12 +31,12 @@ import static org.mockito.Mockito.when;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.draft06.BinaryFrame;
 import jp.a840.websocket.frame.draft06.CloseFrame;
 import jp.a840.websocket.frame.draft06.TextFrame;
+import jp.a840.websocket.impl.WebSocketDraft06;
 import jp.a840.websocket.proxy.Proxy;
 import jp.a840.websocket.util.PacketDumpUtil;
 
@@ -258,7 +258,7 @@ public class WebSocketDraft06Test extends TestCase {
 		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler);
 		ws.setBlockingMode(false);
 		ws.connect();
-		ws.awaitTermination(5, TimeUnit.SECONDS);
+		ws.awaitClose();
 
 		if(!handler.getOnErrorList().isEmpty()){
 			for(List l : handler.getOnErrorList()){
@@ -343,7 +343,7 @@ public class WebSocketDraft06Test extends TestCase {
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.send(testRequestFrame);
-		ws.awaitTermination(5, TimeUnit.SECONDS);
+		ws.awaitClose();
 		if(!handler.getOnErrorList().isEmpty()){
 			for(List l : handler.getOnErrorList()){
 				((WebSocketException)l.get(1)).printStackTrace();
@@ -422,7 +422,7 @@ public class WebSocketDraft06Test extends TestCase {
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.send(testRequestFrame);
-		ws.awaitTermination(5, TimeUnit.SECONDS);
+		ws.awaitClose();
 		if(!handler.getOnErrorList().isEmpty()){
 			for(List l : handler.getOnErrorList()){
 				((WebSocketException)l.get(1)).printStackTrace();

@@ -21,17 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket;
+package jp.a840.websocket.impl;
 
+import jp.a840.websocket.WebSocket;
 import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.FrameParser;
 import jp.a840.websocket.frame.rfc6455.*;
-import jp.a840.websocket.handler.MaskFrameStreamHandler;
-import jp.a840.websocket.handler.StreamHandlerAdapter;
-import jp.a840.websocket.handler.StreamHandlerChain;
-import jp.a840.websocket.handler.WebSocketPipeline;
+import jp.a840.websocket.handler.*;
 import jp.a840.websocket.handshake.Handshake;
 import jp.a840.websocket.proxy.Proxy;
 import util.Base64;
@@ -122,7 +120,7 @@ public class WebSocketImpl extends WebSocketBase {
    	}
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#initializePipeline(jp.a840.websocket.handler.WebSocketPipeline)
+	 * @see jp.a840.websocket.impl.WebSocketBase#initializePipeline(jp.a840.websocket.handler.WebSocketPipeline)
 	 */
 	@Override
 	protected void initializePipeline(WebSocketPipeline pipeline) throws WebSocketException {
@@ -157,7 +155,7 @@ public class WebSocketImpl extends WebSocketBase {
 	}
 	
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#newHandshakeInstance()
+	 * @see jp.a840.websocket.impl.WebSocketBase#newHandshakeInstance()
 	 */
 	@Override
 	protected Handshake newHandshakeInstance(){
@@ -263,7 +261,7 @@ public class WebSocketImpl extends WebSocketBase {
 	
 	
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#newFrameParserInstance()
+	 * @see jp.a840.websocket.impl.WebSocketBase#newFrameParserInstance()
 	 */
 	@Override
 	protected FrameParser newFrameParserInstance() {
@@ -292,7 +290,7 @@ public class WebSocketImpl extends WebSocketBase {
     }
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#createFrame(java.lang.String)
+	 * @see jp.a840.websocket.impl.WebSocketBase#createFrame(java.lang.String)
 	 */
 	@Override
 	public Frame createFrame(String str) throws WebSocketException {
@@ -300,7 +298,7 @@ public class WebSocketImpl extends WebSocketBase {
 	}
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#getWebSocketVersion()
+	 * @see jp.a840.websocket.impl.WebSocketBase#getWebSocketVersion()
 	 */
 	@Override
 	protected int getWebSocketVersion() {
@@ -326,7 +324,7 @@ public class WebSocketImpl extends WebSocketBase {
 	}
 
 	/* (non-Javadoc)
-	 * @see jp.a840.websocket.WebSocketBase#closeWebSocket()
+	 * @see jp.a840.websocket.impl.WebSocketBase#closeWebSocket()
 	 */
 	@Override
 	protected void closeWebSocket() throws WebSocketException {

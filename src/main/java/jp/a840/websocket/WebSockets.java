@@ -24,6 +24,10 @@
 package jp.a840.websocket;
 
 import jp.a840.websocket.exception.WebSocketException;
+import jp.a840.websocket.handler.WebSocketHandler;
+import jp.a840.websocket.impl.WebSocketDraft06;
+import jp.a840.websocket.impl.WebSocketDraft76;
+import jp.a840.websocket.impl.WebSocketImpl;
 import jp.a840.websocket.proxy.Proxy;
 
 

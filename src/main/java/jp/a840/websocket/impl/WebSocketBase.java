@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket;
+package jp.a840.websocket.impl;
 
 import static java.nio.channels.SelectionKey.OP_READ;
 import static java.nio.channels.SelectionKey.OP_WRITE;
@@ -43,16 +43,13 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
+import jp.a840.websocket.HttpHeader;
+import jp.a840.websocket.WebSocket;
 import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameParser;
 import jp.a840.websocket.frame.draft76.BinaryFrame;
-import jp.a840.websocket.handler.PacketDumpStreamHandler;
-import jp.a840.websocket.handler.SSLStreamHandler;
-import jp.a840.websocket.handler.StreamHandlerAdapter;
-import jp.a840.websocket.handler.StreamHandlerChain;
-import jp.a840.websocket.handler.WebSocketPipeline;
-import jp.a840.websocket.handler.WebSocketStreamHandler;
+import jp.a840.websocket.handler.*;
 import jp.a840.websocket.handshake.Handshake;
 import jp.a840.websocket.handshake.ProxyHandshake;
 import jp.a840.websocket.handshake.SSLHandshake;

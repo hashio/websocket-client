@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket;
+package jp.a840.websocket.handler;
 
 import jp.a840.websocket.handler.StreamHandler;
 

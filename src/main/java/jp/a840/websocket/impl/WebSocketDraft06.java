@@ -131,7 +131,7 @@ public class WebSocketDraft06 extends WebSocketBase {
 	 */
 	@Override
 	protected void initializePipeline(WebSocketPipeline pipeline) throws WebSocketException {
-		pipeline.addStreamHandler(new MaskFrameStreamHandler());
+		pipeline.addStreamHandler(new MaskDraft06FrameStreamHandler());
 		super.initializePipeline(pipeline);
 		// Add base response handler
 		pipeline.addStreamHandler(new StreamHandlerAdapter() {

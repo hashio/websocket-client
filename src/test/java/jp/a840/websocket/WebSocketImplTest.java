@@ -24,22 +24,14 @@
 package jp.a840.websocket;
 
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.when;
-
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.util.List;
-
 import jp.a840.websocket.exception.WebSocketException;
-import jp.a840.websocket.frame.draft06.BinaryFrame;
-import jp.a840.websocket.frame.draft06.CloseFrame;
-import jp.a840.websocket.frame.draft06.TextFrame;
-import jp.a840.websocket.impl.WebSocketDraft06;
+import jp.a840.websocket.frame.rfc6455.BinaryFrame;
+import jp.a840.websocket.frame.rfc6455.CloseFrame;
+import jp.a840.websocket.frame.rfc6455.TextFrame;
+import jp.a840.websocket.impl.WebSocketImpl;
+import jp.a840.websocket.impl.WebSocketImpl;
 import jp.a840.websocket.proxy.Proxy;
 import jp.a840.websocket.util.PacketDumpUtil;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,22 +40,29 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
 import util.Base64;
 
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.util.List;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Mockito.when;
+
 /**
- * The Class WebSocketDraft06Test.
+ * The Class WebSocketImplTest.
  *
  * @author Takahiro Hashimoto
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Base64.class)
-public class WebSocketDraft06Test extends TestCase {
+public class WebSocketImplTest extends TestCase {
 	
 	/** The ms. */
 	MockServer ms;
 
-    int version = 6;
+    int version = 13;
 
 	/**
 	 * Start mock server.
@@ -114,33 +113,33 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.addRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
 				ByteBuffer expected = ByteBuffer.allocate(2);
-				expected.put((byte)(0x81));
-				expected.put((byte)(0x00));
+				expected.put((byte)(0x88));
+				expected.put((byte)(0x80));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
 		});
-		ms.addResponse(new CloseFrame().toByteBuffer());
+		ms.addResponse(new CloseFrame(false).toByteBuffer());
 		ms.addClose(null);
 
 		ms.start();
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler);
+		WebSocketImpl ws = new WebSocketImpl("ws://localhost:9999", handler);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.close();
 
+        Throwable t = ms.getThrowable();
+      		if(t != null){
+      			t.printStackTrace();
+      			Assert.fail();
+      		}
 		if(!handler.getOnErrorList().isEmpty()){
 			for(List l : handler.getOnErrorList()){
 				((WebSocketException)l.get(1)).printStackTrace();
 			}
 			Assert.fail();
-		}
-		Throwable t = ms.getThrowable();
-		if(t != null){
-			t.printStackTrace();
-			Assert.fail(t.getMessage());
 		}
 		Assert.assertEquals(1, handler.getOnOpenList().size());
 		Assert.assertEquals(0, handler.getOnMessageList().size());
@@ -179,18 +178,18 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.addRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
 				ByteBuffer expected = ByteBuffer.allocate(2);
-				expected.put((byte)(0x81));
-				expected.put((byte)(0x00));
+				expected.put((byte)(0x88));
+				expected.put((byte)(0x80));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
 		});
-		ms.addClose(new CloseFrame().toByteBuffer());
+		ms.addClose(new CloseFrame(false).toByteBuffer());
 
 		ms.start();
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler);
+		WebSocketImpl ws = new WebSocketImpl("ws://localhost:9999", handler);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.close();
@@ -240,13 +239,13 @@ public class WebSocketDraft06Test extends TestCase {
 				"Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n" +
 				"Sec-WebSocket-Protocol: chat\r\n\r\n"));
 		// close frame response
-		ms.addResponse(new CloseFrame().toByteBuffer());		
+		ms.addResponse(new CloseFrame(false).toByteBuffer());
 		// reply close frame request
 		ms.addRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
 				ByteBuffer expected = ByteBuffer.allocate(2);
-				expected.put((byte)(0x81));
-				expected.put((byte)(0x00));
+				expected.put((byte)(0x88));
+				expected.put((byte)(0x80));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
@@ -257,7 +256,7 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.start();
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler);
+		WebSocketImpl ws = new WebSocketImpl("ws://localhost:9999", handler);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.awaitClose();
@@ -297,7 +296,7 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.addRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
 			}
-		}, this.version);
+		}, version);
 		// handshake response
 		ms.addResponse(toByteBuffer(
 				"HTTP/1.1 101 Switching Protocols\r\n" +
@@ -314,7 +313,7 @@ public class WebSocketDraft06Test extends TestCase {
 		});
 		// binary frame response
 		BinaryFrame testResponseFrame = new BinaryFrame("TEST FRAME-RES".getBytes());
-		CloseFrame closeFrame = new CloseFrame();
+		CloseFrame closeFrame = new CloseFrame(false);
 		int size = testResponseFrame.toByteBuffer().remaining();
 		size += closeFrame.toByteBuffer().remaining();
 		ByteBuffer buf = ByteBuffer.allocate(size);
@@ -329,7 +328,7 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.addRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
 				ByteBuffer expected = ByteBuffer.allocate(2);
-				expected.put((byte)(0x81));
+				expected.put((byte)(0x88));
 				expected.put((byte)(request.get(1) ^ 0x00));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
@@ -341,7 +340,7 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.start();
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler);
+		WebSocketImpl ws = new WebSocketImpl("ws://localhost:9999", handler);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.send(testRequestFrame);
@@ -402,13 +401,13 @@ public class WebSocketDraft06Test extends TestCase {
 		BinaryFrame testResponseFrame = new BinaryFrame("TEST FRAME-RES".getBytes());
 		ms.addResponse(testResponseFrame.toByteBuffer());
 		// close frame response
-		ms.addResponse(new CloseFrame().toByteBuffer());
+		ms.addResponse(new CloseFrame(false).toByteBuffer());
 		
 		// reply close frame request
 		ms.addRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
 				ByteBuffer expected = ByteBuffer.allocate(2);
-				expected.put((byte)(0x81));
+				expected.put((byte)(0x88));
 				expected.put((byte)(request.get(1) ^ 0x00));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
@@ -420,7 +419,7 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.start();
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", handler);
+		WebSocketImpl ws = new WebSocketImpl("ws://localhost:9999", handler);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.send(testRequestFrame);
@@ -489,20 +488,20 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.addRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
 				ByteBuffer expected = ByteBuffer.allocate(2);
-				expected.put((byte)(0x81));
-				expected.put((byte)(0x00));
+				expected.put((byte)(0x88));
+				expected.put((byte)(0x80));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
 		});
-		ms.addResponse(new CloseFrame().toByteBuffer());
+		ms.addResponse(new CloseFrame(false).toByteBuffer());
 		ms.addClose(null);
 
 		ms.start();
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
 		InetSocketAddress proxy = new InetSocketAddress("localhost", 9999);
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", null, new Proxy(proxy), handler, (String)null);
+		WebSocketImpl ws = new WebSocketImpl("ws://localhost:9999", null, new Proxy(proxy), handler, (String)null);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.close();
@@ -585,20 +584,20 @@ public class WebSocketDraft06Test extends TestCase {
 		ms.addRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
 				ByteBuffer expected = ByteBuffer.allocate(2);
-				expected.put((byte)(0x81));
-				expected.put((byte)(0x00));
+				expected.put((byte)(0x88));
+				expected.put((byte)(0x80));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
 		});
-		ms.addResponse(new CloseFrame().toByteBuffer());
+		ms.addResponse(new CloseFrame(false).toByteBuffer());
 		ms.addClose(null);
 
 		ms.start();
 		
 		WebSocketHandlerMock handler = new WebSocketHandlerMock();
 		InetSocketAddress proxy = new InetSocketAddress("localhost", 9999);
-		WebSocketDraft06 ws = new WebSocketDraft06("ws://localhost:9999", null, new Proxy(proxy, "test", "test"), handler, (String)null);
+		WebSocketImpl ws = new WebSocketImpl("ws://localhost:9999", null, new Proxy(proxy, "test", "test"), handler, (String)null);
 		ws.setBlockingMode(false);
 		ws.connect();
 		ws.close();

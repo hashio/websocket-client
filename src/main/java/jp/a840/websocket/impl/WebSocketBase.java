@@ -574,7 +574,7 @@ abstract public class WebSocketBase implements WebSocket {
 				public void run() {
 					try {
 						while (!quit) {
-							selector.select(connectionReadTimeout);
+							selector.select(100);
 							for (SelectionKey key : selector.selectedKeys()) {
 								if (key.isValid() && key.isWritable() && upstreamQueue.peek() != null) {
 									SocketChannel channel = (SocketChannel) key
@@ -737,18 +737,12 @@ abstract public class WebSocketBase implements WebSocket {
    	}
 
 	/**
-	 * Quit.
-	 */
-	protected void quit(){
-		quit = true;
-	}
-	
-	/**
 	 * Close web socket.
 	 *
 	 * @throws WebSocketException the web socket exception
 	 */
 	protected void closeWebSocket() throws WebSocketException {
+        quit = true;
 		transitionTo(State.CLOSED);
 	}
 

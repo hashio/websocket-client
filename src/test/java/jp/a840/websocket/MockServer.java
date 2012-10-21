@@ -34,8 +34,12 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Exchanger;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.atomic.AtomicReference;
 
 import jp.a840.websocket.util.PacketDumpUtil;
 
@@ -51,35 +55,32 @@ public class MockServer extends Thread {
 	/** The scenario list. */
 	private List<Scenario> scenarioList = new ArrayList<MockServer.Scenario>();
 
+    private Scenario errorScenario;
+
 	/** The port. */
 	private int port;
 
-	/** The exchanger. */
-	private Exchanger<Throwable> exchanger = new Exchanger<Throwable>();
+    private Queue<Throwable> throwableQueue = new LinkedBlockingQueue<Throwable>();
 
 	/** The start latch. */
 	private CountDownLatch startLatch;
 	
-	/** The mask. */
-	private boolean mask;
+	/** The client version. */
+	private int version;
 	
 	/**
 	 * Instantiates a new mock server.
 	 *
 	 * @param port the port
-	 * @param mask the mask
+	 * @param version the version
 	 */
-	public MockServer(int port, boolean mask) {
+	public MockServer(int port, int version) {
 		this.port = port;
-		this.mask = mask;
+		this.version = version;
 		
 		this.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			public void uncaughtException(Thread t, Throwable e) {
-				try{
-					exchanger.exchange(e);
-				}catch(InterruptedException ie){
-					ie.printStackTrace();
-				}
+                throwableQueue.offer(e);
 			}
 		});
 	}
@@ -90,13 +91,8 @@ public class MockServer extends Thread {
 	 * @return the throwable
 	 */
 	public Throwable getThrowable(){
-		try{
-			return exchanger.exchange(null);
-		}catch(InterruptedException e){
-			e.printStackTrace();
-		}
-		return null;
-	}
+        return throwableQueue.poll();
+    }
 
 	/* (non-Javadoc)
 	 * @see java.lang.Thread#run()
@@ -147,14 +143,10 @@ public class MockServer extends Thread {
 					socket.close();
 				}
 			}
-			exchanger.exchange(null);
 		} catch (Throwable t) {
-			try{
-				exchanger.exchange(t);
-			}catch(InterruptedException e){
-				;
-			}
-		} finally {
+//            startLatch.countDown();
+            throwableQueue.offer(t);
+        } finally {
 			try{
 				if(socket != null){
 					socket.close();
@@ -180,11 +172,11 @@ public class MockServer extends Thread {
 	enum ScenarioType {
 		
 		/** The READ. */
-		READ, 
+		READ,
 		/** The WRITE. */
 		WRITE,
 		/** The CLOSE. */
-		CLOSE;
+		CLOSE
 	}
 
 	/**
@@ -204,24 +196,34 @@ public class MockServer extends Thread {
 	 * @param verifyRequest the verify request
 	 */
 	public void addRequest(VerifyRequest verifyRequest) {
-		addRequest(verifyRequest, this.mask);
+		addRequest(verifyRequest, this.version);
 	}
 	
 	/**
 	 * Adds the request.
 	 *
 	 * @param verifyRequest the verify request
-	 * @param mask the mask
+	 * @param version
 	 */
-	public void addRequest(VerifyRequest verifyRequest, boolean mask) {
+	public void addRequest(VerifyRequest verifyRequest, int version) {
 		Scenario scenario = new Scenario(ScenarioType.WRITE);
-		if(mask){
-			verifyRequest = new VerifyUnmaskRequest(verifyRequest);
-		}
+		verifyRequest = new VerifyUnmaskRequest(verifyRequest, version);
 		scenario.setVerifyRequest(verifyRequest);
 		scenarioList.add(scenario);
 	}
-	
+
+    /**
+   	 * Adds the request.
+   	 *
+   	 * @param verifyRequest the verify request
+   	 * @param version
+   	 */
+   	public void addHttpRequest(VerifyRequest verifyRequest, int version) {
+   		Scenario scenario = new Scenario(ScenarioType.WRITE);
+   		scenario.setVerifyRequest(verifyRequest);
+   		scenarioList.add(scenario);
+   	}
+
 	/**
 	 * Adds the close.
 	 *
@@ -257,14 +259,17 @@ public class MockServer extends Thread {
 		
 		/** The delegate. */
 		private VerifyRequest delegate;
-		
+
+        private int version;
+
 		/**
 		 * Instantiates a new verify unmask request.
 		 *
 		 * @param vr the vr
 		 */
-		public VerifyUnmaskRequest(VerifyRequest vr){
-			delegate = vr;
+		public VerifyUnmaskRequest(VerifyRequest vr, int version){
+			this.delegate = vr;
+            this.version = version;
 		}
 		
 		/* (non-Javadoc)
@@ -273,8 +278,14 @@ public class MockServer extends Thread {
 		public void verify(ByteBuffer request){
 			ByteBuffer unmaskedBuffer = ByteBuffer.allocate(request.remaining() - 4);
 			byte[] seed = new byte[4];
-			request.get(seed);
-			
+            if(version > 6){
+                int limit = request.limit();
+                request.limit(request.position() + 2);
+                unmaskedBuffer.put(request);
+                request.limit(limit);
+            }
+            request.get(seed);
+
 			int c = 0;
 			while(unmaskedBuffer.hasRemaining()){
 				unmaskedBuffer.put((byte)(request.get() ^ seed[c]));

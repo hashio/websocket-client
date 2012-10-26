@@ -48,15 +48,8 @@ public class CloseFrame extends FrameRfc6455 {
 	 * Instantiates a new close frame.
 	 */
 	public CloseFrame(){
-		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(null, false, Opcode.CONNECTION_CLOSE, true);
+		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(null, false, Opcode.CONNECTION_CLOSE);
 		setHeader(header);
 	}
 
-    /**
-   	 * Instantiates a new close frame.
-   	 */
-   	public CloseFrame(boolean mask){
-   		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(null, false, Opcode.CONNECTION_CLOSE, mask);
-   		setHeader(header);
-   	}
 }

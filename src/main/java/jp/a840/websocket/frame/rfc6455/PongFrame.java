@@ -47,7 +47,7 @@ public class PongFrame extends FrameRfc6455 {
 	 * Instantiates a new pong frame.
 	 */
 	public PongFrame(){
-		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(null, false, Opcode.PONG, true);
+		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(null, false, Opcode.PONG);
 		setHeader(header);
 	}
 }

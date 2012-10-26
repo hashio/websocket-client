@@ -56,7 +56,7 @@ public class TextFrame extends FrameRfc6455 {
 	public TextFrame(String str){
 		super();
 		byte[] body = convertStringToByteArray(str);
-		setHeader(FrameBuilderRfc6455.createFrameHeader(body, false, Opcode.TEXT_FRAME, true));
+		setHeader(FrameBuilderRfc6455.createFrameHeader(body, false, Opcode.TEXT_FRAME));
 		setContents(body);
 	}
 	

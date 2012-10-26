@@ -36,11 +36,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Exchanger;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.atomic.AtomicReference;
 
+import jp.a840.websocket.frame.Frame;
+import jp.a840.websocket.frame.Maskable;
+import jp.a840.websocket.frame.rfc6455.FrameRfc6455;
 import jp.a840.websocket.util.PacketDumpUtil;
 
 import org.junit.Assert;
@@ -190,6 +190,15 @@ public class MockServer extends Thread {
 		scenarioList.add(scenario);
 	}
 
+    public void addResponse(Frame frame) {
+   		Scenario scenario = new Scenario(ScenarioType.READ);
+        if(frame instanceof Maskable){
+            ((Maskable)frame).unmask();
+        }
+   		scenario.setResponse(frame.toByteBuffer());
+   		scenarioList.add(scenario);
+   	}
+
 	/**
 	 * Adds the request.
 	 *
@@ -234,6 +243,20 @@ public class MockServer extends Thread {
 		scenario.setResponse(response);
 		scenarioList.add(scenario);
 	}	
+
+    /**
+   	 * Adds the close.
+   	 *
+   	 * @param frame the frame
+   	 */
+   	public void addClose(Frame frame) {
+   		Scenario scenario = new Scenario(ScenarioType.CLOSE);
+        if(frame instanceof Maskable){
+            ((Maskable)frame).unmask();
+        }
+   		scenario.setResponse(frame.toByteBuffer());
+   		scenarioList.add(scenario);
+   	}
 
 	/**
 	 * The Interface VerifyRequest.

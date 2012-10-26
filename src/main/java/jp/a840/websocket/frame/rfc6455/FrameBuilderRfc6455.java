@@ -406,9 +406,9 @@ public class FrameBuilderRfc6455 {
         }
 
         if (Opcode.CONTINUATION.equals(opcode) && previousHeader != null) {
-            return new FrameHeaderRfc6455(fragmented, 2, payloadLengthType, (int) payloadLength2, opcode, previousHeader.getOpcode(), false);
+            return new FrameHeaderRfc6455(fragmented, 2, payloadLengthType, (int) payloadLength2, opcode, previousHeader.getOpcode());
         } else {
-            return new FrameHeaderRfc6455(fragmented, 2, payloadLengthType, (int) payloadLength2, opcode, false);
+            return new FrameHeaderRfc6455(fragmented, 2, payloadLengthType, (int) payloadLength2, opcode);
         }
     }
 
@@ -420,13 +420,13 @@ public class FrameBuilderRfc6455 {
      * @param opcode     the opcode
      * @return the frame header draft06
      */
-    public static FrameHeaderRfc6455 createFrameHeader(byte[] body, boolean fragmented, Opcode opcode, boolean mask) {
+    public static FrameHeaderRfc6455 createFrameHeader(byte[] body, boolean fragmented, Opcode opcode) {
         int payloadLength = 0;
         if (body != null) {
             payloadLength = body.length;
         }
         PayloadLengthType payloadLengthType = PayloadLengthType.valueOf(payloadLength);
-        return new FrameHeaderRfc6455(false, 2, payloadLengthType, (int) payloadLength, opcode, mask);
+        return new FrameHeaderRfc6455(false, 2, payloadLengthType, (int) payloadLength, opcode);
     }
 
     /**

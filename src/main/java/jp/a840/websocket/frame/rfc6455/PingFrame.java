@@ -48,7 +48,7 @@ public class PingFrame extends FrameRfc6455 {
 	 * Instantiates a new ping frame.
 	 */
 	public PingFrame(){
-		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(null, false, Opcode.PING, true);
+		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(null, false, Opcode.PING);
 		setHeader(header);
 	}
 }

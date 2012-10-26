@@ -114,13 +114,13 @@ public class WebSocketImplTest extends TestCase {
 			public void verify(ByteBuffer request) {
 				ByteBuffer expected = ByteBuffer.allocate(2);
 				expected.put((byte)(0x88));
-				expected.put((byte)(0x80));
+				expected.put((byte)(0x00));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
 		});
-		ms.addResponse(new CloseFrame(false).toByteBuffer());
-		ms.addClose(null);
+		ms.addResponse(new CloseFrame().toByteBuffer());
+		ms.addClose((ByteBuffer)null);
 
 		ms.start();
 		
@@ -173,7 +173,7 @@ public class WebSocketImplTest extends TestCase {
 				"Connection: Upgrade\r\n" +
 				"Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n" +
 				"Sec-WebSocket-Protocol: chat\r\n\r\n"));
-		ms.addResponse(new TextFrame("TEST FRAMEテストフレーム").toByteBuffer());
+		ms.addResponse(new TextFrame("TEST FRAMEテストフレーム"));
 		// send close frame
 		ms.addRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
@@ -184,7 +184,7 @@ public class WebSocketImplTest extends TestCase {
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
 		});
-		ms.addClose(new CloseFrame(false).toByteBuffer());
+		ms.addClose(new CloseFrame());
 
 		ms.start();
 		
@@ -239,7 +239,7 @@ public class WebSocketImplTest extends TestCase {
 				"Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n" +
 				"Sec-WebSocket-Protocol: chat\r\n\r\n"));
 		// close frame response
-		ms.addResponse(new CloseFrame(false).toByteBuffer());
+		ms.addResponse(new CloseFrame().toByteBuffer());
 		// reply close frame request
 		ms.addRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
@@ -251,7 +251,7 @@ public class WebSocketImplTest extends TestCase {
 			}
 		});
 		// close frame response
-		ms.addClose(null);
+		ms.addClose((ByteBuffer)null);
 
 		ms.start();
 		
@@ -313,7 +313,7 @@ public class WebSocketImplTest extends TestCase {
 		});
 		// binary frame response
 		BinaryFrame testResponseFrame = new BinaryFrame("TEST FRAME-RES".getBytes());
-		CloseFrame closeFrame = new CloseFrame(false);
+		CloseFrame closeFrame = new CloseFrame();
 		int size = testResponseFrame.toByteBuffer().remaining();
 		size += closeFrame.toByteBuffer().remaining();
 		ByteBuffer buf = ByteBuffer.allocate(size);
@@ -335,7 +335,7 @@ public class WebSocketImplTest extends TestCase {
 			}
 		});
 		// close frame response
-		ms.addClose(null);
+		ms.addClose((ByteBuffer)null);
 
 		ms.start();
 		
@@ -401,7 +401,7 @@ public class WebSocketImplTest extends TestCase {
 		BinaryFrame testResponseFrame = new BinaryFrame("TEST FRAME-RES".getBytes());
 		ms.addResponse(testResponseFrame.toByteBuffer());
 		// close frame response
-		ms.addResponse(new CloseFrame(false).toByteBuffer());
+		ms.addResponse(new CloseFrame().toByteBuffer());
 		
 		// reply close frame request
 		ms.addRequest(new MockServer.VerifyRequest() {
@@ -414,7 +414,7 @@ public class WebSocketImplTest extends TestCase {
 			}
 		});
 		// close frame response
-		ms.addClose(null);
+		ms.addClose((ByteBuffer)null);
 
 		ms.start();
 		
@@ -494,8 +494,8 @@ public class WebSocketImplTest extends TestCase {
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
 		});
-		ms.addResponse(new CloseFrame(false).toByteBuffer());
-		ms.addClose(null);
+		ms.addResponse(new CloseFrame().toByteBuffer());
+		ms.addClose((ByteBuffer)null);
 
 		ms.start();
 		
@@ -590,8 +590,8 @@ public class WebSocketImplTest extends TestCase {
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
 		});
-		ms.addResponse(new CloseFrame(false).toByteBuffer());
-		ms.addClose(null);
+		ms.addResponse(new CloseFrame());
+		ms.addClose((ByteBuffer)null);
 
 		ms.start();
 		

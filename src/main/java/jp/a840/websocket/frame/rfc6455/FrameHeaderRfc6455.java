@@ -66,15 +66,13 @@ public class FrameHeaderRfc6455 implements FrameHeader {
 	 * @param payloadLengthType the payload length type
 	 * @param payloadLength the payload length
 	 * @param opcode the opcode
-     * @param mask the mask
 	 */
-	public FrameHeaderRfc6455(boolean fragmented, int headerLength, PayloadLengthType payloadLengthType, long payloadLength, Opcode opcode, boolean mask) {
+	public FrameHeaderRfc6455(boolean fragmented, int headerLength, PayloadLengthType payloadLengthType, long payloadLength, Opcode opcode) {
 		this.headerLength = headerLength + payloadLengthType.offset();
 		this.payloadLengthType = payloadLengthType;
 		this.payloadLength = payloadLength;
 		this.fragmented = fragmented;
 		this.opcode = opcode;
-        this.mask = mask;
 	}
 	
 	/**
@@ -86,16 +84,14 @@ public class FrameHeaderRfc6455 implements FrameHeader {
 	 * @param payloadLength the payload length
 	 * @param opcode the opcode
 	 * @param realOpcode the real opcode
-     * @param mask the mask
 	 */
-	public FrameHeaderRfc6455(boolean fragmented, int headerLength, PayloadLengthType payloadLengthType, long payloadLength, Opcode opcode, Opcode realOpcode, boolean mask) {
+	public FrameHeaderRfc6455(boolean fragmented, int headerLength, PayloadLengthType payloadLengthType, long payloadLength, Opcode opcode, Opcode realOpcode) {
 		this.headerLength = headerLength + payloadLengthType.offset();
 		this.payloadLengthType = payloadLengthType;
 		this.payloadLength = payloadLength;
 		this.fragmented = fragmented;
 		this.opcode = opcode;
 		this.realOpcode = realOpcode;
-        this.mask = mask;
 	}
 	
 	/* (non-Javadoc)
@@ -157,6 +153,14 @@ public class FrameHeaderRfc6455 implements FrameHeader {
 	public Opcode getRealOpcode(){
 		return realOpcode;
 	}
+
+    /**
+     * set mask
+     * @param mask
+     */
+    public void setMask(boolean mask){
+        this.mask = mask;
+    }
 	
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.frame.FrameHeader#toByteBuffer()

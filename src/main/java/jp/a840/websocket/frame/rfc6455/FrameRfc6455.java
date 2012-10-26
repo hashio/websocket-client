@@ -25,6 +25,7 @@ package jp.a840.websocket.frame.rfc6455;
 
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
+import jp.a840.websocket.frame.Maskable;
 import jp.a840.websocket.frame.rfc6455.FrameBuilderRfc6455.Opcode;
 
 import java.nio.ByteBuffer;
@@ -61,7 +62,7 @@ import java.nio.ByteBuffer;
  * @author t-hashimoto
  *
  */
-abstract public class FrameRfc6455 extends Frame {
+abstract public class FrameRfc6455 extends Frame implements Maskable {
 
 	/**
 	 * Instantiates a new frame draft06.
@@ -105,4 +106,12 @@ abstract public class FrameRfc6455 extends Frame {
 	public boolean isContinuationFrame(){
 		return ((FrameHeaderRfc6455)header).getOpcode().equals(Opcode.CONTINUATION);
 	}
+
+    public void unmask(){
+        ((FrameHeaderRfc6455)header).setMask(false);
+    }
+
+    public void mask(){
+        ((FrameHeaderRfc6455)header).setMask(true);
+    }
 }

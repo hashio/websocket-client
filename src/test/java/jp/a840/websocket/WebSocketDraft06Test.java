@@ -121,7 +121,7 @@ public class WebSocketDraft06Test extends TestCase {
 			}
 		});
 		ms.addResponse(new CloseFrame().toByteBuffer());
-		ms.addClose(null);
+		ms.addClose((ByteBuffer)null);
 
 		ms.start();
 		
@@ -252,7 +252,7 @@ public class WebSocketDraft06Test extends TestCase {
 			}
 		});
 		// close frame response
-		ms.addClose(null);
+		ms.addClose((ByteBuffer)null);
 
 		ms.start();
 		
@@ -336,7 +336,7 @@ public class WebSocketDraft06Test extends TestCase {
 			}
 		});
 		// close frame response
-		ms.addClose(null);
+		ms.addClose((ByteBuffer)null);
 
 		ms.start();
 		
@@ -415,7 +415,7 @@ public class WebSocketDraft06Test extends TestCase {
 			}
 		});
 		// close frame response
-		ms.addClose(null);
+		ms.addClose((ByteBuffer)null);
 
 		ms.start();
 		
@@ -496,7 +496,7 @@ public class WebSocketDraft06Test extends TestCase {
 			}
 		});
 		ms.addResponse(new CloseFrame().toByteBuffer());
-		ms.addClose(null);
+		ms.addClose((ByteBuffer)null);
 
 		ms.start();
 		
@@ -592,7 +592,7 @@ public class WebSocketDraft06Test extends TestCase {
 			}
 		});
 		ms.addResponse(new CloseFrame().toByteBuffer());
-		ms.addClose(null);
+		ms.addClose((ByteBuffer)null);
 
 		ms.start();
 		

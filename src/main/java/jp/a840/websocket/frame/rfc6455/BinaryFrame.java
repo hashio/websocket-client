@@ -39,7 +39,7 @@ public class BinaryFrame extends FrameRfc6455 {
 	 * @param bodyData the contents data
 	 */
 	public BinaryFrame(byte[] bodyData){
-		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(bodyData, false, Opcode.BINARY_FRAME, true);
+		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(bodyData, false, Opcode.BINARY_FRAME);
 		setHeader(header);
 		setContents(bodyData);
 	}

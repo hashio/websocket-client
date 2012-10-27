@@ -140,10 +140,7 @@ public class WebSocketImplTest extends TestCase {
 			}
 			Assert.fail();
 		}
-		Assert.assertEquals(1, handler.getOnOpenList().size());
-		Assert.assertEquals(0, handler.getOnMessageList().size());
-		Assert.assertEquals(0, handler.getOnErrorList().size());
-		Assert.assertEquals(1, handler.getOnCloseList().size());
+        assertHandler(handler, 1, 0, 0, 1);
 	}
 	
 	/**
@@ -204,11 +201,8 @@ public class WebSocketImplTest extends TestCase {
 			t.printStackTrace();
 			Assert.fail(t.getMessage());
 		}
-		Assert.assertEquals(1, handler.getOnOpenList().size());
-		Assert.assertEquals(1, handler.getOnMessageList().size());
 		Assert.assertEquals(handler.getOnMessageList().get(0).get(1).toString(), "TEST FRAMEテストフレーム");
-		Assert.assertEquals(0, handler.getOnErrorList().size());
-		Assert.assertEquals(1, handler.getOnCloseList().size());
+        assertHandler(handler, 1, 1, 0, 1);
 	}
 	
 	/**
@@ -271,10 +265,7 @@ public class WebSocketImplTest extends TestCase {
 			t.printStackTrace();
 			Assert.fail(t.getMessage());
 		}
-		Assert.assertEquals(1, handler.getOnOpenList().size());
-		Assert.assertEquals(0, handler.getOnMessageList().size());
-		Assert.assertEquals(0, handler.getOnErrorList().size());
-		Assert.assertEquals(1, handler.getOnCloseList().size());
+        assertHandler(handler, 1, 0, 0, 1);
 	}
 	
 	/**
@@ -355,12 +346,8 @@ public class WebSocketImplTest extends TestCase {
 			t.printStackTrace();
 			Assert.fail(t.getMessage());
 		}
-		Assert.assertEquals(1, handler.getOnOpenList().size());
-		Assert.assertEquals(1, handler.getOnMessageList().size());
 		Assert.assertArrayEquals("TEST FRAME-RES".getBytes(), ((BinaryFrame)handler.getOnMessageList().get(0).get(1)).getContents().array());
-		Assert.assertEquals(0, handler.getOnErrorList().size());
-		Assert.assertEquals(1, handler.getOnCloseList().size());
-		
+        assertHandler(handler, 1, 1, 0, 1);
 	}
 	
 	/**
@@ -434,12 +421,8 @@ public class WebSocketImplTest extends TestCase {
 			t.printStackTrace();
 			Assert.fail(t.getMessage());
 		}
-		Assert.assertEquals(1, handler.getOnOpenList().size());
-		Assert.assertEquals(1, handler.getOnMessageList().size());
-		Assert.assertArrayEquals("TEST FRAME-RES".getBytes(), ((BinaryFrame)handler.getOnMessageList().get(0).get(1)).getContents().array());
-		Assert.assertEquals(0, handler.getOnErrorList().size());
-		Assert.assertEquals(1, handler.getOnCloseList().size());
-		
+        Assert.assertArrayEquals("TEST FRAME-RES".getBytes(), ((BinaryFrame)handler.getOnMessageList().get(0).get(1)).getContents().array());
+        assertHandler(handler, 1, 1, 0, 1);
 	}
 
 	/**
@@ -516,10 +499,7 @@ public class WebSocketImplTest extends TestCase {
 			t.printStackTrace();
 			Assert.fail(t.getMessage());
 		}
-		Assert.assertEquals(1, handler.getOnOpenList().size());
-		Assert.assertEquals(0, handler.getOnMessageList().size());
-		Assert.assertEquals(0, handler.getOnErrorList().size());
-		Assert.assertEquals(1, handler.getOnCloseList().size());
+        assertHandler(handler, 1, 0, 0, 1);
 	}
 
 	/**
@@ -612,10 +592,7 @@ public class WebSocketImplTest extends TestCase {
 			t.printStackTrace();
 			Assert.fail(t.getMessage());
 		}
-		Assert.assertEquals(1, handler.getOnOpenList().size());
-		Assert.assertEquals(0, handler.getOnMessageList().size());
-		Assert.assertEquals(0, handler.getOnErrorList().size());
-		Assert.assertEquals(1, handler.getOnCloseList().size());
+        assertHandler(handler, 1, 0, 0, 1);
 	}
 
 	/**
@@ -627,4 +604,11 @@ public class WebSocketImplTest extends TestCase {
 	private ByteBuffer toByteBuffer(String str){
 		return ByteBuffer.wrap(str.getBytes());
 	}
+
+    private void assertHandler(WebSocketHandlerMock handler, int openListSize, int messageListSize, int errorListSize, int closeListSize){
+        Assert.assertEquals("open list", openListSize, handler.getOnOpenList().size());
+      	Assert.assertEquals("message list", messageListSize, handler.getOnMessageList().size());
+      	Assert.assertEquals("error list", errorListSize, handler.getOnErrorList().size());
+      	Assert.assertEquals("close list", closeListSize, handler.getOnCloseList().size());
+    }
 }

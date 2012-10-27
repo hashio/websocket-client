@@ -29,6 +29,7 @@ import com.sun.jna.platform.win32.Sspi.CredHandle;
 import com.sun.jna.platform.win32.Sspi.CtxtHandle;
 import com.sun.jna.platform.win32.Sspi.SecBufferDesc;
 import com.sun.jna.platform.win32.Sspi.TimeStamp;
+import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.auth.AbstractAuthenticator;
@@ -99,7 +100,7 @@ public class SpengoAuthenticator extends AbstractAuthenticator {
                 ret = Secur32.INSTANCE.AcquireCredentialsHandle(
                         null,
                         this.mechanism.name(),
-                        new NativeLong(Sspi.SECPKG_CRED_OUTBOUND),
+                        Sspi.SECPKG_CRED_OUTBOUND,
                         null,
                         null,
                         null,
@@ -115,7 +116,7 @@ public class SpengoAuthenticator extends AbstractAuthenticator {
                 pInputServerToken = new SecBufferDesc(Sspi.SECBUFFER_TOKEN, Base64.decode(token));
             }
 
-            NativeLongByReference pfClientContextAttr = new NativeLongByReference();
+            IntByReference pfClientContextAttr = new IntByReference();
             SecBufferDesc pOutputClientToken = new SecBufferDesc(Sspi.SECBUFFER_TOKEN, Sspi.MAX_TOKEN_SIZE);
 
             int ret = Secur32.INSTANCE.InitializeSecurityContext(
@@ -123,11 +124,11 @@ public class SpengoAuthenticator extends AbstractAuthenticator {
                     this.hCred,
                     this.hCtx.isNull() ? null : this.hCtx,
                     username,
-                    new NativeLong(Sspi.ISC_REQ_CONNECTION),
-                    new NativeLong(0),
-                    new NativeLong(Sspi.SECURITY_NATIVE_DREP),
+                    Sspi.ISC_REQ_CONNECTION,
+                    0,
+                    Sspi.SECURITY_NATIVE_DREP,
                     pInputServerToken,
-                    new NativeLong(0),
+                    0,
                     this.hCtx,
                     pOutputClientToken,
                     pfClientContextAttr,

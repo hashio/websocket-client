@@ -29,7 +29,6 @@ import jp.a840.websocket.frame.rfc6455.BinaryFrame;
 import jp.a840.websocket.frame.rfc6455.CloseFrame;
 import jp.a840.websocket.frame.rfc6455.TextFrame;
 import jp.a840.websocket.impl.WebSocketImpl;
-import jp.a840.websocket.impl.WebSocketImpl;
 import jp.a840.websocket.proxy.Proxy;
 import jp.a840.websocket.util.PacketDumpUtil;
 import org.junit.After;
@@ -179,7 +178,7 @@ public class WebSocketImplTest extends TestCase {
 			public void verify(ByteBuffer request) {
 				ByteBuffer expected = ByteBuffer.allocate(2);
 				expected.put((byte)(0x88));
-				expected.put((byte)(0x80));
+				expected.put((byte)(0x00));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
@@ -245,7 +244,7 @@ public class WebSocketImplTest extends TestCase {
 			public void verify(ByteBuffer request) {
 				ByteBuffer expected = ByteBuffer.allocate(2);
 				expected.put((byte)(0x88));
-				expected.put((byte)(0x80));
+				expected.put((byte)(0x00));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
@@ -489,7 +488,7 @@ public class WebSocketImplTest extends TestCase {
 			public void verify(ByteBuffer request) {
 				ByteBuffer expected = ByteBuffer.allocate(2);
 				expected.put((byte)(0x88));
-				expected.put((byte)(0x80));
+				expected.put((byte)(0x00));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
@@ -585,7 +584,7 @@ public class WebSocketImplTest extends TestCase {
 			public void verify(ByteBuffer request) {
 				ByteBuffer expected = ByteBuffer.allocate(2);
 				expected.put((byte)(0x88));
-				expected.put((byte)(0x80));
+				expected.put((byte)(0x00));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}

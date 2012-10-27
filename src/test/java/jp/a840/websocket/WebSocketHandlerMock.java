@@ -24,6 +24,8 @@
 package jp.a840.websocket;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import jp.a840.websocket.exception.WebSocketException;
@@ -40,16 +42,16 @@ import jp.a840.websocket.util.PacketDumpUtil;
 public class WebSocketHandlerMock implements WebSocketHandler {
 	
 	/** The on open list. */
-	private List<List<Object>> onOpenList = new ArrayList<List<Object>>();
+	private List<List<Object>> onOpenList = Collections.synchronizedList(new ArrayList<List<Object>>());
 	
 	/** The on message list. */
-	private List<List<Object>> onMessageList = new ArrayList<List<Object>>();
+	private List<List<Object>> onMessageList = Collections.synchronizedList(new ArrayList<List<Object>>());
 	
 	/** The on error list. */
-	private List<List<Object>> onErrorList = new ArrayList<List<Object>>();
+	private List<List<Object>> onErrorList = Collections.synchronizedList(new ArrayList<List<Object>>());
 	
 	/** The on close list. */
-	private List<List<Object>> onCloseList = new ArrayList<List<Object>>();
+	private List<List<Object>> onCloseList = Collections.synchronizedList(new ArrayList<List<Object>>());
 	
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.handler.WebSocketHandler#onOpen(jp.a840.websocket.WebSocket)

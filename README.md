@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/hashio/websocket-client.png)](https://travis-ci.org/hashio/websocket-client)
+
 WebSocket Client
 =================
 Copyright 2011,2012 Takahiro Hashimoto

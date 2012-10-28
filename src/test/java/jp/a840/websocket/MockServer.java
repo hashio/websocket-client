@@ -113,6 +113,7 @@ public class MockServer extends Thread {
 			int requestCount = 1;
 			int responseCount = 1;
 			for (Scenario scenario : scenarioList) {
+                Thread.sleep(scenario.getSleepTime());
 				switch (scenario.getScenarioType()) {
 				case READ:
 					PacketDumpUtil.printPacketDump("response" + responseCount, scenario.getResponse());
@@ -141,6 +142,7 @@ public class MockServer extends Thread {
 						socket.write(scenario.getResponse());
 					}
 					socket.close();
+                    socket = null;
 				}
 			}
 		} catch (Throwable t) {
@@ -185,13 +187,38 @@ public class MockServer extends Thread {
 	 * @param response the response
 	 */
 	public void addResponse(ByteBuffer response) {
-		Scenario scenario = new Scenario(ScenarioType.READ);
-		scenario.setResponse(response);
-		scenarioList.add(scenario);
+        addResponse(response, 0);
 	}
 
+    /**
+     * Adds the response
+     *
+     * @param response
+     * @param sleepTime
+     */
+    public void addResponse(ByteBuffer response, long sleepTime) {
+        Scenario scenario = new Scenario(ScenarioType.READ, sleepTime);
+      	scenario.setResponse(response);
+      	scenarioList.add(scenario);
+    }
+
+    /**
+     * Adds the response
+     *
+     * @param frame
+     */
     public void addResponse(Frame frame) {
-   		Scenario scenario = new Scenario(ScenarioType.READ);
+        addResponse(frame, 0);
+    }
+
+    /**
+     * Adds the response
+     *
+     * @param frame
+     * @param sleepTime
+     */
+    public void addResponse(Frame frame, long sleepTime) {
+   		Scenario scenario = new Scenario(ScenarioType.READ, sleepTime);
         if(frame instanceof Maskable){
             ((Maskable)frame).unmask();
         }
@@ -205,7 +232,7 @@ public class MockServer extends Thread {
 	 * @param verifyRequest the verify request
 	 */
 	public void addRequest(VerifyRequest verifyRequest) {
-		addRequest(verifyRequest, this.version);
+		addRequest(verifyRequest, this.version, 0);
 	}
 	
 	/**
@@ -214,32 +241,64 @@ public class MockServer extends Thread {
 	 * @param verifyRequest the verify request
 	 * @param version
 	 */
-	public void addRequest(VerifyRequest verifyRequest, int version) {
-		Scenario scenario = new Scenario(ScenarioType.WRITE);
-		verifyRequest = new VerifyUnmaskRequest(verifyRequest, version);
-		scenario.setVerifyRequest(verifyRequest);
-		scenarioList.add(scenario);
-	}
+    public void addRequest(VerifyRequest verifyRequest, int version) {
+        addRequest(verifyRequest, version, 0);
+    }
 
     /**
    	 * Adds the request.
    	 *
    	 * @param verifyRequest the verify request
    	 * @param version
+     * @param sleepTime
    	 */
-   	public void addHttpRequest(VerifyRequest verifyRequest, int version) {
-   		Scenario scenario = new Scenario(ScenarioType.WRITE);
+	public void addRequest(VerifyRequest verifyRequest, int version, long sleepTime) {
+		Scenario scenario = new Scenario(ScenarioType.WRITE, sleepTime);
+		verifyRequest = new VerifyUnmaskRequest(verifyRequest, version);
+		scenario.setVerifyRequest(verifyRequest);
+		scenarioList.add(scenario);
+	}
+
+    /**
+     * Adds the request
+     *
+     * @param verifyRequest
+     * @param version
+     */
+    public void addHttpRequest(VerifyRequest verifyRequest, int version) {
+        addHttpRequest(verifyRequest, version, 0);
+    }
+
+    /**
+   	 * Adds the request.
+   	 *
+   	 * @param verifyRequest the verify request
+   	 * @param version
+     * @param sleepTime
+   	 */
+   	public void addHttpRequest(VerifyRequest verifyRequest, int version, long sleepTime) {
+   		Scenario scenario = new Scenario(ScenarioType.WRITE, sleepTime);
    		scenario.setVerifyRequest(verifyRequest);
    		scenarioList.add(scenario);
    	}
+
+    /**
+   	 * Adds the close.
+   	 *
+   	 * @param response the response
+   	 */
+   	public void addClose(ByteBuffer response) {
+        addClose(response, 0);
+    }
 
 	/**
 	 * Adds the close.
 	 *
 	 * @param response the response
+     * @param sleepTime
 	 */
-	public void addClose(ByteBuffer response) {
-		Scenario scenario = new Scenario(ScenarioType.CLOSE);
+	public void addClose(ByteBuffer response, long sleepTime) {
+		Scenario scenario = new Scenario(ScenarioType.CLOSE, sleepTime);
 		scenario.setResponse(response);
 		scenarioList.add(scenario);
 	}	
@@ -249,7 +308,11 @@ public class MockServer extends Thread {
    	 *
    	 * @param frame the frame
    	 */
-   	public void addClose(Frame frame) {
+    public void addClose(Frame frame) {
+        addClose(frame, 0);
+    }
+
+   	public void addClose(Frame frame, long sleepTime) {
    		Scenario scenario = new Scenario(ScenarioType.CLOSE);
         if(frame instanceof Maskable){
             ((Maskable)frame).unmask();
@@ -330,7 +393,9 @@ public class MockServer extends Thread {
 	public class Scenario {
 		
 		/** The scenario type_. */
-		private ScenarioType scenarioType_;
+		private final ScenarioType scenarioType;
+
+        private final long sleepTime;
 
 		/**
 		 * Instantiates a new scenario.
@@ -338,9 +403,15 @@ public class MockServer extends Thread {
 		 * @param scenarioType the scenario type
 		 */
 		public Scenario(ScenarioType scenarioType){
-			scenarioType_ = scenarioType;
+			this.scenarioType = scenarioType;
+            this.sleepTime = 0L;
 		}
 		
+        public Scenario(ScenarioType scenarioType, long sleepTime){
+      		this.scenarioType = scenarioType;
+            this.sleepTime = sleepTime;
+      	}
+
 		/** The response. */
 		private ByteBuffer response;
 		
@@ -353,9 +424,12 @@ public class MockServer extends Thread {
 		 * @return the response
 		 */
 		public ByteBuffer getResponse() {
-			return response;
+			return this.response;
 		}
 
+        public long getSleepTime() {
+            return this.sleepTime;
+        }
 		/**
 		 * Sets the response.
 		 *
@@ -381,7 +455,7 @@ public class MockServer extends Thread {
 		 * @return true, if successful
 		 */
 		public void verifyRequest(ByteBuffer request) {
-			verifyRequest.verify(request);
+			this.verifyRequest.verify(request);
 		}
 
 		/**
@@ -390,7 +464,7 @@ public class MockServer extends Thread {
 		 * @return the scenario type
 		 */
 		public ScenarioType getScenarioType() {
-			return scenarioType_;
+			return this.scenarioType;
 		}
 	}
 

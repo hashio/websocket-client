@@ -135,7 +135,6 @@ public class WebSocketImpl extends WebSocketBase {
 						chain.nextUpstreamHandler(ws, null, frame);
 					}
 					transitionTo(State.CLOSED);
-					closeLatch.countDown();
 				} else {
 					WebSocketImpl.this.handler.onMessage(ws, frame);
 				}

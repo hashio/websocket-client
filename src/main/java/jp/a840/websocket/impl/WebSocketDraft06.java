@@ -142,7 +142,6 @@ public class WebSocketDraft06 extends WebSocketBase {
 						chain.nextUpstreamHandler(ws, null, frame);
 					}
 					transitionTo(State.CLOSED);
-					closeLatch.countDown();
 				} else {
 					WebSocketDraft06.this.handler.onMessage(ws, frame);
 				}

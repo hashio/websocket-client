@@ -51,7 +51,7 @@ mvn clean install
 <dependency>
   <groupId>jp.a840.websocket</groupId>
   <artifactId>websocket-client</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>0.8.5-SNAPSHOT</version>
 </dependency>
 ```
 

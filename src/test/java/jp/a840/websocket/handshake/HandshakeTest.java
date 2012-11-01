@@ -125,7 +125,7 @@ public class HandshakeTest {
 					"Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n" +
 					"Sec-WebSocket-Protocol: chat\r\n"));
 		}catch(WebSocketException e){
-			Assert.assertEquals(3101, e.getStatusCode());
+			Assert.assertEquals(3101, e.getErrorCode());
 		}
 	}
 	
@@ -146,7 +146,7 @@ public class HandshakeTest {
 					"Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n" +
 					"Sec-WebSocket-Protocol: chat\r\n\r\n"));
 		}catch(WebSocketException e){
-			Assert.assertEquals(3102, e.getStatusCode());
+			Assert.assertEquals(3102, e.getErrorCode());
 		}
 	}
 

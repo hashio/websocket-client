@@ -39,7 +39,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
-
+import static jp.a840.websocket.exception.ErrorCode.*;
 
 /**
  * A simple websocket client
@@ -221,13 +221,13 @@ public class WebSocketImpl extends WebSocketBase {
 					return false;
 				}
 				if(!"websocket".equalsIgnoreCase(this.getResponseHeader().getHeaderValue("upgrade"))){
-					throw new WebSocketException(3600, "Upgrade response header does not match websocket. Upgrade: " + responseHeader.getHeaderValue("upgrade"));
+					throw new WebSocketException(E3600, responseHeader.getHeaderValue("upgrade"));
 				}
 				if(!"upgrade".equalsIgnoreCase(this.getResponseHeader().getHeaderValue("connection"))){
-					throw new WebSocketException(3601, "Connection response header does not match Upgrade. Connection: " + responseHeader.getHeaderValue("connection"));
+					throw new WebSocketException(E3601, responseHeader.getHeaderValue("connection"));
 				}
 				if(!this.getResponseHeader().containsHeader("sec-websocket-accept")){
-					throw new WebSocketException(3602, "Sec-WebSocket-Accept response header is not found");
+					throw new WebSocketException(E3602);
 				}
 				String protocolStr = this.getResponseHeader().getHeaderValue("sec-websocket-protocol");
 				if(protocolStr != null){

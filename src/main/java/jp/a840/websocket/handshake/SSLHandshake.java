@@ -46,6 +46,7 @@ import javax.net.ssl.SSLEngineResult.Status;
 
 import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.util.PacketDumpUtil;
+import static jp.a840.websocket.exception.ErrorCode.*;
 
 
 /**
@@ -109,11 +110,11 @@ public class SSLHandshake {
             this.engine.setUseClientMode(true);
             this.currentBufferSize = this.engine.getSession().getPacketBufferSize();
         } catch (NoSuchAlgorithmException e) {
-            throw new WebSocketException(3810, e);
+            throw new WebSocketException(E3810, e);
         } catch (KeyStoreException e) {
-            throw new WebSocketException(3811, e);
+            throw new WebSocketException(E3811, e);
         } catch (KeyManagementException e) {
-            throw new WebSocketException(3812, e);
+            throw new WebSocketException(E3812, e);
         }
         delegatedTaskExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
             public Thread newThread(Runnable r) {
@@ -206,7 +207,7 @@ public class SSLHandshake {
                                 }
                             }, hb);
                             if (this.increaseBufferCount > BUFFER_UNDERFLOW_MAX_RETRY_COUNT) {
-                                throw new WebSocketException(3999, "Couldn't SSL unwrap, because caught buffer underflow from SSLEngine.");
+                                throw new WebSocketException(E3820);
                             }
                         } while (res.getStatus() == Status.OK
                                 && res.getHandshakeStatus() == HandshakeStatus.NEED_UNWRAP);
@@ -221,9 +222,9 @@ public class SSLHandshake {
                 }
             }
         } catch (SSLException e) {
-            throw new WebSocketException(3815, e);
+            throw new WebSocketException(E3815, e);
         } catch (IOException ioe) {
-            throw new WebSocketException(3816, ioe);
+            throw new WebSocketException(E3816, ioe);
         } finally {
             try {
                 selector.close();
@@ -279,7 +280,7 @@ public class SSLHandshake {
      */
     private void reallocateBuffer(HandshakeBuffer hb) throws WebSocketException {
         if (this.increaseBufferCount > BUFFER_UNDERFLOW_MAX_RETRY_COUNT) {
-            throw new WebSocketException(3999, "Couldn't resolve SSL buffer underflow");
+            throw new WebSocketException(E3821);
         }
 
         this.currentBufferSize = this.engine.getSession().getPacketBufferSize() * this.increaseBufferCount++;
@@ -307,7 +308,7 @@ public class SSLHandshake {
             }
             netBuffer.flip();
         } catch (SSLException e) {
-            throw new WebSocketException(3817, e);
+            throw new WebSocketException(E3817, e);
         }
     }
 
@@ -327,7 +328,7 @@ public class SSLHandshake {
             }
             localBuffer.flip();
         } catch (SSLException se) {
-            throw new WebSocketException(3818, se);
+            throw new WebSocketException(E3818, se);
         }
     }
 

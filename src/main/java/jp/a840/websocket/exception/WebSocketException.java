@@ -39,50 +39,54 @@ package jp.a840.websocket.exception;
 public class WebSocketException extends Exception {
 
 	/** The status code. */
-	private int statusCode;
+	private final ErrorCode code;
+
+    private String[] formatArgs;
 	
 	/**
 	 * Instantiates a new web socket exception.
 	 *
-	 * @param statusCode the status code
+	 * @param code the error code
 	 */
-	public WebSocketException(int statusCode) {
+	public WebSocketException(ErrorCode code) {
 		super();
-		this.statusCode = statusCode;
+        this.code = code;
 	}
 
 	/**
 	 * Instantiates a new web socket exception.
 	 *
-	 * @param statusCode the status code
-	 * @param message the message
+     * @param code the error code
+     * @param formatArgs the format args for formatted error message
 	 */
-	public WebSocketException(int statusCode, String message) {
-		super(message);
-		this.statusCode = statusCode;
+	public WebSocketException(ErrorCode code, String... formatArgs) {
+		super();
+        this.code = code;
+        this.formatArgs = formatArgs;
 	}
 
 	/**
 	 * Instantiates a new web socket exception.
 	 *
-	 * @param statusCode the status code
+	 * @param code the error code
 	 * @param cause the cause
 	 */
-	public WebSocketException(int statusCode, Throwable cause) {
+	public WebSocketException(ErrorCode code, Throwable cause) {
 		super(cause);
-		this.statusCode = statusCode;
+        this.code = code;
 	}
 
 	/**
 	 * Instantiates a new web socket exception.
 	 *
-	 * @param statusCode the status code
-	 * @param message the message
+	 * @param code the error code
 	 * @param cause the cause
+     * @param formatArgs the format args for formatted error message
 	 */
-	public WebSocketException(int statusCode, String message, Throwable cause) {
-		super(message, cause);
-		this.statusCode = statusCode;
+	public WebSocketException(ErrorCode code, Throwable cause, String... formatArgs) {
+		super(cause);
+		this.code = code;
+        this.formatArgs = formatArgs;
 	}
 
 	/* (non-Javadoc)
@@ -90,7 +94,12 @@ public class WebSocketException extends Exception {
 	 */
 	@Override
 	public String getMessage() {
-		return "[" + statusCode + "] " + super.getMessage();
+        int errorCode = getErrorCode();
+        if(formatArgs != null){
+            return "[" + errorCode + "] " + String.format(code.getMessage(), (Object[])formatArgs);
+        }else{
+            return "[" + errorCode + "] " + code.getMessage();
+        }
 	}
 
 	/**
@@ -98,7 +107,8 @@ public class WebSocketException extends Exception {
 	 *
 	 * @return the status code
 	 */
-	public int getStatusCode() {
-		return statusCode;
+	public int getErrorCode() {
+        int errorCode = Integer.valueOf(code.name().substring(1,5));
+		return errorCode;
 	}
 }

@@ -45,6 +45,7 @@ import jp.a840.websocket.handler.*;
 import jp.a840.websocket.handshake.Handshake;
 import jp.a840.websocket.proxy.Proxy;
 import util.Base64;
+import static jp.a840.websocket.exception.ErrorCode.*;
 
 
 
@@ -228,13 +229,13 @@ public class WebSocketDraft06 extends WebSocketBase {
 					return false;
 				}
 				if(!"websocket".equalsIgnoreCase(this.getResponseHeader().getHeaderValue("upgrade"))){
-					throw new WebSocketException(3600, "Upgrade response header does not match websocket. Upgrade: " + responseHeader.getHeaderValue("upgrade"));
+					throw new WebSocketException(E3600,  responseHeader.getHeaderValue("upgrade"));
 				}
 				if(!"upgrade".equalsIgnoreCase(this.getResponseHeader().getHeaderValue("connection"))){
-					throw new WebSocketException(3601, "Connection response header does not match Upgrade. Connection: " + responseHeader.getHeaderValue("connection"));
+					throw new WebSocketException(E3601, responseHeader.getHeaderValue("connection"));
 				}
 				if(!this.getResponseHeader().containsHeader("sec-websocket-accept")){
-					throw new WebSocketException(3602, "Sec-WebSocket-Accept response header is not found");
+					throw new WebSocketException(E3602);
 				}
 				String protocolStr = this.getResponseHeader().getHeaderValue("sec-websocket-protocol");
 				if(protocolStr != null){

@@ -32,7 +32,7 @@ import jp.a840.websocket.BufferManager;
 import jp.a840.websocket.HttpHeader;
 import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.util.StringUtil;
-
+import static jp.a840.websocket.exception.ErrorCode.*;
 
 /**
  * Processing WebSocket Handshake
@@ -238,13 +238,11 @@ public abstract class Handshake {
 				return false;
 			}
 			if (!line.startsWith("HTTP/1.1")) {
-				throw new WebSocketException(3101,
-						"Invalid server response.(HTTP version) " + line);
+				throw new WebSocketException(E3101,line);
 			}
 			responseStatus = Integer.valueOf(line.substring(9, 12));
 			if (responseStatus != 101) {
-				throw new WebSocketException(3102,
-						"Invalid server response.(Status Code) " + line);
+				throw new WebSocketException(E3102,line);
 			}
 			transitionTo(State.HEADER);
 		}

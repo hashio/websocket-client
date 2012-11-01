@@ -29,6 +29,7 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static jp.a840.websocket.exception.ErrorCode.*;
 import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.util.StringUtil;
 
@@ -146,9 +147,9 @@ public class DigestAuthenticator extends AbstractAuthenticator {
 			// H(method, uri)  *H is MD5(default)
 			a2 = StringUtil.toMD5HexString(StringUtil.join(":", method, uri));
 		} else if("auth-int".equals(qop)){
-			throw new WebSocketException(3999, "Unsupported qop option 'auth-int'.");			
+			throw new WebSocketException(E3830);
 		} else {
-			throw new WebSocketException(3999, "Unsupported qop option. qop:" + qop);						
+			throw new WebSocketException(E3831, qop);
 		}
 		
 		String response = null;

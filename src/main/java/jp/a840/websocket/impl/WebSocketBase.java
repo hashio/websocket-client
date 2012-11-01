@@ -55,6 +55,7 @@ import jp.a840.websocket.handshake.ProxyHandshake;
 import jp.a840.websocket.handshake.SSLHandshake;
 import jp.a840.websocket.proxy.Proxy;
 import jp.a840.websocket.util.StringUtil;
+import static jp.a840.websocket.exception.ErrorCode.*;
 
 
 /**
@@ -280,14 +281,14 @@ abstract public class WebSocketBase implements WebSocket {
 			public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
 					Frame frame, StreamHandlerChain chain) throws WebSocketException {
 				if(!upstreamQueue.offer(buffer)){
-					throw new WebSocketException(3030, "Couldn't add buffer to upstream queue");
+					throw new WebSocketException(E3030);
 				}
 				selector.wakeup();
 			}
 			public void nextHandshakeUpstreamHandler(WebSocket ws, ByteBuffer buffer,
 					StreamHandlerChain chain) throws WebSocketException {
 				if(!upstreamQueue.offer(buffer)){
-					throw new WebSocketException(3031, "Couldn't add buffer to upstream queue");
+					throw new WebSocketException(E3031);
 				}
 				selector.wakeup();
 			}
@@ -325,8 +326,7 @@ abstract public class WebSocketBase implements WebSocket {
 		try {
 			URI uri = new URI(urlStr);
 			if (!(uri.getScheme().equals("ws") || uri.getScheme().equals("wss"))) {
-				throw new WebSocketException(3007, "Not supported protocol. "
-						+ uri.toString());
+				throw new WebSocketException(E3007, uri.toString());
 			}
 			if(uri.getScheme().equals("wss")){
 				useSsl = true;
@@ -340,14 +340,13 @@ abstract public class WebSocketBase implements WebSocket {
 					port = 443;
 					useSsl = true;
 				} else {
-					throw new WebSocketException(3008,
-							"Not supported protocol. " + uri.toString());
+					throw new WebSocketException(E3008, uri.toString());
 				}
 			}
 			endpointAddress = new InetSocketAddress(uri.getHost(), port);
 			location = uri;
 		} catch (URISyntaxException e) {
-			throw new WebSocketException(3009, e);
+			throw new WebSocketException(E3009, e);
 		}
 	}
 
@@ -363,7 +362,7 @@ abstract public class WebSocketBase implements WebSocket {
 	 */
 	public void send(Frame frame) throws WebSocketException {
 		if(!isConnected()){
-			throw new WebSocketException(3010, "WebSocket is not connected");
+			throw new WebSocketException(E3010);
 		}
 		pipeline.sendUpstream(this, null, frame);
 	}
@@ -491,11 +490,11 @@ abstract public class WebSocketBase implements WebSocket {
 		try {
 			buffer.clear();
 			if (socket.read(buffer) < 0) {
-				throw new WebSocketException(3020, "Connection closed.");
+				throw new WebSocketException(E3020);
 			}
 			buffer.flip();
 		} catch (IOException ioe) {
-			throw new WebSocketException(3021, "Caught IOException.", ioe);
+			throw new WebSocketException(E3021, ioe);
 		}
 	}
 
@@ -518,13 +517,11 @@ abstract public class WebSocketBase implements WebSocket {
 		try {
 			// check connection status
 			if (isConnected()){
-				throw new WebSocketException(3039, "Already connected");
+				throw new WebSocketException(E3039);
 			}
 			
 			if (!state.canTransitionTo(State.CONNECTED)) {
-				throw new WebSocketException(3040,
-						"Can't transit state to CONNECTED. current state="
-								+ state);
+				throw new WebSocketException(E3040, state.name());
 			}
 			
 			// initialize connection
@@ -549,11 +546,11 @@ abstract public class WebSocketBase implements WebSocket {
 			
 			// start connect to remote address
 			if (socket.connect(remoteAddress)) {
-				throw new WebSocketException(3041, "Already connected");
+				throw new WebSocketException(E3041);
 			}
 			while (!socket.finishConnect()) {
 				if ((System.currentTimeMillis() - start) > connectionTimeout) {
-					throw new WebSocketException(3042, "Connection Timeout");
+					throw new WebSocketException(E3042);
 				}
 			}
 			// connect done
@@ -615,7 +612,7 @@ abstract public class WebSocketBase implements WebSocket {
 						handler.onError(WebSocketBase.this, we);
 					} catch (Exception e) {
 						handler.onError(WebSocketBase.this,
-								new WebSocketException(3043, e));
+								new WebSocketException(E3043, e));
 					} finally {
 						try {							
 							socket.close();
@@ -660,7 +657,7 @@ abstract public class WebSocketBase implements WebSocket {
 		} catch (WebSocketException we) {
 			handler.onError(this, we);
 		} catch (Exception e) {
-			handler.onError(this, new WebSocketException(3044, e));
+			handler.onError(this, new WebSocketException(E3044, e));
 		}
 	}
 
@@ -755,7 +752,7 @@ abstract public class WebSocketBase implements WebSocket {
 			byte[] bodyData = baos.toByteArray();
 			return new BinaryFrame(bodyData);
 		} catch (Exception e) {
-			throw new WebSocketException(3550, e);
+			throw new WebSocketException(E3550, e);
 		}
 	}
 	

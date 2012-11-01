@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 
 import jp.a840.websocket.WebSocket;
 import jp.a840.websocket.exception.WebSocketException;
+import static jp.a840.websocket.exception.ErrorCode.*;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.FrameParser;
@@ -170,14 +171,14 @@ public class WebSocketDraft76 extends WebSocketBase {
 					return false;
 				}
 				if(!"websocket".equalsIgnoreCase(this.getResponseHeader().getHeaderValue("upgrade"))){
-					throw new WebSocketException(3500, "Upgrade response header does not match websocket. Upgrade: " + responseHeader.getHeaderValue("upgrade"));
+					throw new WebSocketException(E3500, responseHeader.getHeaderValue("upgrade"));
 				}
 				if(!"upgrade".equalsIgnoreCase(this.getResponseHeader().getHeaderValue("connection"))){
-					throw new WebSocketException(3501, "Connection response header does not match Upgrade. Connection: " + responseHeader.getHeaderValue("connection"));
+					throw new WebSocketException(E3501, responseHeader.getHeaderValue("connection"));
 				}
 				String serverOrigin = this.getResponseHeader().getHeaderValue("sec-websocket-origin");
 				if(origin != null && serverOrigin != null && !serverOrigin.equals(origin)){
-					throw new WebSocketException(3502, "Sec-WebSocket-Origin response header does not match request Origin header. Origin: " + origin + " Sec-WebSocket-Origin: " + serverOrigin);
+					throw new WebSocketException(E3502, origin, serverOrigin);
 				}
 				String serverLocation = this.getResponseHeader().getHeaderValue("sec-websocket-location");
 				try{
@@ -189,7 +190,7 @@ public class WebSocketDraft76 extends WebSocketBase {
 								  	location.getFragment()
 								  	);
 					if(serverLocation != null && !serverLocation.equals(uri.toString())){
-						throw new WebSocketException(3503, "Sec-WebSocket-Location response header does not match request URL. request uri: " + uri.toString() + " Sec-WebSocket-Location: " + serverLocation);
+						throw new WebSocketException(E3503, uri.toString(), serverLocation);
 					}
 				}catch(URISyntaxException e){
 					;

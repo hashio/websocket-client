@@ -40,7 +40,7 @@ import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.auth.Authenticator;
 import jp.a840.websocket.util.PacketDumpUtil;
 import jp.a840.websocket.util.StringUtil;
-
+import static jp.a840.websocket.exception.ErrorCode.*;
 
 /**
  * HTTP Proxy Handshake class
@@ -230,17 +230,17 @@ public class ProxyHandshake {
 					}else{
 						if(needAuthorize){
 							if(!authenticator.isNeedAuthenticate()){
-								throw new WebSocketException(3999, "Need proxy authenticate. Proxy Authenticate fail.");
+								throw new WebSocketException(E3200);
 							}
 							if(authenticator == null){
-								throw new WebSocketException(3999, "Need proxy authenticate. But not set a Authenticator");
+								throw new WebSocketException(E3201);
 							}
 							creadectialsStr = authenticator.getCredentials(method, host, httpResponseHeaderParser.getResponseHeader(), PROXY_AUTHENTICATE);
 							if(creadectialsStr != null){
 								transitionTo(State.AUTH);
 								socket.register(selector, OP_WRITE);
 							}else{
-								throw new WebSocketException(3999, "Have not support proxy authenticate schemes.");
+								throw new WebSocketException(E3202);
 							}
 							authTry++;
 						} else {
@@ -261,7 +261,7 @@ public class ProxyHandshake {
 				}
 			} while(state != State.DONE);
 		} catch (IOException ioe) {
-			throw new WebSocketException(3100, ioe);
+			throw new WebSocketException(E3100, ioe);
 		} finally {
 			try{
 				if(selector != null){
@@ -334,16 +334,14 @@ public class ProxyHandshake {
 				return false;
 			}
 			if (!(line.startsWith("HTTP/1.0") || line.startsWith("HTTP/1.1"))) {
-				throw new WebSocketException(3101,
-						"Invalid server response.(HTTP version) " + line);
+				throw new WebSocketException(E3101, line);
 			}
 			int responseStatus = Integer.valueOf(line.substring(9, 12));
 			if (responseStatus != 200) {
 				if (responseStatus == 407) {
 					needAuthorize = true;
 				}else{
-					throw new WebSocketException(3102,
-							"Invalid server response.(Status Code) " + line);
+					throw new WebSocketException(E3102, line);
 				}
 			}
 			transitionTo(State.HEADER);

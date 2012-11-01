@@ -32,6 +32,7 @@ import com.sun.jna.platform.win32.Sspi.TimeStamp;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 import jp.a840.websocket.exception.WebSocketException;
+import static jp.a840.websocket.exception.ErrorCode.*;
 import jp.a840.websocket.auth.AbstractAuthenticator;
 import jp.a840.websocket.auth.AuthScheme;
 import jp.a840.websocket.auth.Challenge;
@@ -108,7 +109,7 @@ public class SpengoAuthenticator extends AbstractAuthenticator {
                         this.hCred,
                         timeStamp);
                 if (ret != W32Errors.SEC_E_OK) {
-                    throw new WebSocketException(3999, "failed AcquireCredentialsHandle ret(" + ret + ")");
+                    throw new WebSocketException(E3850, String.valueOf(ret));
                 }
                 pInputServerToken = null;
             } else {
@@ -142,7 +143,7 @@ public class SpengoAuthenticator extends AbstractAuthenticator {
                     this.negotiateCount++;
                     break;
                 default:
-                    throw new WebSocketException(3999, "Failed InitializeSecurityContext ret(" + ret + ")");
+                    throw new WebSocketException(E3851, String.valueOf(ret));
             }
 
             return AuthScheme.Negotiate.name() + " " + Base64.encodeToString(pOutputClientToken.getBytes(), false);

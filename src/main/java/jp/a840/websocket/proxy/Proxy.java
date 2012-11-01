@@ -39,7 +39,7 @@ import jp.a840.websocket.auth.Authenticator;
 import jp.a840.websocket.auth.Credentials;
 import jp.a840.websocket.auth.DefaultAuthenticator;
 import jp.a840.websocket.handshake.ProxyHandshake;
-
+import static jp.a840.websocket.exception.ErrorCode.*;
 
 /**
  * The Class Proxy.
@@ -160,7 +160,7 @@ public class Proxy {
 				return address;
 			}
 		}catch(URISyntaxException e){
-			throw new WebSocketException(3032, e);
+			throw new WebSocketException(E3032, e);
 		}
 		return null;
 	}

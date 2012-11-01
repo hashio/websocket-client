@@ -8,27 +8,26 @@ MIT license
 
 Purpose
 -------
-The purpose of a WebSocket Client is implement to portable,high-performance
-and easy use the push communication in the internet for Java client 
+portable,high-performance and more connectivity for internet
 
 Support
 -------
 
 - JDK5 or higher
-- WebSocket Specification Draft76, Draft06, RFC6455
-- SSL/TLS with wss://
-- proxy [Basic,Digest,Negotiate(Windows only) authentication support]
+- ws://,wss:// support
+- WebSocket Specification RFC6455, Draft06,76
+- proxy support with authentication [Basic,Digest,Negotiate(Windows only)]
 
 
-Test running for these combinations.
+Tested server
 
-- [Draft76] Grizzly2.0   + WebSocket
-- [Draft06] Grizzly2.1.1 + WebSocket
-- [Draft76] Jetty7.4.0   + WebSocket
-- [Draft06] Jetty7.4.0   + WebSocket
-- [Draft06 + Proxy] Apache(mod_proxy) + Jetty7.4.0 + WebSocket
-- [RFC6455] netty + WebSocket
-- [RFC6455 + Proxy] www.websocket.org/echo + WebSocket
+- [RFC6455] netty
+- [RFC6455 + Proxy] websocket.org echo application
+- [Draft76] Grizzly2.0
+- [Draft06] Grizzly2.1.1
+- [Draft76] Jetty7.4.0
+- [Draft06] Jetty7.4.0
+- [Draft06 + Proxy] Apache(mod_proxy) + Jetty7.4.0
 
 
 Requirements
@@ -38,9 +37,10 @@ Requirements
 Build And Install
 =================
 
-+ build with maven2
++ build with maven
 
 ```shell
+git clone https://github.com/hashio/websocket-client.git
 cd websocket-client
 mvn clean install
 ```
@@ -59,7 +59,8 @@ Usage
 =====
 
 ```java
-WebSocket socket = WebSockets.createDraft06("ws://localhost:8080/ws/", new WebSocketHandler() {
+// create RFC6455 protocol websocket client
+WebSocket socket = WebSockets.create("ws://example.com/", new WebSocketHandler() {
     public void onOpen(WebSocket socket) {
          // TODO implement onOpen event
     }

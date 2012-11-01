@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/hashio/websocket-client.png)](https://travis-ci.org/hashio/websocket-client)
+
 WebSocket Client
 =================
 Copyright 2011,2012 Takahiro Hashimoto
@@ -49,7 +51,7 @@ mvn clean install
 <dependency>
   <groupId>jp.a840.websocket</groupId>
   <artifactId>websocket-client</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>0.8.5-SNAPSHOT</version>
 </dependency>
 ```
 

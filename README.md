@@ -14,9 +14,9 @@ Support
 -------
 
 - JDK5 or higher
-- ws://,wss:// support
 - WebSocket Specification RFC6455, Draft06,76
-- proxy support with authentication [Basic,Digest,Negotiate(Windows only)]
+- wss:// SSL support
+- http proxy support with authentication [Basic,Digest,Negotiate(Windows only)]
 
 
 Tested server

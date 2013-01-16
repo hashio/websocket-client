@@ -328,6 +328,7 @@ abstract public class WebSocketBase implements WebSocket {
         this.downstreamBuffer = ByteBuffer.allocate(this.bufferSize);
         this.upstreamBuffer = ByteBuffer.allocate(this.bufferSize);
         this.packetDumpMode = Integer.getInteger("websocket.packatdump", 0);
+        this.requestHeader = new HttpHeader();
     }
 
     /**

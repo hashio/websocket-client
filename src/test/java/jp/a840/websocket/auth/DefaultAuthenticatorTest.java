@@ -60,7 +60,8 @@ public class DefaultAuthenticatorTest extends TestCase {
 		
 		DefaultAuthenticator authenticator = new DefaultAuthenticator(
 				new BasicAuthenticator(),
-				digestAuthenticator
+				digestAuthenticator,
+                null
 		);
 		authenticator.init(websocket, new Credentials("Mufasa", "Circle Of Life"));
 
@@ -85,7 +86,8 @@ public class DefaultAuthenticatorTest extends TestCase {
 		
 		DefaultAuthenticator authenticator = new DefaultAuthenticator(
 				new BasicAuthenticator(),
-				digestAuthenticator
+				digestAuthenticator,
+                null
 		);
 		authenticator.init(websocket, new Credentials("Mufasa", "Circle Of Life"));
 

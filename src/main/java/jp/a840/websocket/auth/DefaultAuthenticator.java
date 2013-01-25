@@ -24,11 +24,13 @@
 package jp.a840.websocket.auth;
 
 import java.util.EnumMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import jp.a840.websocket.exception.WebSocketException;
-import jp.a840.websocket.auth.win32.SpengoAuthenticator;
+
+import javax.imageio.spi.ServiceRegistry;
 
 /**
  * The Class DefaultAuthenticator.
@@ -43,8 +45,11 @@ public class DefaultAuthenticator extends AbstractAuthenticator {
 	/** The digest authenticator. */
 	private DigestAuthenticator digestAuthenticator;
 
-    /** The spengo authenticator.(Windows only) */
-    private SpengoAuthenticator spengoAuthenticator;
+    /** The negotiate authenticator. */
+    private NegotiateAuthenticator negotiateAuthenticator;
+
+    /** The default spengo mechanism (Negotiate or NTLM)*/
+    private static SpengoMechanism defaultSpengoMechanism = SpengoMechanism.Negotiate;
 
 	/**
 	 * Instantiates a new default authenticator.
@@ -52,8 +57,9 @@ public class DefaultAuthenticator extends AbstractAuthenticator {
 	public DefaultAuthenticator(){
 		this.basicAuthenticator = new BasicAuthenticator();
 		this.digestAuthenticator = new DigestAuthenticator();
-        if(System.getProperty("os.name").indexOf("Windows") > -1){
-            this.spengoAuthenticator = new SpengoAuthenticator();
+        Iterator<SpengoProvider> it = ServiceRegistry.lookupProviders(SpengoProvider.class);
+        if(it.hasNext()){
+            this.negotiateAuthenticator = it.next().getAuthenticator(defaultSpengoMechanism);
         }
 	}
 
@@ -64,9 +70,11 @@ public class DefaultAuthenticator extends AbstractAuthenticator {
 	 * @param digestAuthenticator the digest authenticator
 	 */
 	public DefaultAuthenticator(BasicAuthenticator basicAuthenticator,
-			DigestAuthenticator digestAuthenticator){
+			DigestAuthenticator digestAuthenticator,
+            NegotiateAuthenticator negotiateAuthenticator){
 		this.basicAuthenticator = basicAuthenticator;
-		this.digestAuthenticator = digestAuthenticator;		
+		this.digestAuthenticator = digestAuthenticator;
+        this.negotiateAuthenticator = negotiateAuthenticator;
 	}
 	
 	/* (non-Javadoc)
@@ -80,9 +88,9 @@ public class DefaultAuthenticator extends AbstractAuthenticator {
 			schemeMap.put(challenge.getScheme(), challenge);
 		}
 		
-        if(this.spengoAuthenticator != null && schemeMap.containsKey(AuthScheme.Negotiate)){
-            this.spengoAuthenticator.init(this.websocket, this.credentials);
-            return this.spengoAuthenticator.getCredentials(schemeMap.get(AuthScheme.Negotiate));
+        if(this.negotiateAuthenticator != null && schemeMap.containsKey(AuthScheme.Negotiate)){
+            this.negotiateAuthenticator.init(this.websocket, this.credentials);
+            return this.negotiateAuthenticator.getCredentials(schemeMap.get(AuthScheme.Negotiate));
         }else if(schemeMap.containsKey(AuthScheme.Digest)){
 			this.digestAuthenticator.init(this.websocket, this.credentials);
 			return this.digestAuthenticator.getCredentials(schemeMap.get(AuthScheme.Digest));
@@ -92,4 +100,8 @@ public class DefaultAuthenticator extends AbstractAuthenticator {
 		}
 		return null;
 	}
+
+    public static void setDefaultSpengoMechanism(SpengoMechanism spengoMechanism){
+        defaultSpengoMechanism = spengoMechanism;
+    }
 }

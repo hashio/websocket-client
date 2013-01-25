@@ -11,6 +11,18 @@
     <powermock.version>1.4.9</powermock.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
+  <distributionManagement>
+    <repository>
+      <id>repo</id>
+      <url>https://github.com/hashio/mvn-repo/raw/master/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshot-repo</id>
+      <url>https://github.com/hashio/mvn-repo/raw/master/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
   
   <repositories>
     <repository>
@@ -22,6 +34,28 @@
       </releases>
       <snapshots>
         <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>a840</id>
+      <name>a840 maven release repository</name>
+      <url>https://github.com/hashio/mvn-repo/raw/master/releases/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>a840-snapshot</id>
+      <name>a840 maven snapshot repository</name>
+      <url>https://github.com/hashio/mvn-repo/raw/master/snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
       </snapshots>
     </repository>
   </repositories>

@@ -2,7 +2,7 @@
 
 WebSocket Client
 =================
-Copyright 2011,2012 Takahiro Hashimoto
+Copyright 2011,2012,2013 Takahiro Hashimoto
 
 MIT license
 
@@ -16,8 +16,9 @@ Support
 - JDK5 or higher
 - WebSocket Specification RFC6455, Draft06,76
 - wss:// SSL support
-- http proxy support with authentication [Basic,Digest,Negotiate(Windows only)]
+- http proxy support with authentication [Basic,Digest,Negotiate*1]
 
+*1 If you want to use Negotiate auth mechanism, you need deploy websocket-client-windows.jar to your application's classpath.
 
 Tested server
 

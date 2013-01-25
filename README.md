@@ -1,4 +1,7 @@
+[![Click here to lend your support to: websocket-client and make a donation at www.pledgie.com !](http://www.pledgie.com/campaigns/19102.png?skin_name=chrome)](http://www.pledgie.com/campaigns/19102)
+
 [![Build Status](https://travis-ci.org/hashio/websocket-client.png)](https://travis-ci.org/hashio/websocket-client)
+
 
 WebSocket Client
 =================

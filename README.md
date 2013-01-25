@@ -53,8 +53,15 @@ mvn clean install
 <dependency>
   <groupId>jp.a840.websocket</groupId>
   <artifactId>websocket-client</artifactId>
-  <version>0.8.5-SNAPSHOT</version>
+  <version>0.8.6-SNAPSHOT</version>
 </dependency>
+<!-- If you use spengo auth comment off here
+<dependency>
+  <groupId>jp.a840.websocket</groupId>
+  <artifactId>websocket-client-windows</artifactId>
+  <version>0.8.6-SNAPSHOT</version>
+</dependency>
+-->
 ```
 
 Usage

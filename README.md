@@ -49,6 +49,29 @@ mvn clean install
 + add websocket-client dependency to the pom.xml of your application
 
 ```xml
+<repository>
+  <id>a840</id>
+  <name>a840 maven release repository</name>
+  <url>https://github.com/hashio/mvn-repo/raw/master/releases/</url>
+  <releases>
+    <enabled>true</enabled>
+  </releases>
+  <snapshots>
+    <enabled>false</enabled>
+  </snapshots>
+</repository>
+<repository>
+  <id>a840-snapshot</id>
+  <name>a840 maven snapshot repository</name>
+  <url>https://github.com/hashio/mvn-repo/raw/master/snapshots/</url>
+  <releases>
+    <enabled>false</enabled>
+  </releases>
+  <snapshots>
+    <enabled>true</enabled>
+  </snapshots>
+</repository>
+
 <dependency>
   <groupId>jp.a840.websocket</groupId>
   <artifactId>websocket-client</artifactId>

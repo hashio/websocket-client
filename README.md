@@ -1,8 +1,5 @@
 WebSocket Client
 =================
-Copyright 2011,2012,2013 Takahiro Hashimoto
-
-MIT license
 
 Purpose
 -------
@@ -147,3 +144,14 @@ socket.setBlockingMode(false);
 socket.connect();
 socket.awaitClose();
 ```
+
+Copyright and Software License
+------------------------------
+websocket-client
+- MIT license
+- Copyright (c) 2011,2012,2013 Takahiro Hashimoto All rights reserved.
+
+Base64
+- Licence (BSD)
+- Copyright (c) 2004, Mikael Grev, MiG InfoCom AB. (base64 @ miginfocom . com) All rights reserved.
+

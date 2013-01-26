@@ -28,32 +28,151 @@
         </ul>
       </header>
       <section>
-        <h3>Welcome to GitHub Pages.</h3>
+        <p><a href="http://www.pledgie.com/campaigns/19102"><img src="http://www.pledgie.com/campaigns/19102.png?skin_name=chrome" alt="Click here to lend your support to: websocket-client and make a donation at www.pledgie.com !"></a></p>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p><a href="https://travis-ci.org/hashio/websocket-client"><img src="https://travis-ci.org/hashio/websocket-client.png" alt="Build Status"></a></p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+<h1>WebSocket Client</h1>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>Copyright 2011,2012,2013 Takahiro Hashimoto</p>
 
-<h3>Designer Templates</h3>
+<p>MIT license</p>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<h2>Purpose</h2>
 
-<h3>Rather Drive Stick?</h3>
+<p>portable,high-performance and more connectivity for internet</p>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<h2>Support</h2>
 
-<h3>Authors and Contributors</h3>
+<ul>
+<li>JDK5 or higher</li>
+<li>WebSocket Specification RFC6455, Draft06,76</li>
+<li>wss:// SSL support</li>
+<li>http proxy support with authentication [Basic,Digest,Negotiate*1]</li>
+</ul><p>*1 If you want to use Negotiate auth mechanism, you need deploy websocket-client-windows.jar to your application's classpath.</p>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>Tested server</p>
 
-<h3>Support or Contact</h3>
+<ul>
+<li>[RFC6455] netty</li>
+<li>[RFC6455 + Proxy] websocket.org echo application</li>
+<li>[Draft76] Grizzly2.0</li>
+<li>[Draft06] Grizzly2.1.1</li>
+<li>[Draft76] Jetty7.4.0</li>
+<li>[Draft06] Jetty7.4.0</li>
+<li>[Draft06 + Proxy] Apache(mod_proxy) + Jetty7.4.0</li>
+</ul><h2>Requirements</h2>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<ul>
+<li>JDK5 or higher</li>
+</ul><h1>Build And Install</h1>
+
+<ul>
+<li>build with maven</li>
+</ul><div class="highlight"><pre>git clone https://github.com/hashio/websocket-client.git
+<span class="nb">cd </span>websocket-client
+mvn clean install
+</pre></div>
+
+<ul>
+<li>add websocket-client dependency to the pom.xml of your application</li>
+</ul><div class="highlight"><pre><span class="nt">&lt;repository&gt;</span>
+  <span class="nt">&lt;id&gt;</span>a840<span class="nt">&lt;/id&gt;</span>
+  <span class="nt">&lt;name&gt;</span>a840 maven release repository<span class="nt">&lt;/name&gt;</span>
+  <span class="nt">&lt;url&gt;</span>https://github.com/hashio/mvn-repo/raw/master/releases/<span class="nt">&lt;/url&gt;</span>
+  <span class="nt">&lt;releases&gt;</span>
+    <span class="nt">&lt;enabled&gt;</span>true<span class="nt">&lt;/enabled&gt;</span>
+  <span class="nt">&lt;/releases&gt;</span>
+  <span class="nt">&lt;snapshots&gt;</span>
+    <span class="nt">&lt;enabled&gt;</span>false<span class="nt">&lt;/enabled&gt;</span>
+  <span class="nt">&lt;/snapshots&gt;</span>
+<span class="nt">&lt;/repository&gt;</span>
+<span class="nt">&lt;repository&gt;</span>
+  <span class="nt">&lt;id&gt;</span>a840-snapshot<span class="nt">&lt;/id&gt;</span>
+  <span class="nt">&lt;name&gt;</span>a840 maven snapshot repository<span class="nt">&lt;/name&gt;</span>
+  <span class="nt">&lt;url&gt;</span>https://github.com/hashio/mvn-repo/raw/master/snapshots/<span class="nt">&lt;/url&gt;</span>
+  <span class="nt">&lt;releases&gt;</span>
+    <span class="nt">&lt;enabled&gt;</span>false<span class="nt">&lt;/enabled&gt;</span>
+  <span class="nt">&lt;/releases&gt;</span>
+  <span class="nt">&lt;snapshots&gt;</span>
+    <span class="nt">&lt;enabled&gt;</span>true<span class="nt">&lt;/enabled&gt;</span>
+  <span class="nt">&lt;/snapshots&gt;</span>
+<span class="nt">&lt;/repository&gt;</span>
+
+<span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>jp.a840.websocket<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>websocket-client<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.8.6-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="c">&lt;!-- If you use spengo auth comment off here</span>
+<span class="c">&lt;dependency&gt;</span>
+<span class="c">  &lt;groupId&gt;jp.a840.websocket&lt;/groupId&gt;</span>
+<span class="c">  &lt;artifactId&gt;websocket-client-windows&lt;/artifactId&gt;</span>
+<span class="c">  &lt;version&gt;0.8.6-SNAPSHOT&lt;/version&gt;</span>
+<span class="c">&lt;/dependency&gt;</span>
+<span class="c">--&gt;</span>
+</pre></div>
+
+<h1>Usage</h1>
+
+<div class="highlight"><pre><span class="c1">// create RFC6455 protocol websocket client</span>
+<span class="n">WebSocket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">WebSockets</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="s">"ws://example.com/"</span><span class="o">,</span> <span class="k">new</span> <span class="n">WebSocketHandler</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onOpen</span><span class="o">(</span><span class="n">WebSocket</span> <span class="n">socket</span><span class="o">)</span> <span class="o">{</span>
+         <span class="c1">// TODO implement onOpen event</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onMessage</span><span class="o">(</span><span class="n">WebSocket</span> <span class="n">socket</span><span class="o">,</span> <span class="n">Frame</span> <span class="n">frame</span><span class="o">)</span> <span class="o">{</span>
+         <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">frame</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onError</span><span class="o">(</span><span class="n">WebSocket</span> <span class="n">socket</span><span class="o">,</span> <span class="n">WebSocketException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+         <span class="c1">// TODO implement onError event</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClose</span><span class="o">(</span><span class="n">WebSocket</span> <span class="n">socket</span><span class="o">)</span> <span class="o">{</span>
+         <span class="c1">// TODO implement onClose event</span>
+    <span class="o">}</span>
+<span class="o">},</span> <span class="kc">null</span><span class="o">);</span>
+
+<span class="c1">// connect</span>
+<span class="n">socket</span><span class="o">.</span><span class="na">connect</span><span class="o">();</span>
+<span class="o">...</span>
+<span class="n">socket</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</pre></div>
+
+<h4>Example: Sample of Jetty7 websocket chat servlet</h4>
+
+<div class="highlight"><pre><span class="n">WebSocket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">WebSockets</span><span class="o">.</span><span class="na">createDraft06</span><span class="o">(</span><span class="s">"ws://localhost:8080/ws/"</span><span class="o">,</span> <span class="k">new</span> <span class="n">WebSocketHandler</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onOpen</span><span class="o">(</span><span class="n">WebSocket</span> <span class="n">socket</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Open"</span><span class="o">);</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">socket</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getenv</span><span class="o">(</span><span class="s">"USER"</span><span class="o">)</span> <span class="o">+</span> <span class="s">":has joined!"</span><span class="o">);</span>
+        <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">){</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onMessage</span><span class="o">(</span><span class="n">WebSocket</span> <span class="n">socket</span><span class="o">,</span> <span class="n">Frame</span> <span class="n">frame</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span><span class="o">(!</span><span class="n">frame</span><span class="o">.</span><span class="na">toString</span><span class="o">().</span><span class="na">startsWith</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getenv</span><span class="o">(</span><span class="s">"USER"</span><span class="o">))){</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="n">socket</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getenv</span><span class="o">(</span><span class="s">"USER"</span><span class="o">)</span> <span class="o">+</span> <span class="s">":(echo)"</span> <span class="o">+</span> <span class="n">frame</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+            <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">){</span>
+                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">frame</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onError</span><span class="o">(</span><span class="n">WebSocket</span> <span class="n">socket</span><span class="o">,</span> <span class="n">WebSocketException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClose</span><span class="o">(</span><span class="n">WebSocket</span> <span class="n">socket</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Closed"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">},</span> <span class="s">"chat"</span><span class="o">);</span>
+
+<span class="n">socket</span><span class="o">.</span><span class="na">setBlockingMode</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+<span class="n">socket</span><span class="o">.</span><span class="na">connect</span><span class="o">();</span>
+<span class="n">socket</span><span class="o">.</span><span class="na">awaitClose</span><span class="o">();</span>
+</pre></div>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/hashio">hashio</a></p>

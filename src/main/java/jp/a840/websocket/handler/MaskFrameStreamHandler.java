@@ -45,6 +45,7 @@ public class MaskFrameStreamHandler extends StreamHandlerAdapter {
 	@Override
 	public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
 			Frame frame, StreamHandlerChain chain) throws WebSocketException {
+        buffer.put(1, (byte)(buffer.get(1) | 0x80)); // force set mask bit;
 		ByteBuffer buf = ByteBuffer.allocate(4 + buffer.remaining()); // mask-key + header + contents
         int limit = buffer.limit();
         buffer.limit(buffer.position() + 2);

@@ -48,7 +48,6 @@ import jp.a840.websocket.WebSocket;
 import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameParser;
-import jp.a840.websocket.frame.draft76.BinaryFrame;
 import jp.a840.websocket.handler.*;
 import jp.a840.websocket.handshake.Handshake;
 import jp.a840.websocket.handshake.ProxyHandshake;
@@ -750,7 +749,7 @@ abstract public class WebSocketBase implements WebSocket {
 			oos.writeObject(obj);
 
 			byte[] bodyData = baos.toByteArray();
-			return new BinaryFrame(bodyData);
+			return createFrame(bodyData);
 		} catch (Exception e) {
 			throw new WebSocketException(E3550, e);
 		}

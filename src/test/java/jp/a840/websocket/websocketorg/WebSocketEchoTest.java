@@ -38,6 +38,8 @@ import jp.a840.websocket.util.PacketDumpUtil;
  */
 public class WebSocketEchoTest {
 
+    private static int count;
+
     /**
      * The main method.
      *
@@ -50,6 +52,7 @@ public class WebSocketEchoTest {
       		));
 //		System.setProperty("javax.net.debug", "all");
         System.setProperty("java.util.logging.config.file", "logging.properties");
+        count = 0;
         WebSocket socket = WebSockets.create("ws://echo.websocket.org/?encoding=text", "http://www.websocket.org", new WebSocketHandler() {
 
             public void onOpen(WebSocket socket) {
@@ -64,12 +67,17 @@ public class WebSocketEchoTest {
             public void onMessage(WebSocket socket, Frame frame) {
                 System.out.println(frame);
                 try {
+                    if(count > 3){
+                        socket.close();
+                        return;
+                    }
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();  //To change contents of catch statement use File | Settings | File Templates.
                 }
                 try {
                     socket.send(socket.createFrame("Boo"));
+                    count++;
                 } catch (WebSocketException e) {
                     e.printStackTrace();  //To change contents of catch statement use File | Settings | File Templates.
                 }

@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
- * Copyright (c) 2011 Takahiro Hashimoto
- * 
+ *
+ * Copyright (c) 2013 Takahiro Hashimoto
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,33 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.a840.websocket.frame.rfc6455;
 
-import jp.a840.websocket.frame.FrameHeader;
-import jp.a840.websocket.frame.rfc6455.enums.Opcode;
+package jp.a840.websocket.frame.rfc6455.enums;
 
 /**
- * The Class PongFrame.
+ * The Enum Rsv.
  *
  * @author Takahiro Hashimoto
  */
-public class PongFrame extends FrameRfc6455 {
+public enum Rsv {
 
-	/**
-	 * Instantiates a new pong frame.
-	 *
-	 * @param header the header
-	 * @param bodyData the contents data
-	 */
-	public PongFrame(FrameHeader header, byte[] bodyData) {
-		super(header, bodyData);
-	}
+    /**
+     * The RESERVE.
+     */
+    RESERVE(0);
 
-	/**
-	 * Instantiates a new pong frame.
-	 */
-	public PongFrame(){
-		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(null, false, Opcode.PONG);
-		setHeader(header);
-	}
+    /**
+     * The rsv.
+     */
+    private final int rsv;
+
+    /**
+     * Instantiates a new rsv.
+     *
+     * @param rsv the rsv
+     */
+    private Rsv(int rsv) {
+        this.rsv = rsv;
+    }
+
+    /**
+     * Int value.
+     *
+     * @return the int
+     */
+    public int intValue() {
+        return rsv;
+    }
 }

@@ -26,7 +26,7 @@ package jp.a840.websocket.frame.rfc6455;
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.FrameHeader;
 import jp.a840.websocket.frame.Maskable;
-import jp.a840.websocket.frame.rfc6455.FrameBuilderRfc6455.Opcode;
+import jp.a840.websocket.frame.rfc6455.enums.Opcode;
 
 import java.nio.ByteBuffer;
 

@@ -279,16 +279,20 @@ abstract public class WebSocketBase implements WebSocket {
 		this.pipeline.addStreamHandler(new StreamHandlerAdapter() {
 			public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
 					Frame frame, StreamHandlerChain chain) throws WebSocketException {
-				if(!upstreamQueue.offer(buffer)){
-					throw new WebSocketException(E3030);
-				}
+                try{
+                    upstreamQueue.put(buffer);
+                }catch(InterruptedException e){
+                    throw new WebSocketException(E3030, e);
+                }
 				selector.wakeup();
 			}
 			public void nextHandshakeUpstreamHandler(WebSocket ws, ByteBuffer buffer,
 					StreamHandlerChain chain) throws WebSocketException {
-				if(!upstreamQueue.offer(buffer)){
-					throw new WebSocketException(E3031);
-				}
+				try{
+                    upstreamQueue.put(buffer);
+                }catch(InterruptedException e){
+                    throw new WebSocketException(E3031, e);
+                }
 				selector.wakeup();
 			}
 		});

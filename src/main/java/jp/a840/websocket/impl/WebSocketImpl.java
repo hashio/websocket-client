@@ -124,7 +124,9 @@ public class WebSocketImpl extends WebSocketBase {
 	 */
 	@Override
 	protected void initializePipeline(WebSocketPipeline pipeline) throws WebSocketException {
-		pipeline.addStreamHandler(new MaskFrameStreamHandler());
+        if(!Boolean.getBoolean("websocket.nomask")){
+		    pipeline.addStreamHandler(new MaskFrameStreamHandler());
+        }
 		super.initializePipeline(pipeline);
 		// Add base response handler
 		pipeline.addStreamHandler(new StreamHandlerAdapter() {

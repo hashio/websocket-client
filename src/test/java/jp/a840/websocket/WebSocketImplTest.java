@@ -28,6 +28,7 @@ import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.rfc6455.BinaryFrame;
 import jp.a840.websocket.frame.rfc6455.CloseFrame;
 import jp.a840.websocket.frame.rfc6455.TextFrame;
+import jp.a840.websocket.handler.MaskFrameStreamHandler;
 import jp.a840.websocket.impl.WebSocketImpl;
 import jp.a840.websocket.proxy.Proxy;
 import jp.a840.websocket.util.PacketDumpUtil;
@@ -44,10 +45,12 @@ import util.Base64;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Random;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 /**
  * The Class WebSocketImplTest.
@@ -55,7 +58,8 @@ import static org.mockito.Mockito.when;
  * @author Takahiro Hashimoto
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Base64.class)
+@PrepareForTest({Base64.class, Random.class, MaskFrameStreamHandler.class})
+
 public class WebSocketImplTest extends TestCase {
 	
 	/** The ms. */
@@ -67,10 +71,14 @@ public class WebSocketImplTest extends TestCase {
 	 * Start mock server.
 	 */
 	@Before
-	public void startMockServer(){
+	public void startMockServer() throws Exception {
+        Random r = PowerMockito.mock(Random.class);
+        whenNew(Random.class).withNoArguments().thenReturn( r );
+        when(r.nextInt()).thenReturn(0x01020304);
+
 		ms = new MockServer(9999, this.version);
 	}
-	
+
 	/**
 	 * Stop mock server.
 	 *
@@ -97,10 +105,10 @@ public class WebSocketImplTest extends TestCase {
 		when(Base64.encodeToString(any(byte[].class), anyBoolean())).thenReturn("TESTKEY");
 				
 		// handshake request
-		ms.addRequest(new MockServer.VerifyRequest() {
-			public void verify(ByteBuffer request) {
-			}
-		});
+		ms.addHttpRequest(new MockServer.VerifyRequest() {
+            public void verify(ByteBuffer request) {
+            }
+        }, this.version);
 		// handshake response
 		ms.addResponse(toByteBuffer(
 				"HTTP/1.1 101 Switching Protocols\r\n" +
@@ -109,11 +117,15 @@ public class WebSocketImplTest extends TestCase {
 				"Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n" +
 				"Sec-WebSocket-Protocol: chat\r\n\r\n"));
 		// send close frame
-		ms.addRequest(new MockServer.VerifyRequest() {
+		ms.addMaskRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
-				ByteBuffer expected = ByteBuffer.allocate(2);
+				ByteBuffer expected = ByteBuffer.allocate(6);
 				expected.put((byte)(0x88));
 				expected.put((byte)(0x80));
+                expected.put((byte)(0x01));
+                expected.put((byte)(0x02));
+                expected.put((byte)(0x03));
+                expected.put((byte)(0x04));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
@@ -156,12 +168,12 @@ public class WebSocketImplTest extends TestCase {
 
 //		PowerMockito.mockStatic(Base64.class);
 //		when(Base64.encodeToString(any(byte[].class), anyBoolean())).thenReturn("TESTKEY");
-				
+
 		// handshake request
-		ms.addRequest(new MockServer.VerifyRequest() {
-			public void verify(ByteBuffer request) {
-			}
-		});
+		ms.addHttpRequest(new MockServer.VerifyRequest() {
+            public void verify(ByteBuffer request) {
+            }
+        }, this.version);
 		// handshake response
 		ms.addResponse(toByteBuffer(
 				"HTTP/1.1 101 Switching Protocols\r\n" +
@@ -171,11 +183,15 @@ public class WebSocketImplTest extends TestCase {
 				"Sec-WebSocket-Protocol: chat\r\n\r\n"));
 		ms.addResponse(new TextFrame("TEST FRAMEテストフレーム"));
 		// send close frame
-		ms.addRequest(new MockServer.VerifyRequest() {
+		ms.addMaskRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
-				ByteBuffer expected = ByteBuffer.allocate(2);
+				ByteBuffer expected = ByteBuffer.allocate(6);
 				expected.put((byte)(0x88));
 				expected.put((byte)(0x80));
+                expected.put((byte)(0x01));
+                expected.put((byte)(0x02));
+                expected.put((byte)(0x03));
+                expected.put((byte)(0x04));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
@@ -220,10 +236,10 @@ public class WebSocketImplTest extends TestCase {
 		when(Base64.encodeToString(any(byte[].class), anyBoolean())).thenReturn("TESTKEY");
 				
 		// handshake request
-		ms.addRequest(new MockServer.VerifyRequest() {
-			public void verify(ByteBuffer request) {
-			}
-		});
+		ms.addHttpRequest(new MockServer.VerifyRequest() {
+            public void verify(ByteBuffer request) {
+            }
+        }, this.version);
 		// handshake response
 		ms.addResponse(toByteBuffer(
 				"HTTP/1.1 101 Switching Protocols\r\n" +
@@ -234,11 +250,15 @@ public class WebSocketImplTest extends TestCase {
 		// close frame response
 		ms.addResponse(new CloseFrame().toByteBuffer());
 		// reply close frame request
-		ms.addRequest(new MockServer.VerifyRequest() {
+		ms.addMaskRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
-				ByteBuffer expected = ByteBuffer.allocate(2);
+				ByteBuffer expected = ByteBuffer.allocate(6);
 				expected.put((byte)(0x88));
 				expected.put((byte)(0x80));
+                expected.put((byte)(0x01));
+                expected.put((byte)(0x02));
+                expected.put((byte)(0x03));
+                expected.put((byte)(0x04));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
@@ -283,10 +303,10 @@ public class WebSocketImplTest extends TestCase {
 		when(Base64.encodeToString(any(byte[].class), anyBoolean())).thenReturn("TESTKEY");
 				
 		// handshake request
-		ms.addRequest(new MockServer.VerifyRequest() {
-			public void verify(ByteBuffer request) {
-			}
-		}, version);
+		ms.addHttpRequest(new MockServer.VerifyRequest() {
+            public void verify(ByteBuffer request) {
+            }
+        }, this.version);
 		// handshake response
 		ms.addResponse(toByteBuffer(
                 "HTTP/1.1 101 Switching Protocols\r\n" +
@@ -297,7 +317,7 @@ public class WebSocketImplTest extends TestCase {
 		// binary frame request
         // frame must masked
         final byte[] requestBuf = "TEST FRAME".getBytes();
-		ms.addRequest(new MockServer.VerifyRequest() {
+		ms.addMaskRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
                 BinaryFrame testRequestFrame = new BinaryFrame(requestBuf);
                 testRequestFrame.mask();
@@ -320,9 +340,13 @@ public class WebSocketImplTest extends TestCase {
 		// reply close frame request
 		ms.addRequest(new MockServer.VerifyRequest() {
             public void verify(ByteBuffer request) {
-                ByteBuffer expected = ByteBuffer.allocate(2);
+                ByteBuffer expected = ByteBuffer.allocate(6);
                 expected.put((byte) (0x88));
                 expected.put((byte) (0x80));
+                expected.put((byte)(0x01));
+                expected.put((byte)(0x02));
+                expected.put((byte)(0x03));
+                expected.put((byte)(0x04));
                 expected.flip();
                 Assert.assertEquals("Not equal close frame.", expected, request.slice());
             }
@@ -368,10 +392,10 @@ public class WebSocketImplTest extends TestCase {
 		when(Base64.encodeToString(any(byte[].class), anyBoolean())).thenReturn("TESTKEY");
 				
 		// handshake request
-		ms.addRequest(new MockServer.VerifyRequest() {
-			public void verify(ByteBuffer request) {
-			}
-		}, this.version);
+		ms.addHttpRequest(new MockServer.VerifyRequest() {
+            public void verify(ByteBuffer request) {
+            }
+        }, this.version);
 		// handshake response
 		ms.addResponse(toByteBuffer(
 				"HTTP/1.1 101 Switching Protocols\r\n" +
@@ -381,7 +405,7 @@ public class WebSocketImplTest extends TestCase {
 				"Sec-WebSocket-Protocol: chat\r\n\r\n"));
 		// binary frame request
         final byte[] requestBuf = "TEST FRAME".getBytes();
-		ms.addRequest(new MockServer.VerifyRequest() {
+		ms.addMaskRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
                 BinaryFrame testRequestFrame = new BinaryFrame(requestBuf);
                 testRequestFrame.mask();
@@ -395,11 +419,15 @@ public class WebSocketImplTest extends TestCase {
 		ms.addResponse(new CloseFrame().toByteBuffer());
 		
 		// reply close frame request
-		ms.addRequest(new MockServer.VerifyRequest() {
+		ms.addMaskRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
-				ByteBuffer expected = ByteBuffer.allocate(2);
+				ByteBuffer expected = ByteBuffer.allocate(6);
 				expected.put((byte)(0x88));
 				expected.put((byte)(0x80));
+                expected.put((byte)(0x01));
+                expected.put((byte)(0x02));
+                expected.put((byte)(0x03));
+                expected.put((byte)(0x04));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
@@ -460,10 +488,10 @@ public class WebSocketImplTest extends TestCase {
 				"Proxy-agent: Mock Proxy Server\r\n\r\n"
 				));
 		// handshake request
-		ms.addRequest(new MockServer.VerifyRequest() {
-			public void verify(ByteBuffer request) {
-			}
-		});
+		ms.addHttpRequest(new MockServer.VerifyRequest() {
+            public void verify(ByteBuffer request) {
+            }
+        }, this.version);
 		// handshake response
 		ms.addResponse(toByteBuffer(
 				"HTTP/1.1 101 Switching Protocols\r\n" +
@@ -472,11 +500,15 @@ public class WebSocketImplTest extends TestCase {
 				"Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n" +
 				"Sec-WebSocket-Protocol: chat\r\n\r\n"));
 		// send close frame
-		ms.addRequest(new MockServer.VerifyRequest() {
+		ms.addMaskRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
-				ByteBuffer expected = ByteBuffer.allocate(2);
+				ByteBuffer expected = ByteBuffer.allocate(6);
 				expected.put((byte)(0x88));
 				expected.put((byte)(0x80));
+                expected.put((byte)(0x01));
+                expected.put((byte)(0x02));
+                expected.put((byte)(0x03));
+                expected.put((byte)(0x04));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
@@ -553,10 +585,10 @@ public class WebSocketImplTest extends TestCase {
 				"Proxy-agent: Mock Proxy Server\r\n\r\n"
 				));
 		// handshake request
-		ms.addRequest(new MockServer.VerifyRequest() {
-			public void verify(ByteBuffer request) {
-			}
-		});
+		ms.addHttpRequest(new MockServer.VerifyRequest() {
+            public void verify(ByteBuffer request) {
+            }
+        }, this.version);
 		// handshake response
 		ms.addResponse(toByteBuffer(
 				"HTTP/1.1 101 Switching Protocols\r\n" +
@@ -565,11 +597,15 @@ public class WebSocketImplTest extends TestCase {
 				"Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n" +
 				"Sec-WebSocket-Protocol: chat\r\n\r\n"));
 		// send close frame
-		ms.addRequest(new MockServer.VerifyRequest() {
+		ms.addMaskRequest(new MockServer.VerifyRequest() {
 			public void verify(ByteBuffer request) {
-				ByteBuffer expected = ByteBuffer.allocate(2);
+				ByteBuffer expected = ByteBuffer.allocate(6);
 				expected.put((byte)(0x88));
 				expected.put((byte)(0x80));
+                expected.put((byte)(0x01));
+                expected.put((byte)(0x02));
+                expected.put((byte)(0x03));
+                expected.put((byte)(0x04));
 				expected.flip();
 				Assert.assertEquals("Not equal close frame.", expected, request.slice());
 			}
@@ -599,6 +635,83 @@ public class WebSocketImplTest extends TestCase {
 		}
         assertHandler(handler, 1, 0, 0, 1);
 	}
+
+    /**
+   	 * Connect.
+   	 * connect -> handshake req -> handshake res -> close req -> close res -> terminate
+   	 * @throws Exception the exception
+   	 */
+   	@Test
+   	public void largeMessage() throws Exception {
+        int largeSize = 8188;
+        System.setProperty("websocket.nomask", "true");
+   		System.setProperty("websocket.packatdump", String.valueOf(
+                PacketDumpUtil.HS_UP | PacketDumpUtil.HS_DOWN | PacketDumpUtil.FR_DOWN
+        ));
+
+   		PowerMockito.mockStatic(Base64.class);
+   		when(Base64.encodeToString(any(byte[].class), anyBoolean())).thenReturn("TESTKEY");
+
+   		// handshake request
+   		ms.addHttpRequest(new MockServer.VerifyRequest() {
+            public void verify(ByteBuffer request) {
+            }
+        }, this.version);
+   		// handshake response
+   		ms.addResponse(toByteBuffer(
+                "HTTP/1.1 101 Switching Protocols\r\n" +
+                        "Upgrade: websocket\r\n" +
+                        "Connection: Upgrade\r\n" +
+                        "Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n" +
+                        "Sec-WebSocket-Protocol: chat\r\n\r\n"));
+   		// send large message frame
+        for(int i = 1; i < largeSize; i++){
+            final int size = i;
+       		ms.addMaskRequest(new MockServer.VerifyRequest() {
+   			public void verify(ByteBuffer request) {
+                byte[] buf = new byte[size];
+                for(int j = 0; j< buf.length;j++){
+                    buf[j] = (byte)(j & 0xFF);
+                }
+
+                BinaryFrame f = new BinaryFrame(buf);
+//                f.mask();
+   				Assert.assertEquals("Not equal binary frame.", f.toByteBuffer(), request.slice());
+   		    }});
+        }
+   		ms.addResponse(new CloseFrame().toByteBuffer());
+   		ms.addClose((ByteBuffer)null);
+
+   		ms.start();
+
+   		WebSocketHandlerMock handler = new WebSocketHandlerMock();
+   		WebSocketImpl ws = new WebSocketImpl("ws://localhost:9999", handler);
+   		ws.setBlockingMode(false);
+   		ws.connect();
+        for(int i = 1; i < largeSize; i++){
+            byte[] buf = new byte[i];
+            for(int j = 0; j< buf.length;j++){
+                buf[j] = (byte)(j & 0xFF);
+            }
+            //Thread.sleep(1000);
+            ws.send(buf);
+            System.out.println("size:" + i);
+        }
+        ws.close();
+
+        Throwable t = ms.getThrowable();
+         		if(t != null){
+         			t.printStackTrace();
+         			Assert.fail();
+         		}
+   		if(!handler.getOnErrorList().isEmpty()){
+   			for(List l : handler.getOnErrorList()){
+   				((WebSocketException)l.get(1)).printStackTrace();
+   			}
+   			Assert.fail();
+   		}
+       assertHandler(handler, 1, 0, 0, 1);
+   	}
 
 	/**
 	 * To byte buffer.

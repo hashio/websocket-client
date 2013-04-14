@@ -37,7 +37,7 @@ import jp.a840.websocket.frame.Frame;
  */
 public class MaskFrameStreamHandler extends StreamHandlerAdapter {
 	/** The random. */
-	private static Random random = new Random();
+	private Random random = new Random();
 
 	/* (non-Javadoc)
 	 * @see jp.a840.websocket.handler.StreamHandlerAdapter#nextUpstreamHandler(jp.a840.websocket.WebSocket, java.nio.ByteBuffer, jp.a840.websocket.frame.Frame, jp.a840.websocket.handler.StreamHandlerChain)

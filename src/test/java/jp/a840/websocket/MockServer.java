@@ -32,15 +32,15 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import jp.a840.websocket.frame.Frame;
 import jp.a840.websocket.frame.Maskable;
 import jp.a840.websocket.frame.rfc6455.FrameRfc6455;
+import jp.a840.websocket.frame.rfc6455.enums.PayloadLengthType;
+import jp.a840.websocket.util.MaskDecoder;
 import jp.a840.websocket.util.PacketDumpUtil;
 
 import org.junit.Assert;
@@ -53,7 +53,7 @@ import org.junit.Assert;
 public class MockServer extends Thread {
 	
 	/** The scenario list. */
-	private List<Scenario> scenarioList = new ArrayList<MockServer.Scenario>();
+	private ScenarioSequencer seq = new ScenarioSequencer();
 
     private Scenario errorScenario;
 
@@ -112,34 +112,66 @@ public class MockServer extends Thread {
 
 			int requestCount = 1;
 			int responseCount = 1;
-			for (Scenario scenario : scenarioList) {
-                Thread.sleep(scenario.getSleepTime());
-				switch (scenario.getScenarioType()) {
+            ByteBuffer buffer1 = ByteBuffer.allocate(8192);
+            ByteBuffer buffer2 = ByteBuffer.allocate(8192);
+            int offset = 0;
+			while (seq.hasNext()) {
+                Thread.sleep(seq.getSleepTime());
+				switch (seq.getScenarioType()) {
 				case READ:
-					PacketDumpUtil.printPacketDump("response" + responseCount, scenario.getResponse());
+                    ByteBuffer response = seq.getResponse();
+					PacketDumpUtil.printPacketDump("response" + responseCount, response);
 					responseCount++;
 					socket.register(selector, OP_WRITE);
 					selector.select();
-					socket.write(scenario.getResponse());
+					socket.write(response);
 					break;
 				case WRITE:
 					socket.register(selector, OP_READ);
 					selector.select();
-					ByteBuffer buffer = ByteBuffer.allocate(8192);
-					socket.read(buffer);
-					buffer.flip();
-					PacketDumpUtil.printPacketDump("request" + requestCount, buffer);
+                    buffer1.mark();
+                    buffer1.position(buffer1.position() + offset);
+                    buffer1.limit(buffer1.capacity());
+					socket.read(buffer1);
+                    buffer1.limit(buffer1.position());
+					buffer1.reset();
 					requestCount++;
-					scenario.verifyRequest(buffer);
+                    int processed;
+                    do {
+                        ByteBuffer buffer;
+                        if(RequestType.HTTP.equals(seq.getRequestType())){
+                            seq.verifyRequest(buffer1);
+                            offset = 0;
+                            break;
+                        }else{
+                            buffer = readBuffer(seq.isMask(), buffer1.slice());
+                            if(buffer != null){
+                                seq.verifyRequest(buffer);
+                                buffer1.position(buffer1.position() + buffer.capacity());
+                                offset = 0;
+                            }else{
+                                break;
+                            }
+                        }
+                    }while(seq.hasNext());
+                    if(buffer1.remaining() > 0){
+                        buffer2.put(buffer1);
+                        offset = buffer2.position();
+                        buffer2.rewind();
+                        buffer1.clear();
+                        ByteBuffer tmp = buffer1;
+                        buffer1 = buffer2;
+                        buffer2 = tmp;
+                    }
 					break;
 				case CLOSE:
-					ByteBuffer responseBuffer = scenario.getResponse();
+					ByteBuffer responseBuffer = seq.getResponse();
 					if(responseBuffer != null){
 						socket.register(selector, OP_WRITE);
 						selector.select();
-						PacketDumpUtil.printPacketDump("response" + responseCount, scenario.getResponse());
+						PacketDumpUtil.printPacketDump("response" + responseCount, responseBuffer);
 						responseCount++;
-						socket.write(scenario.getResponse());
+						socket.write(responseBuffer);
 					}
 					socket.close();
                     socket = null;
@@ -147,6 +179,7 @@ public class MockServer extends Thread {
 			}
 		} catch (Throwable t) {
 //            startLatch.countDown();
+            t.printStackTrace();
             throwableQueue.offer(t);
         } finally {
 			try{
@@ -166,6 +199,58 @@ public class MockServer extends Thread {
 		}
 	}
 
+    private ByteBuffer readBuffer(boolean mask, ByteBuffer request){
+        int min = mask ? 6 : 2;
+        if(request.remaining() < min){
+            return null;
+         }
+
+       byte header1 = request.get();
+       byte header2 = request.get();
+
+       PayloadLengthType payloadLengthType = PayloadLengthType.valueOf(header2);
+       byte payloadLength1 = (byte) (header2 & 0x7F);
+       long payloadLength2 = payloadLength1;
+
+       switch (payloadLengthType) {
+           case LEN_16:
+               min += 2;
+               if(request.remaining() < min){
+                   return null;
+                }
+
+               payloadLength2 = 0xFFFF & request.getShort();
+               break;
+           case LEN_63:
+               min += 8;
+               if(request.remaining() < min){
+                   return null;
+                }
+               payloadLength2 = 0x7FFFFFFFFFFFFFFFL & request.getLong();
+               break;
+       }
+
+        byte[] seed = new byte[4];
+        if(mask){
+           request.get(seed);
+        }
+       if(request.remaining() < payloadLength2){
+           request.position(request.position() - min);
+           return null;
+       }
+
+        request.limit(min + (int)payloadLength2);
+
+       if(mask){
+           MaskDecoder decoder = new MaskDecoder(seed);
+           decoder.decode(request);
+       }
+       System.out.println("PL:" + payloadLength2 + " PO:" + request.position() + " OFFSET:" + request.arrayOffset() + "CAPA:" + request.capacity());
+        request.rewind();
+        ByteBuffer tmp = request.slice();
+       return tmp;
+	}
+
 	/**
 	 * The Enum ScenarioType.
 	 *
@@ -180,6 +265,10 @@ public class MockServer extends Thread {
 		/** The CLOSE. */
 		CLOSE
 	}
+
+    enum RequestType {
+        HTTP,WebSocket
+    }
 
 	/**
 	 * Adds the response.
@@ -199,7 +288,7 @@ public class MockServer extends Thread {
     public void addResponse(ByteBuffer response, long sleepTime) {
         Scenario scenario = new Scenario(ScenarioType.READ, sleepTime);
       	scenario.setResponse(response);
-      	scenarioList.add(scenario);
+      	seq.add(scenario);
     }
 
     /**
@@ -223,7 +312,7 @@ public class MockServer extends Thread {
             ((Maskable)frame).unmask();
         }
    		scenario.setResponse(frame.toByteBuffer());
-   		scenarioList.add(scenario);
+   		seq.add(scenario);
    	}
 
 	/**
@@ -232,9 +321,18 @@ public class MockServer extends Thread {
 	 * @param verifyRequest the verify request
 	 */
 	public void addRequest(VerifyRequest verifyRequest) {
-		addRequest(verifyRequest, this.version, 0);
+		addRequest(verifyRequest, false, this.version, 0);
 	}
 	
+    /**
+   	 * Adds the request.
+   	 *
+   	 * @param verifyRequest the verify request
+   	 */
+   	public void addMaskRequest(VerifyRequest verifyRequest) {
+   		addRequest(verifyRequest, true, this.version, 0);
+   	}
+
 	/**
 	 * Adds the request.
 	 *
@@ -242,8 +340,18 @@ public class MockServer extends Thread {
 	 * @param version
 	 */
     public void addRequest(VerifyRequest verifyRequest, int version) {
-        addRequest(verifyRequest, version, 0);
+        addRequest(verifyRequest, false, version, 0);
     }
+
+    /**
+   	 * Adds the request.
+   	 *
+   	 * @param verifyRequest the verify request
+   	 * @param version
+   	 */
+     public void addMaskRequest(VerifyRequest verifyRequest, int version) {
+         addRequest(verifyRequest, true, version, 0);
+     }
 
     /**
    	 * Adds the request.
@@ -252,11 +360,35 @@ public class MockServer extends Thread {
    	 * @param version
      * @param sleepTime
    	 */
-	public void addRequest(VerifyRequest verifyRequest, int version, long sleepTime) {
+       public void addRequest(VerifyRequest verifyRequest, int version, long sleepTime) {
+           addRequest(verifyRequest, false, version, sleepTime);
+       }
+
+       /**
+      	 * Adds the request.
+      	 *
+      	 * @param verifyRequest the verify request
+      	 * @param version
+         * @param sleepTime
+      	 */
+        public void addMaskRequest(VerifyRequest verifyRequest, int version, long sleepTime) {
+            addRequest(verifyRequest, true, version, sleepTime);
+        }
+
+    /**
+   	 * Adds the request.
+   	 *
+   	 * @param verifyRequest the verify request
+     * @param mask
+   	 * @param version
+     * @param sleepTime
+   	 */
+	public void addRequest(VerifyRequest verifyRequest, boolean mask, int version, long sleepTime) {
 		Scenario scenario = new Scenario(ScenarioType.WRITE, sleepTime);
-		verifyRequest = new VerifyUnmaskRequest(verifyRequest, version);
+        scenario.setMask(mask);
+        verifyRequest = new VerifyRequestDelegate(verifyRequest, version);
 		scenario.setVerifyRequest(verifyRequest);
-		scenarioList.add(scenario);
+		seq.add(scenario);
 	}
 
     /**
@@ -277,9 +409,11 @@ public class MockServer extends Thread {
      * @param sleepTime
    	 */
    	public void addHttpRequest(VerifyRequest verifyRequest, int version, long sleepTime) {
-   		Scenario scenario = new Scenario(ScenarioType.WRITE, sleepTime);
+   		Scenario scenario = new Scenario(ScenarioType.WRITE, RequestType.HTTP, sleepTime);
+        scenario.setMask(false);
+        verifyRequest = new VerifyRequestDelegate(verifyRequest, version);
    		scenario.setVerifyRequest(verifyRequest);
-   		scenarioList.add(scenario);
+   		seq.add(scenario);
    	}
 
     /**
@@ -300,7 +434,7 @@ public class MockServer extends Thread {
 	public void addClose(ByteBuffer response, long sleepTime) {
 		Scenario scenario = new Scenario(ScenarioType.CLOSE, sleepTime);
 		scenario.setResponse(response);
-		scenarioList.add(scenario);
+		seq.add(scenario);
 	}	
 
     /**
@@ -318,7 +452,7 @@ public class MockServer extends Thread {
             ((Maskable)frame).unmask();
         }
    		scenario.setResponse(frame.toByteBuffer());
-   		scenarioList.add(scenario);
+   		seq.add(scenario);
    	}
 
 	/**
@@ -335,14 +469,14 @@ public class MockServer extends Thread {
 		 */
 		public void verify(ByteBuffer request);
 	}
-	
+
 	/**
 	 * The Class VerifyUnmaskRequest.
 	 *
 	 * @author Takahiro Hashimoto
 	 */
-	public class VerifyUnmaskRequest implements VerifyRequest {
-		
+	private class VerifyRequestDelegate implements VerifyRequest {
+
 		/** The delegate. */
 		private VerifyRequest delegate;
 
@@ -353,8 +487,14 @@ public class MockServer extends Thread {
 		 *
 		 * @param vr the vr
 		 */
-		public VerifyUnmaskRequest(VerifyRequest vr, int version){
-			this.delegate = vr;
+		public VerifyRequestDelegate(final VerifyRequest vr, int version){
+			this.delegate = new VerifyRequest() {
+                public void verify(ByteBuffer request) {
+//                    PacketDumpUtil.printPacketDump("request", request);
+                    vr.verify(request);
+                    seq.next();
+                }
+            };
             this.version = version;
 		}
 		
@@ -362,29 +502,83 @@ public class MockServer extends Thread {
 		 * @see jp.a840.websocket.MockServer.VerifyRequest#verify(java.nio.ByteBuffer)
 		 */
 		public void verify(ByteBuffer request){
-			ByteBuffer unmaskedBuffer = ByteBuffer.allocate(request.remaining() - 4);
-			byte[] seed = new byte[4];
-            if(version > 6){
-                int limit = request.limit();
-                request.limit(request.position() + 2);
-                unmaskedBuffer.put(request);
-                request.limit(limit);
+            int originalLimit = request.limit();
+            try{
+        		delegate.verify(request);
+            }finally{
+                request.position(request.limit());
+                request.limit(originalLimit);
             }
-            request.get(seed);
-
-			int c = 0;
-			while(unmaskedBuffer.hasRemaining()){
-				unmaskedBuffer.put((byte)(request.get() ^ seed[c]));
-				c++;
-				if(c >= seed.length){
-					c = 0;
-				}
-			}
-			unmaskedBuffer.flip();
-			delegate.verify(unmaskedBuffer);
 		}
 	}
 	
+    public class ScenarioSequencer {
+        private List<Scenario> list = new ArrayList();
+
+        private Iterator<Scenario> it;
+
+        private Scenario current;
+
+        public void add(Scenario scenario){
+            list.add(scenario);
+        }
+
+        public boolean hasNext(){
+            if(it == null){
+                it = list.iterator();
+                current = it.next();
+            }
+            return it.hasNext();
+        }
+
+        public Scenario next(){
+            current = it.next();
+            return current;
+        }
+
+        /**
+         * Verify request.
+         *
+         * @param request the request
+         * @return true, if successful
+         */
+        public void verifyRequest(ByteBuffer request) {
+            current.verifyRequest.verify(request);
+        }
+
+        public long getSleepTime(){
+            return current.getSleepTime();
+        }
+
+        /**
+      		 * Gets the scenario type.
+      		 *
+      		 * @return the scenario type
+      		 */
+      		public ScenarioType getScenarioType() {
+      			return current.scenarioType;
+      		}
+
+        public RequestType getRequestType(){
+            return current.getRequestType();
+        }
+
+        /**
+      		 * Gets the response.
+      		 *
+      		 * @return the response
+      		 */
+      		public ByteBuffer getResponse() {
+      			ByteBuffer buf = current.response;
+                current = it.next();
+                return buf;
+      		}
+
+        public boolean isMask(){
+            return current.isMask();
+        }
+    }
+
 	/**
 	 * The Class Scenario.
 	 *
@@ -396,19 +590,35 @@ public class MockServer extends Thread {
 		private final ScenarioType scenarioType;
 
         private final long sleepTime;
+        private RequestType requestType;
+        private boolean mask = false;
 
-		/**
+        /**
 		 * Instantiates a new scenario.
 		 *
 		 * @param scenarioType the scenario type
 		 */
 		public Scenario(ScenarioType scenarioType){
 			this.scenarioType = scenarioType;
+            this.requestType = RequestType.WebSocket;
             this.sleepTime = 0L;
 		}
 		
         public Scenario(ScenarioType scenarioType, long sleepTime){
       		this.scenarioType = scenarioType;
+            this.requestType = RequestType.WebSocket;
+            this.sleepTime = sleepTime;
+      	}
+
+        public Scenario(ScenarioType scenarioType, RequestType requestType){
+            this.scenarioType = scenarioType;
+            this.requestType = requestType;
+            this.sleepTime = 0L;
+        }
+
+        public Scenario(ScenarioType scenarioType, RequestType requestType, long sleepTime){
+      		this.scenarioType = scenarioType;
+            this.requestType = requestType;
             this.sleepTime = sleepTime;
       	}
 
@@ -466,7 +676,19 @@ public class MockServer extends Thread {
 		public ScenarioType getScenarioType() {
 			return this.scenarioType;
 		}
-	}
+
+        public RequestType getRequestType(){
+            return this.requestType;
+        }
+
+        public boolean isMask() {
+            return mask;
+        }
+
+        public void setMask(boolean mask) {
+            this.mask = mask;
+        }
+    }
 
 	/* (non-Javadoc)
 	 * @see java.lang.Thread#start()

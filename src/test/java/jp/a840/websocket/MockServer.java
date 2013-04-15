@@ -115,45 +115,56 @@ public class MockServer extends Thread {
             ByteBuffer buffer1 = ByteBuffer.allocate(8192);
             ByteBuffer buffer2 = ByteBuffer.allocate(8192);
             int offset = 0;
+            int position = 0;
+            Scenario current = null;
 			while (seq.hasNext()) {
+                if(current == null){
+                    current = seq.next();
+                }
                 Thread.sleep(seq.getSleepTime());
 				switch (seq.getScenarioType()) {
 				case READ:
                     ByteBuffer response = seq.getResponse();
+                    current = null;
 					PacketDumpUtil.printPacketDump("response" + responseCount, response);
 					responseCount++;
 					socket.register(selector, OP_WRITE);
 					selector.select();
 					socket.write(response);
-					break;
+					continue;
 				case WRITE:
-					socket.register(selector, OP_READ);
-					selector.select();
-                    buffer1.mark();
-                    buffer1.position(buffer1.position() + offset);
-                    buffer1.limit(buffer1.capacity());
-					socket.read(buffer1);
-                    buffer1.limit(buffer1.position());
-					buffer1.reset();
-					requestCount++;
-                    int processed;
-                    do {
-                        ByteBuffer buffer;
-                        if(RequestType.HTTP.equals(seq.getRequestType())){
-                            seq.verifyRequest(buffer1);
+                    requestCount++;
+                    if(position == buffer1.position()){
+    					socket.register(selector, OP_READ);
+	    				selector.select();
+                        buffer1.mark();
+                        buffer1.position(buffer1.position() + offset);
+                        buffer1.limit(buffer1.capacity());
+					    socket.read(buffer1);
+                        buffer1.limit(buffer1.position());
+					    buffer1.reset();
+                    }
+
+                    ByteBuffer buffer;
+                    if(RequestType.HTTP.equals(seq.getRequestType())){
+                        seq.verifyRequest(buffer1);
+                        current = null;
+                        offset = 0;
+                        continue;
+                    }else{
+                        buffer = readBuffer(seq.isMask(), buffer1.slice());
+                        if(buffer != null){
+                            seq.verifyRequest(buffer);
+                            current = null;
+                            buffer1.position(buffer1.position() + buffer.capacity());
                             offset = 0;
-                            break;
                         }else{
-                            buffer = readBuffer(seq.isMask(), buffer1.slice());
-                            if(buffer != null){
-                                seq.verifyRequest(buffer);
-                                buffer1.position(buffer1.position() + buffer.capacity());
-                                offset = 0;
-                            }else{
-                                break;
+                            if(buffer1.remaining() == 0){
+                                current = null;
                             }
+                            continue;
                         }
-                    }while(seq.hasNext());
+                    }
                     if(buffer1.remaining() > 0){
                         buffer2.put(buffer1);
                         offset = buffer2.position();
@@ -163,9 +174,10 @@ public class MockServer extends Thread {
                         buffer1 = buffer2;
                         buffer2 = tmp;
                     }
-					break;
+					continue;
 				case CLOSE:
 					ByteBuffer responseBuffer = seq.getResponse();
+                    current = null;
 					if(responseBuffer != null){
 						socket.register(selector, OP_WRITE);
 						selector.select();
@@ -175,6 +187,7 @@ public class MockServer extends Thread {
 					}
 					socket.close();
                     socket = null;
+                    continue;
 				}
 			}
 		} catch (Throwable t) {
@@ -492,7 +505,6 @@ public class MockServer extends Thread {
                 public void verify(ByteBuffer request) {
 //                    PacketDumpUtil.printPacketDump("request", request);
                     vr.verify(request);
-                    seq.next();
                 }
             };
             this.version = version;
@@ -526,7 +538,6 @@ public class MockServer extends Thread {
         public boolean hasNext(){
             if(it == null){
                 it = list.iterator();
-                current = it.next();
             }
             return it.hasNext();
         }
@@ -570,7 +581,6 @@ public class MockServer extends Thread {
       		 */
       		public ByteBuffer getResponse() {
       			ByteBuffer buf = current.response;
-                current = it.next();
                 return buf;
       		}
 

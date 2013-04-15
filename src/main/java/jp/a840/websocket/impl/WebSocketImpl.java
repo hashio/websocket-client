@@ -292,7 +292,7 @@ public class WebSocketImpl extends WebSocketBase {
             @Override
             protected FrameHeader createFrameHeader(ByteBuffer chunkData) {
                 FrameHeaderRfc6455 header = FrameBuilderRfc6455.createFrameHeader(chunkData, previousCreatedFrameHeader);
-                if (!header.isContinuation()) {
+                if (header != null && !header.isContinuation()) {
                     previousCreatedFrameHeader = header;
                 }
                 return header;

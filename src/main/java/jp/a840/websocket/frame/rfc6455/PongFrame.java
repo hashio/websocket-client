@@ -33,21 +33,21 @@ import jp.a840.websocket.frame.rfc6455.enums.Opcode;
  */
 public class PongFrame extends FrameRfc6455 {
 
-	/**
-	 * Instantiates a new pong frame.
-	 *
-	 * @param header the header
-	 * @param bodyData the contents data
-	 */
-	public PongFrame(FrameHeader header, byte[] bodyData) {
-		super(header, bodyData);
-	}
+    /**
+     * Instantiates a new pong frame.
+     *
+     * @param header   the header
+     * @param bodyData the contents data
+     */
+    public PongFrame(FrameHeader header, byte[] bodyData) {
+        super(header, bodyData);
+    }
 
-	/**
-	 * Instantiates a new pong frame.
-	 */
-	public PongFrame(){
-		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(null, false, Opcode.PONG);
-		setHeader(header);
-	}
+    /**
+     * Instantiates a new pong frame.
+     */
+    public PongFrame() {
+        FrameHeader header = FrameBuilderRfc6455.createFrameHeader(0, false, Opcode.PONG);
+        setHeader(header);
+    }
 }

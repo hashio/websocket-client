@@ -34,22 +34,22 @@ import jp.a840.websocket.frame.rfc6455.enums.Opcode;
  */
 public class CloseFrame extends FrameRfc6455 {
 
-	/**
-	 * Instantiates a new connection close frame.
-	 *
-	 * @param header the header
-	 * @param bodyData the contents data
-	 */
-	protected CloseFrame(FrameHeaderRfc6455 header, byte[] bodyData) {
-		super(header, bodyData);
-	}
+    /**
+     * Instantiates a new connection close frame.
+     *
+     * @param header   the header
+     * @param bodyData the contents data
+     */
+    protected CloseFrame(FrameHeaderRfc6455 header, byte[] bodyData) {
+        super(header, bodyData);
+    }
 
-	/**
-	 * Instantiates a new close frame.
-	 */
-	public CloseFrame(){
-		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(null, false, Opcode.CONNECTION_CLOSE);
-		setHeader(header);
-	}
+    /**
+     * Instantiates a new close frame.
+     */
+    public CloseFrame() {
+        FrameHeader header = FrameBuilderRfc6455.createFrameHeader(0, false, Opcode.CONNECTION_CLOSE);
+        setHeader(header);
+    }
 
 }

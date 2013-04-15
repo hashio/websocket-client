@@ -34,21 +34,21 @@ import jp.a840.websocket.frame.rfc6455.enums.Opcode;
  */
 public class PingFrame extends FrameRfc6455 {
 
-	/**
-	 * Instantiates a new ping frame.
-	 *
-	 * @param header the header
-	 * @param bodyData the contents data
-	 */
-	protected PingFrame(FrameHeaderRfc6455 header, byte[] bodyData) {
-		super(header, bodyData);
-	}
+    /**
+     * Instantiates a new ping frame.
+     *
+     * @param header   the header
+     * @param bodyData the contents data
+     */
+    protected PingFrame(FrameHeaderRfc6455 header, byte[] bodyData) {
+        super(header, bodyData);
+    }
 
-	/**
-	 * Instantiates a new ping frame.
-	 */
-	public PingFrame(){
-		FrameHeader header = FrameBuilderRfc6455.createFrameHeader(null, false, Opcode.PING);
-		setHeader(header);
-	}
+    /**
+     * Instantiates a new ping frame.
+     */
+    public PingFrame() {
+        FrameHeader header = FrameBuilderRfc6455.createFrameHeader(0, false, Opcode.PING);
+        setHeader(header);
+    }
 }

@@ -191,7 +191,7 @@ public class FrameBuilderRfc6455 {
      */
     public static FrameHeaderRfc6455 createFrameHeader(int payloadLength, boolean fragmented, Opcode opcode) {
         PayloadLengthType payloadLengthType = PayloadLengthType.valueOf(payloadLength);
-        return new FrameHeaderRfc6455(false, 2, payloadLengthType, (int) payloadLength, opcode);
+        return new FrameHeaderRfc6455(fragmented, 2, payloadLengthType, (int) payloadLength, opcode);
     }
 
     /**

@@ -33,28 +33,26 @@ import java.nio.ByteBuffer;
  */
 public class MaskDecoder {
 
-    private byte[] seed;
+    private byte[] key;
 
     private int c = 0;
 
-    public MaskDecoder(byte[] seed){
-        this.seed = seed;
+    public MaskDecoder(byte[] key) {
+        this.key = key;
     }
 
-    public void decode(ByteBuffer masked, int offset, int length){
-        if(length <= 0){
+    public void decode(ByteBuffer masked, int offset, int length) {
+        if (length <= 0) {
             return;
         }
         int idx = masked.position() + offset;
-        masked.position(idx);
-        masked.limit(idx + length);
         c = (c + offset) % 4;
-        for(int i = 0; i < length; i++){
-            masked.put(idx++, (byte) (masked.get() ^ seed[c++ % 4]));
+        for (int i = 0; i < length; i++, idx++) {
+            masked.put(idx, (byte) (masked.get(idx) ^ key[c++ % 4]));
         }
     }
 
-    public void decode(ByteBuffer masked){
+    public void decode(ByteBuffer masked) {
         decode(masked, 0, masked.remaining());
     }
 }

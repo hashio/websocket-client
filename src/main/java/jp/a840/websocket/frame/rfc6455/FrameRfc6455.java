@@ -31,10 +31,10 @@ import jp.a840.websocket.frame.rfc6455.enums.Opcode;
 import java.nio.ByteBuffer;
 
 /**
- *  WebSocket Frame class
- *
- *  Frame (RFC6455)
- *  <pre>
+ * WebSocket Frame class
+ * <p/>
+ * Frame (RFC6455)
+ * <pre>
  *  0                   1                   2                   3
  *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  * +-+-+-+-+-------+-+-------------+-------------------------------+
@@ -56,62 +56,65 @@ import java.nio.ByteBuffer;
  * </pre>
  * payload length = extention data length + application data length.
  * the extention data length may be zero.
- *
+ * <p/>
  * Support WebSocket Draft06 specification.
  *
  * @author t-hashimoto
- *
  */
 abstract public class FrameRfc6455 extends Frame implements Maskable {
 
-	/**
-	 * Instantiates a new frame draft06.
-	 */
-	protected FrameRfc6455(){
-	}
-
-	/**
-	 * Instantiates a new frame draft06.
-	 *
-	 * @param header the header
-	 * @param bodyData the contents data
-	 */
-	protected FrameRfc6455(FrameHeader header, byte[] bodyData){
-		super(header, bodyData);
-	}
-	
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.frame.Frame#toByteBuffer()
-	 */
-	public ByteBuffer toByteBuffer(){
-		ByteBuffer headerBuffer = header.toByteBuffer();
-		int bodyLength = 0;
-		if(contents != null){
-			bodyLength = contents.length;
-		}
-		ByteBuffer buf = ByteBuffer.allocate(headerBuffer.limit() + bodyLength); // mask-key + header + contents
-		buf.put(headerBuffer);
-		if(contents != null){
-			buf.put(contents);
-		}
-		buf.flip();
-		return buf;
-	}
-	
-	/**
-	 * Checks if is continuation frame.
-	 *
-	 * @return true, if is continuation frame
-	 */
-	public boolean isContinuationFrame(){
-		return ((FrameHeaderRfc6455)header).getOpcode().equals(Opcode.CONTINUATION);
-	}
-
-    public void unmask(){
-        ((FrameHeaderRfc6455)header).setMask(false);
+    /**
+     * Instantiates a new frame draft06.
+     */
+    protected FrameRfc6455() {
     }
 
-    public void mask(){
-        ((FrameHeaderRfc6455)header).setMask(true);
+    /**
+     * Instantiates a new frame draft06.
+     *
+     * @param header   the header
+     * @param bodyData the contents data
+     */
+    protected FrameRfc6455(FrameHeader header, byte[] bodyData) {
+        super(header, bodyData);
+    }
+
+    /* (non-Javadoc)
+     * @see jp.a840.websocket.frame.Frame#toByteBuffer()
+     */
+    public ByteBuffer toByteBuffer() {
+        ByteBuffer headerBuffer = header.toByteBuffer();
+        int bodyLength = 0;
+        if (contents != null) {
+            bodyLength = contents.length;
+        }
+
+        // this reserve field used in MaskFrameStreamHandler for avoid copy buffer
+        ByteBuffer buf = ByteBuffer.allocate(4 + headerBuffer.limit() + bodyLength); // mask key + header + contents
+        buf.position(4); // reserve for mask key.
+        buf = buf.slice(); // set offset to ByteBuffer.
+        buf.put(headerBuffer);
+        if (contents != null) {
+            buf.put(contents);
+        }
+        buf.flip();
+        return buf;
+    }
+
+    /**
+     * Checks if is continuation frame.
+     *
+     * @return true, if is continuation frame
+     */
+    public boolean isContinuationFrame() {
+        return ((FrameHeaderRfc6455) header).getOpcode().equals(Opcode.CONTINUATION);
+    }
+
+    public void unmask() {
+        ((FrameHeaderRfc6455) header).setMask(false);
+    }
+
+    public void mask() {
+        ((FrameHeaderRfc6455) header).setMask(true);
     }
 }

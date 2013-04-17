@@ -38,9 +38,6 @@ import java.nio.ByteBuffer;
 public class FrameBuilderRfc6455 {
 
 
-
-
-
     /**
      * The Constant FIN_MASK.
      */
@@ -165,6 +162,34 @@ public class FrameBuilderRfc6455 {
         if (body != null) {
             payloadLength = body.length;
         }
+        return createFrameHeader(payloadLength, fragmented, opcode);
+    }
+
+    /**
+     * Creates the frame header.
+     *
+     * @param body       the contents
+     * @param fragmented the fragmented
+     * @param opcode     the opcode
+     * @return the frame header draft06
+     */
+    public static FrameHeaderRfc6455 createFrameHeader(ByteBuffer body, boolean fragmented, Opcode opcode) {
+        int payloadLength = 0;
+        if (body != null) {
+            payloadLength = body.remaining();
+        }
+        return createFrameHeader(payloadLength, fragmented, opcode);
+    }
+
+    /**
+     * Creates the frame header.
+     *
+     * @param payloadLength the length of contents
+     * @param fragmented    the fragmented
+     * @param opcode        the opcode
+     * @return the frame header draft06
+     */
+    public static FrameHeaderRfc6455 createFrameHeader(int payloadLength, boolean fragmented, Opcode opcode) {
         PayloadLengthType payloadLengthType = PayloadLengthType.valueOf(payloadLength);
         return new FrameHeaderRfc6455(false, 2, payloadLengthType, (int) payloadLength, opcode);
     }

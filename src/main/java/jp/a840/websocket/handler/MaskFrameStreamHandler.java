@@ -23,12 +23,12 @@
  */
 package jp.a840.websocket.handler;
 
-import java.nio.ByteBuffer;
-import java.util.Random;
-
 import jp.a840.websocket.WebSocket;
 import jp.a840.websocket.exception.WebSocketException;
 import jp.a840.websocket.frame.Frame;
+
+import java.nio.ByteBuffer;
+import java.util.Random;
 
 /**
  * The Class MaskFrameStreamHandler.
@@ -36,34 +36,43 @@ import jp.a840.websocket.frame.Frame;
  * @author Takahiro Hashimoto
  */
 public class MaskFrameStreamHandler extends StreamHandlerAdapter {
-	/** The random. */
-	private Random random = new Random();
+    /**
+     * The random.
+     */
+    private Random random = new Random();
 
-	/* (non-Javadoc)
-	 * @see jp.a840.websocket.handler.StreamHandlerAdapter#nextUpstreamHandler(jp.a840.websocket.WebSocket, java.nio.ByteBuffer, jp.a840.websocket.frame.Frame, jp.a840.websocket.handler.StreamHandlerChain)
-	 */
-	@Override
-	public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
-			Frame frame, StreamHandlerChain chain) throws WebSocketException {
-        buffer.put(1, (byte)(buffer.get(1) | 0x80)); // force set mask bit;
-		ByteBuffer buf = ByteBuffer.allocate(4 + buffer.remaining()); // mask-key + header + contents
+    /* (non-Javadoc)
+     * @see jp.a840.websocket.handler.StreamHandlerAdapter#nextUpstreamHandler(jp.a840.websocket.WebSocket, java.nio.ByteBuffer, jp.a840.websocket.frame.Frame, jp.a840.websocket.handler.StreamHandlerChain)
+     */
+    @Override
+    public void nextUpstreamHandler(WebSocket ws, ByteBuffer buffer,
+                                    Frame frame, StreamHandlerChain chain) throws WebSocketException {
+        buffer.put(1, (byte) (buffer.get(1) | 0x80)); // force set mask bit;
+        int maskkeyOffset = 2;
+        if (buffer.get(buffer.position() + 1) == (byte) 0xFE) {
+            maskkeyOffset = 4;
+        } else if (buffer.get(buffer.position() + 1) == 0xFF) {
+            maskkeyOffset = 10;
+        }
+
+        // avoid copy buffer
+        // buffer already reserved mask key field in FrameRfc6455
+        ByteBuffer buf = ByteBuffer.wrap(buffer.array());
         int limit = buffer.limit();
-        buffer.limit(buffer.position() + 2);
+        buffer.limit(buffer.position() + maskkeyOffset);
         buf.put(buffer);
-		buf.putInt(random.nextInt());
         buffer.limit(limit);
-		buf.put(buffer);
-		buf.flip();
+        buf.putInt(random.nextInt());
 
-		byte[] maskkey = new byte[4];
-        buf.position(buf.position() + 2);
-		buf.get(maskkey, 0, 4);
-		int m = 0;
-		while (buf.hasRemaining()) {
-			int position = buf.position();
-			buf.put((byte) (buf.get(position) ^ maskkey[m++ % 4]));
-		}
-		buf.flip();
-		chain.nextUpstreamHandler(ws, buf, frame);
-	}
+        byte[] maskkey = new byte[4];
+        buf.position(maskkeyOffset);
+        buf.get(maskkey, 0, 4);
+        int m = 0;
+        while (buf.hasRemaining()) {
+            int position = buf.position();
+            buf.put((byte) (buf.get(position) ^ maskkey[m++ % 4]));
+        }
+        buf.flip();
+        chain.nextUpstreamHandler(ws, buf, frame);
+    }
 }

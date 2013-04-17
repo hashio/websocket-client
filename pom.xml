@@ -3,11 +3,10 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>jp.a840.websocket</groupId>
   <artifactId>websocket-client</artifactId>
-  <version>0.8.6-SNAPSHOT</version>
+  <version>0.8.7-SNAPSHOT</version>
   <name>websocket-client</name>
   <url>http://maven.apache.org</url>
   <properties>
-    <jna.version>3.5.0</jna.version>
     <powermock.version>1.4.9</powermock.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

@@ -157,6 +157,5 @@ Base64
 - Licence (BSD)
 - Copyright (c) 2004, Mikael Grev, MiG InfoCom AB. (base64 @ miginfocom . com) All rights reserved.
 
-[![Click here to lend your support to: websocket-client and make a donation at www.pledgie.com !](http://www.pledgie.com/campaigns/19102.png?skin_name=chrome)](http://www.pledgie.com/campaigns/19102)
 
 
